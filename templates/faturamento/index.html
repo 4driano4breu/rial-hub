@@ -1,24 +1,35 @@
 {% extends "base.html" %}
 {% block title %}Faturamento NFS-e — RIAL Hub{% endblock %}
-{% block nav_cur %}Faturamento{% endblock %}
+{% block nav_cur %}Faturamento NFS-e{% endblock %}
 
 {% block head %}
 <style>
   .module-header { display:flex; align-items:center; gap:14px; margin-bottom:28px; }
-  .module-icon { width:48px; height:48px; background:#05966920; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+  .module-icon { width:48px; height:48px; background:#3b82f620; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
   .module-title { font-size:1.3rem; font-weight:700; }
   .module-sub { color:var(--muted); font-size:.82rem; margin-top:3px; }
 
-  .roadmap { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px; }
-  .roadmap-title { font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:600; margin-bottom:18px; }
-  .roadmap-item { display:flex; align-items:flex-start; gap:14px; padding:14px 0; border-bottom:1px solid var(--border); }
-  .roadmap-item:last-child { border-bottom:none; }
-  .step-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:700; flex-shrink:0; margin-top:1px; }
-  .dot-done { background:#10b98120; color:#34d399; border:1px solid #10b98140; }
-  .dot-next { background:#3b82f620; color:#93c5fd; border:1px solid #3b82f640; }
-  .dot-later { background:#33415530; color:var(--muted); border:1px solid var(--border); }
-  .step-label { font-size:.88rem; font-weight:600; margin-bottom:3px; }
-  .step-desc { font-size:.78rem; color:var(--muted); line-height:1.5; }
+  .cards-row { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:24px; }
+  @media(max-width:680px){ .cards-row { grid-template-columns:1fr; } }
+
+  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px; }
+  .card-title { font-size:.75rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:600; margin-bottom:16px; }
+  .card-body { font-size:.88rem; color:var(--muted); margin-bottom:18px; line-height:1.6; }
+
+  .btn { display:inline-flex; align-items:center; gap:7px; padding:9px 18px; border-radius:8px; font-size:.86rem; font-weight:600; cursor:pointer; text-decoration:none; border:none; transition:opacity .15s; }
+  .btn-blue { background:var(--accent); color:#fff; }
+  .btn-blue:hover { opacity:.85; }
+  .btn-green { background:#059669; color:#fff; width:100%; justify-content:center; margin-top:6px; }
+  .btn-green:hover { opacity:.85; }
+
+  .form-group { margin-bottom:14px; }
+  .form-label { display:block; font-size:.78rem; font-weight:600; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.04em; }
+  .form-label span.opt { font-weight:400; color:#64748b; text-transform:none; letter-spacing:0; }
+  input[type="file"] { display:block; width:100%; background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:8px 10px; color:var(--text); font-size:.84rem; cursor:pointer; }
+  input[type="file"]:hover { border-color:var(--accent); }
+
+  .info-box { background:var(--card2); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:8px; padding:14px 18px; font-size:.82rem; color:var(--muted); line-height:1.6; }
+  .info-box strong { color:var(--text); }
 </style>
 {% endblock %}
 
@@ -27,44 +38,39 @@
   <div class="module-icon">💰</div>
   <div>
     <div class="module-title">Faturamento NFS-e</div>
-    <div class="module-sub">Contrato 037/2021 · Automação de XMLs de Nota Fiscal de Serviço</div>
+    <div class="module-sub">Contrato 037/2021 · Importação de XMLs de Nota Fiscal de Serviço Eletrônica</div>
   </div>
 </div>
 
-<div class="roadmap">
-  <div class="roadmap-title">Roadmap de integração</div>
-
-  <div class="roadmap-item">
-    <div class="step-dot dot-done">✓</div>
-    <div>
-      <div class="step-label">Script base disponível</div>
-      <div class="step-desc">O script <code>atualizar_faturamento.py</code> já existe e processa XMLs de NFS-e localmente.</div>
+<div class="cards-row">
+  <!-- Card 1: Dashboard -->
+  <div class="card">
+    <div class="card-title">Dashboard</div>
+    <div class="card-body">
+      Visualize os dados de faturamento consolidados no dashboard interativo. Os dados são atualizados conforme a planilha for importada.
     </div>
+    <a class="btn btn-blue" href="/faturamento/dashboard" target="_blank">📊 Abrir Dashboard</a>
   </div>
 
-  <div class="roadmap-item">
-    <div class="step-dot dot-next">2</div>
-    <div>
-      <div class="step-label">Upload de XMLs via interface</div>
-      <div class="step-desc">Formulário para envio de um ou múltiplos arquivos XML de NFS-e para processamento.</div>
-    </div>
+  <!-- Card 2: Atualizar Planilha -->
+  <div class="card">
+    <div class="card-title">Atualizar Planilha</div>
+    <form method="POST" action="/faturamento/atualizar" enctype="multipart/form-data">
+      <div class="form-group">
+        <label class="form-label" for="xml">XML de NFS-e</label>
+        <input type="file" id="xml" name="xml" accept=".xml" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="xlsx">Planilha .xlsx <span class="opt">(só na primeira vez)</span></label>
+        <input type="file" id="xlsx" name="xlsx" accept=".xlsx">
+      </div>
+      <button type="submit" class="btn btn-green">⬆ Importar NFS-e</button>
+    </form>
   </div>
+</div>
 
-  <div class="roadmap-item">
-    <div class="step-dot dot-later">3</div>
-    <div>
-      <div class="step-label">Extração e consolidação</div>
-      <div class="step-desc">Extração automática de contrato, município, competência e valores de impostos (ISS, INSS, IR).</div>
-    </div>
-  </div>
-
-  <div class="roadmap-item">
-    <div class="step-dot dot-later">4</div>
-    <div>
-      <div class="step-label">Atualização da planilha mensal</div>
-      <div class="step-desc">Download da planilha <code>.xlsx</code> de faturamento atualizada com os dados extraídos.</div>
-    </div>
-  </div>
-
+<div class="info-box">
+  <strong>Fluxo:</strong> XML NFS-e → atualiza planilha xlsx. O dashboard HTML é atualizado separadamente.<br>
+  Na <strong>primeira importação</strong>, envie também a planilha .xlsx base. Nas importações seguintes, apenas o XML é necessário.
 </div>
 {% endblock %}

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Usinagem Geral — RIAL Hub</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8;color:#1a2636}
+header{background:linear-gradient(135deg,#1a2636 0%,#2c3e50 100%);color:white;padding:28px 40px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+header h1{font-size:1.5rem;font-weight:700}
+header p{font-size:.85rem;opacity:.8;margin-top:4px}
+header .meta{text-align:right;font-size:.82rem;opacity:.8}
+header .meta strong{display:block;font-size:1rem;opacity:1}
+.container{max-width:1200px;margin:0 auto;padding:28px 20px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi{background:white;border-radius:12px;padding:20px 22px;box-shadow:0 2px 10px rgba(0,0,0,.07);border-top:4px solid #2c3e50}
+.kpi.blue{border-top-color:#2980b9}.kpi.green{border-top-color:#27ae60}.kpi.orange{border-top-color:#e67e22}.kpi.purple{border-top-color:#8e44ad}
+.kpi-label{font-size:.75rem;color:#7f8c8d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.kpi-value{font-size:2rem;font-weight:700;color:#1a2636}
+.kpi-unit{font-size:.8rem;color:#7f8c8d;margin-top:2px}
+.section-title{font-size:1rem;font-weight:700;color:#1a2636;margin:28px 0 14px;border-left:4px solid #2980b9;padding-left:12px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.card{background:white;border-radius:12px;padding:24px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.card h3{font-size:.88rem;color:#2c3e50;margin-bottom:16px;font-weight:600}
+.legend-ext{display:flex;gap:18px;font-size:.78rem;margin-bottom:12px}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle}
+.dot-int{background:#3498db}.dot-ext{background:#e74c3c}.dot-aeg{background:#e67e22}.dot-gua{background:#27ae60}
+.table-card{background:white;border-radius:12px;padding:24px;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:24px}
+.table-card h3{font-size:.88rem;color:#2c3e50;margin-bottom:12px;font-weight:600}
+.filters{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.filters input,.filters select{padding:7px 12px;border:1px solid #dce3ec;border-radius:8px;font-size:.82rem;background:white;color:#1a2636;outline:none}
+.filters input{flex:1;min-width:180px}
+.filters input:focus,.filters select:focus{border-color:#2980b9}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{background:#2c3e50;color:white;padding:10px 13px;text-align:left;font-weight:600;cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{background:#1a2636}
+td{padding:8px 13px;border-bottom:1px solid #edf2f7;white-space:nowrap}
+tr:hover td{background:#f0f7ff}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.75rem;font-weight:600}
+.badge-int{background:#dbeafe;color:#1d4ed8}
+.badge-ext{background:#fee2e2;color:#b91c1c}
+.badge-aeg{background:#fde8d0;color:#b45309}
+.badge-gua{background:#d4edda;color:#155724}
+.info-count{font-size:.78rem;color:#7f8c8d;margin-top:8px}
+footer{text-align:center;padding:20px;color:#aab;font-size:.76rem}
+@media(max-width:800px){.kpi-grid,.two-col{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.kpi-grid{grid-template-columns:1fr}}
+/* HUB DARK OVERRIDE */
+body{background:#0f172a!important;color:#f1f5f9!important}
+.container,.kpi,.card,.table-card,.two-col>*{background:#1e293b!important;color:#f1f5f9!important}
+.kpi-label,.kpi-unit{color:#94a3b8!important}
+.kpi-value{color:#f1f5f9!important}
+.card h3,.section-title,.table-card h3{color:#f1f5f9!important;border-left-color:#3b82f6!important}
+th{background:#0f172a!important;color:#94a3b8!important}
+td{border-bottom-color:#334155!important;color:#cbd5e1!important}
+tr:hover td{background:#263348!important}
+header{background:linear-gradient(135deg,#1e3a5f 0%,#0f172a 100%)!important}
+</style>
+</head>
+<body>
+<nav style="background:#0f172a;border-bottom:1px solid #334155;padding:0 24px;height:46px;display:flex;align-items:center;gap:8px;font-family:'Segoe UI',system-ui,sans-serif;position:sticky;top:0;z-index:9999">
+  <a href="/" style="font-size:.85rem;font-weight:700;color:#3b82f6;text-decoration:none">RIAL Hub</a>
+  <span style="color:#334155;font-size:.9rem">/</span>
+  <span style="font-size:.8rem;color:#94a3b8">Usinagem</span>
+  <span style="color:#334155;font-size:.9rem">/</span>
+  <span style="font-size:.78rem;color:#64748b">Dashboard Geral</span>
+  <a href="/usinagem/" style="margin-left:auto;font-size:.78rem;color:#64748b;text-decoration:none">← Módulo</a>
+</nav>
+<header>
+  <div>
+    <h1>Controle Geral de Usinagem CBUQ</h1>
+    <p>Todas as viagens · Massa produzida e destinos</p>
+  </div>
+  <div class="meta">
+    <strong id="dataAtual"></strong>
+    Relatório Interno
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="section-title">📍 Destino da Massa — Externo vs. Interno</div>
+  <div class="two-col">
+    <div class="card">
+      <h3>🏗️ Massa por Região (toneladas)</h3>
+      <canvas id="chartRegiao" height="280"></canvas>
+    </div>
+    <div class="card">
+      <h3>⚖️ Distribuição Interno / Externo / Contratos</h3>
+      <div class="legend-ext">
+        <span><span class="dot dot-int"></span>Interno</span>
+        <span><span class="dot dot-ext"></span>Externo/Terceiros</span>
+        <span><span class="dot dot-aeg"></span>AEGEA</span>
+        <span><span class="dot dot-gua"></span>Águas Guariroba</span>
+      </div>
+      <canvas id="chartPizza" height="240"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title">📅 Produção ao Longo do Tempo</div>
+  <div class="card" style="margin-bottom:24px">
+    <h3>📈 Toneladas por Data (barras = diário · linha = acumulado)</h3>
+    <canvas id="chartTempo" height="180"></canvas>
+  </div>
+
+  <div class="section-title">🚛 Motoristas</div>
+  <div class="card" style="margin-bottom:24px">
+    <h3>🏆 Motoristas que mais carregaram (toneladas)</h3>
+    <canvas id="chartMot" height="200"></canvas>
+  </div>
+
+  <div class="section-title">📋 Detalhamento de Todas as Viagens</div>
+  <div class="table-card">
+    <div class="filters">
+      <input type="text" id="busca" placeholder="🔍 Buscar motorista, placa, região, ticket...">
+      <select id="filtroRegiao"><option value="">Todas as regiões</option></select>
+      <select id="filtroTipo">
+        <option value="">Todos os tipos</option>
+        <option value="INT">Interno</option>
+        <option value="EXT">Externo</option>
+        <option value="AEG">AEGEA</option>
+        <option value="GUA">Águas Guariroba</option>
+      </select>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortTable(0)">Data ▾</th>
+            <th onclick="sortTable(1)">Ticket</th>
+            <th onclick="sortTable(2)">Placa</th>
+            <th onclick="sortTable(3)">Motorista</th>
+            <th onclick="sortTable(4)">Entrada</th>
+            <th onclick="sortTable(5)">Saída</th>
+            <th onclick="sortTable(6)">Tara (t)</th>
+            <th onclick="sortTable(7)">Peso (t)</th>
+            <th onclick="sortTable(8)">Região</th>
+            <th>Tipo</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="info-count" id="infoCount"></div>
+  </div>
+</div>
+<footer>Relatório gerado em <span id="gerado"></span> · <span id="totalRows"></span> registros · CBUQ = massa asfáltica</footer>
+
+<script>
+const ROWS = [
+["23/05/2026","1634","CPI6418","DIOGO","08:17","08:54","9.68","19.41","TJ SANEAMENTO"],
+["23/05/2026","1633","BML2531","DARCI","07:52","08:17","8.93","15.67","TJ SANEAMENTO"],
+["23/05/2026","1632","BBW4A00","DIOGO CHAVES","07:27","07:52","8.85","15.32","TJ SANEAMENTO"],
+["23/05/2026","1631","HQR4D09","JEFET","06:54","07:27","9.20","19.07","TJ SANEAMENTO"],
+["23/05/2026","1630","HTQ3F44","LUIZ","06:11","06:54","11.410","24.77","AEGEA"],
+["22/05/2026","1629","LZB7B92","RAFAEL","07:59","08:05","8.85","5.24","AGUAS GUARIROBA -TDC"],
+["22/05/2026","1628","HRO8J03","ANTÔNIO CARLOS","07:46","07:59","10.30","4.82","AGUAS GUARIROBA -TDC"],
+["22/05/2026","1627","HTP2I40","JONAS","07:36","07:46","9.82","5.24","AGUAS GUARIROBA -TDC"],
+["22/05/2026","1626","HTQ4263","RODRIGO","07:29","07:36","9.68","5.37","AGUAS GUARIROBA - RIAL"],
+["22/05/2026","1625","QAJ2389","AUGUSTO","07:01","07:29","12.97","4.88","AGUAS GUARIROBA - RIAL"],
+["22/05/2026","1624","HTQ4C66","OSMIR","06:38","07:01","9.74","25.74","AEGEA"],
+["21/05/2026","1623","LZB7B92","RAFAEL","08:07","08:15","8.99","5.14","AGUAS GUARIROBA -TDC"],
+["21/05/2026","1622","HRO8J03","ANTÔNIO CARLOS","07:58","08:07","10.11","5.23","AGUAS GUARIROBA -TDC"],
+["21/05/2026","1621","HTP2I40","JONAS","07:49","07:58","9.86","5.11","AGUAS GUARIROBA -TDC"],
+["21/05/2026","1620","QAJ2389","AUGUSTO","07:34","07:49","12.95","6.16","AGUAS GUARIROBA - RIAL"],
+["21/05/2026","1619","HTQ3F44","LUIZ","07:01","07:34","10.52","25.82","ANHANDUIZINHO"],
+["21/05/2026","1618","HTQ4C66","OSMIR","06:37","07:01","9.79","25.49","ANHANDUIZINHO"],
+["21/05/2026","1617","HTQ4263","RODRIGO","06:02","06:37","9.93","25.39","ANHANDUIZINHO"],
+["21/05/2026","1616","NSB9C49","ALEXANDRE","05:37","06:02","10.44","20.54","QUEBRA MOLA"],
+["20/05/2026","1615","HTQ3F44","LUIZ","09:46","10:18","10.43","25.45","ANHANDUIZINHO"],
+["20/05/2026","1614","HTQ4C66","OSMIR","09:15","09:46","9.74","25.38","ANHANDUIZINHO"],
+["20/05/2026","1613","BML2531","DARCI","08:52","09:15","8.99","14.08","TJ SANEAMENTO"],
+["20/05/2026","1612","HTQ4263","RODRIGO","08:36","08:52","9.90","25.66","ANHANDUIZINHO"],
+["20/05/2026","1611","LZB7B92","RAFAEL","08:24","08:36","8.99","5.27","AGUAS GUARIROBA -TDC"],
+["20/05/2026","1610","HRO8J03","ANTÔNIO CARLOS","08:12","08:24","10.00","5.32","AGUAS GUARIROBA -TDC"],
+["20/05/2026","1609","HTP2I40","JONAS","08:00","08:12","9.90","5.67","AGUAS GUARIROBA -TDC"],
+["20/05/2026","1608","QAJ2389","AUGUSTO","07:44","08:00","12.95","5.64","AGUAS GUARIROBA - RIAL"],
+["20/05/2026","1607","NSB9C49","ALEXANDRE","07:02","07:44","10.44","25.68","QUEBRA MOLA"],
+["18/05/2026","1606","HTQ4C66","OSMIR","08:05","08:48","9.74","25.36","SEGREDO"],
+["18/05/2026","1605","FFN5E40","LEOVANI","07:48","08:05","11.50","21.54","TERCEIROS - JOSUE"],
+["18/05/2026","1604","LZB7B92","RAFAEL","07:35","07:48","8.92","6.38","AGUAS GUARIROBA -TDC"],
+["18/05/2026","1603","HRO8J03","ANTÔNIO CARLOS","07:28","07:35","10.10","5.61","AGUAS GUARIROBA -TDC"],
+["18/05/2026","1602","HTP2I40","JONAS","07:17","07:28","9.83","6.29","AGUAS GUARIROBA -TDC"],
+["18/05/2026","1601","QAJ2389","AUGUSTO","07:02","07:17","12.90","6.67","AGUAS GUARIROBA - RIAL"],
+["18/05/2026","1600","NSB9C49","ALEXANDRE","06:21","07:02","10.44","25.53","ANHANDUIZINHO"],
+["18/05/2026","1599","HSH0C00","MIGUEL","05:36","06:21","10.37","25.66","IMBIRUSSU"],
+["16/05/2026","1598","CPI6418","DIOGO","08:55","09:20","9.74","14.23","TJ SANEAMENTO"],
+["16/05/2026","1597","BML2531","DARCI","08:30","08:55","8.99","14.29","TJ SANEAMENTO"],
+["16/05/2026","1596","BXB6F17","FABIO","07:56","08:30","11.83","14.70","TJ SANEAMENTO"],
+["16/05/2026","1595","BBW4A00","DIOGO","07:34","07:56","8.82","14.14","TJ SANEAMENTO"],
+["16/05/2026","1594","HTQ3F44","LUIZ","07:00","07:34","10.43","25.64","ANHANDUIZINHO"],
+["16/05/2026","1593","FFN5E40","ELSO","06:27","07:00","13.80","22.45","TERCEIROS - JOSUE"],
+["16/05/2026","1592","HTQ4263","RODRIGO","05:53","06:27","9.90","25.65","ANHANDUIZINHO2"],
+["16/05/2026","1591","NSB9C49","ALEXANDRE","05:19","05:53","10.44","25.43","ANHANDUIZINHO"],
+["16/05/2026","1590","HSH0C00","MIGUEL","04:41","05:19","10.37","25.76","IMBIRUSSU"],
+["15/05/2026","1589","HTQ4C66","OSMIR","10:07","10:39","9.74","25.66","ANHANDUIZINHO2"],
+["15/05/2026","1588","FFN5E40","ELSO","09:44","10:07","11.90","14.28","TERCEIROS - JOSUE"],
+["15/05/2026","1587","LZB7B92","RAFAEL","09:36","09:44","8.99","5.98","AGUAS GUARIROBA -TDC"],
+["15/05/2026","1586","HRO8J03","ANTÔNIO CARLOS","09:25","09:36","10.01","6.56","AGUAS GUARIROBA -TDC"],
+["15/05/2026","1585","HTP2I40","JONAS","09:17","09:25","9.89","5.50","AGUAS GUARIROBA -TDC"],
+["15/05/2026","1584","QAJ2389","AUGUSTO","09:06","09:17","11.36","5.63","AGUAS GUARIROBA - RIAL"],
+["15/05/2026","1583","NSB9C49","ALEXANDRE","08:32","09:06","10.44","25.43","ANHANDUIZINHO"],
+["15/05/2026","1582","HSH0C00","MIGUEL","07:57","08:32","10.37","25.55","IMBIRUSSU"],
+["14/05/2026","1573","HTQ4263","RODRIGO","08:33","09:06","9.82","25.88","ANHANDUIZINHO"],
+["14/05/2026","1572","HTQ3F44","LUIZ","08:01","08:33","9.60","25.44","ANHANDUIZINHO"],
+["14/05/2026","1571","NRP7G12","ADRIANO","07:28","08:01","10.36","25.88","IMBIRUSSU"],
+["14/05/2026","1570","HTQ4C66","OSMIR","06:54","07:28","9.88","25.66","ANHANDUIZINHO2"],
+["14/05/2026","1569","LZB7B92","RAFAEL","06:47","06:54","8.79","5.30","AGUAS GUARIROBA -TDC"],
+["14/05/2026","1568","HRO8J03","ANTÔNIO CARLOS","06:35","06:47","9.97","5.40","AGUAS GUARIROBA -TDC"],
+["14/05/2026","1567","HTP2I40","JONAS","06:28","06:35","9.72","5.32","AGUAS GUARIROBA -TDC"],
+["14/05/2026","1566","QAJ2389","AUGUSTO","06:10","06:28","12.84","5.75","AGUAS GUARIROBA - RIAL"],
+["14/05/2026","1565","NSB9C49","ALEXANDRE","05:43","06:10","10.37","25.37","ANHANDUIZINHO"],
+["14/05/2026","1564","KWP6E40","ELSO","05:20","05:43","11.90","14.35","TERCEIROS - JOSUE"],
+["14/05/2026","1563","HSK0C00","MIGUEL","04:45","05:20","10.28","25.57","IMBIRUSSU"],
+["13/05/2026","1562","HTQ4263","RODRIGO","08:43","09:20","9.87","25.35","ANHANDUIZINHO"],
+["13/05/2026","1561","HTQ3F44","LUIZ","08:10","08:43","9.68","25.36","ANHANDUIZINHO"],
+["13/05/2026","1560","NRP7G12","ADRIANO","07:34","08:10","10.49","25.78","IMBIRUSSU"],
+["13/05/2026","1559","LZB7B92","RAFAEL","07:27","07:34","8.85","5.95","AGUAS GUARIROBA -TDC"],
+["13/05/2026","1558","HRO8J03","ANTÔNIO CARLOS","07:16","07:27","10.05","5.41","AGUAS GUARIROBA -TDC"],
+["13/05/2026","1557","HTP2I40","JONAS","07:04","07:16","9.80","5.39","AGUAS GUARIROBA -TDC"],
+["13/05/2026","1556","HTQ4C66","OSMIR","06:29","07:04","9.93","25.33","ANHANDUIZINHO2"],
+["13/05/2026","1555","NSB9C49","ALEXANDRE","05:56","06:29","10.41","25.54","ANHANDUIZINHO"],
+["13/05/2026","1554","QAJ2389","AUGUSTO","05:43","05:56","12.90","5.40","AGUAS GUARIROBA - RIAL"],
+["13/05/2026","1553","KWP6E40","ELSO","05:21","05:43","11.90","13.69","TERCEIROS - JOSUE"],
+["13/05/2026","1552","HSH0C00","MIGUEL","04:43","05:21","10.34","25.67","IMBIRUSSU"],
+["12/05/2026","1551","HSF6629","ANDERSON","09:32","10:02","9.14","20.46","AEGEA"],
+["12/05/2026","1550","HTQ3F44","LUIZ","09:02","09:32","9.73","25.51","ANHANDUIZINHO"],
+["12/05/2026","1549","LZB7B92","RAFAEL","08:43","09:02","8.84","5.39","AGUAS GUARIROBA -TDC"],
+["12/05/2026","1548","HRO8J03","ANTÔNIO CARLOS","08:30","08:43","9.98","5.52","AGUAS GUARIROBA -TDC"],
+["12/05/2026","1547","HTP2I40","CRISTINO","08:30","08:43","9.80","6.80","AGUAS GUARIROBA -TDC"],
+["12/05/2026","1546","QAJ2389","AUGUSTO","08:18","08:30","11.22","5.57","AGUAS GUARIROBA - RIAL"],
+["12/05/2026","1545","FFN5E40","ELSO","07:36","08:18","11.50","22.57","TERCEIROS - JOSUE"],
+["12/05/2026","1544","NRP7G12","ADRIANO","07:01","07:36","10.49","25.33","IMBIRUSSU"],
+["12/05/2026","1543","HTQ4C66","OSMIR","06:24","07:01","9.88","25.64","SEGREDO"],
+["12/05/2026","1542","NSB9C49","ALEXANDRE","05:43","06:24","10.36","25.71","ANHANDUIZINHO"],
+["12/05/2026","1541","HSH0C00","MIGUEL","05:09","05:43","10.42","25.76","IMBIRUSSU"],
+["11/05/2026","1540","NRJ9E05","LEANDRO","12:34","12:48","9.76","12.66","RR BARROS"],
+["11/05/2026","1539","BBY1G20","ADRIANO","12:23","12:34","9.21","12.60","RR BARROS"],
+["11/05/2026","1538","HQV1E66","ANTÔNIO SEBASTIÃO","11:34","12:23","8.77","14.20","G S"],
+["11/05/2026","1537","HTJ5258","RENATO","11:13","11:34","9.87","15.22","G S"],
+["11/05/2026","1536","CPI6418","DIOGO FRETEIRO","10:42","11:13","9.64","18.75","AEGEA"],
+["11/05/2026","1535","HTQ4263","RODRIGO","10:02","10:42","9.77","25.75","ANHANDUIZINHO"],
+["11/05/2026","1534","HTQ3F44","LUIZ","09:33","10:02","9.61","25.66","ANHANDUIZINHO"],
+["11/05/2026","1533","NRP7G12","ADRIANO","08:55","09:33","10.32","25.37","IMBIRUSSU"],
+["11/05/2026","1532","HTQ4C66","OSMIR","08:16","08:55","9.52","25.62","ANHANDUIZINHO2"],
+["11/05/2026","1531","HRO8J03","ANTÔNIO CARLOS","08:05","08:16","9.90","6.17","AGUAS GUARIROBA -TDC"],
+["11/05/2026","1530","LZB7B92","RAFAEL","07:53","08:05","8.87","6.56","AGUAS GUARIROBA -TDC"],
+["11/05/2026","1529","HTP2I40","CRISTIANO","07:41","07:52","10.12","4.73","AGUAS GUARIROBA -TDC"],
+["11/05/2026","1528","KWP6E40","LEOVANI","06:59","07:41","11.38","21.68","TERCEIROS - JOSUE"],
+["11/05/2026","1527","NSB9C49","ALEXANDRE","06:15","06:59","10.27","25.71","ANHANDUIZINHO"],
+["11/05/2026","1526","QAJ2389","AUGUSTO","06:05","06:15","11.14","7.21","AGUAS GUARIROBA - RIAL"],
+["11/05/2026","1525","HSH0C00","MIGUEL","05:24","06:05","10.35","25.46","IMBIRUSSU"],
+["08/05/2026","1524","CPI6418","DIOGO","08:07","08:58","9.68","19.05","AEGEA"],
+["08/05/2026","1523","HTQ4263","RODRIGO","07:35","08:07","9.83","25.55","ANHANDUIZINHO"],
+["08/05/2026","1522","LZB7B92","RAFAEL","07:27","07:35","8.92","5","AGUAS GUARIROBA -TDC"],
+["08/05/2026","1521","NRP7G12","ADRIANO","06:54","07:27","10.42","25.27","ANHANDUIZINHO2"],
+["08/05/2026","1520","KWP6E40","LEOVANI","06:46","06:54","11.42","9.94","TERCEIROS - JOSUE"],
+["08/05/2026","1519","HRO8J03","ANTÔNIO CARLOS","06:33","06:46","9.87","4.84","AGUAS GUARIROBA -TDC"],
+["08/05/2026","1518","HTP2I40","CRISTIANO","06:22","06:33","9.78","05.06","AGUAS GUARIROBA -TDC"],
+["08/05/2026","1517","QAJ2389","AUGUSTO","06:15","06:22","11.22","4.97","AGUAS GUARIROBA - RIAL"],
+["08/05/2026","1516","HTQ4C66","OSMIR","05:41","06:15","9.62","25.52","ANHANDUIZINHO2"],
+["08/05/2026","1515","HTQ3F44","LUIZ","05:07","05:41","9.52","25.62","ANHANDUIZINHO"],
+["08/05/2026","1514","NSB9C49","ALEXANDRE","04:33","05:07","10.33","25.77","ANHANDUIZINHO"],
+["08/05/2026","1513","HSH0C00","MIGUEL","04:00","04:33","10.41","25.46","ANHANDUIZINHO2"],
+["07/05/2026","1512","DXY2B24","FILLYPE","08:21","08:50","10.58","20.71","AEGEA"],
+["07/05/2026","1511","HTQ4263","RODRIGO","07:49","08:21","9.90","25.55","ANHANDUIZINHO"],
+["07/05/2026","1510","LZB7B92","RAFAEL","07:40","07:49","8.87","4.87","AGUAS GUARIROBA -TDC"],
+["07/05/2026","1509","HRO8J03","ANTÔNIO CARLOS","07:31","07:40","9.95","5.13","AGUAS GUARIROBA -TDC"],
+["07/05/2026","1508","HTP2I40","CRISTIANO","07:22","07:31","9.84","5.23","AGUAS GUARIROBA -TDC"],
+["07/05/2026","1507","QAJ2389","AUGUSTO","07:16","07:22","11.10","5.20","AGUAS GUARIROBA - RIAL"],
+["07/05/2026","1506","HTQ3F44","LUIZ","06:45","07:16","9.71","25.39","ANHANDUIZINHO"],
+["07/05/2026","1505","NRP7G12","ADRIANO","06:14","06:45","10.49","25.77","IMBIRUSSU"],
+["07/05/2026","1504","FFN5E40","LEOVANI","05:37","06:14","11.50","19.81","TERCEIROS - JOSUE"],
+["07/05/2026","1503","HTQ4C66","OSMIR","05:04","05:37","9.63","25.42","ANHANDUIZINHO2"],
+["07/05/2026","1502","NSB9C49","ALEXANDRE","04:33","05:04","10.39","25.72","ANHANDUIZINHO"],
+["07/05/2026","1501","HSH0C00","MIGUEL","03:55","04:33","10.34","25.38","IMBIRUSSU"],
+["06/05/2026","1488","HTQ3F44","LUIZ","07:10","07:39","9.68","25.79","ANHANDUIZINHO"],
+["06/05/2026","1487","LZB7B92","RAFAEL","06:58","07:10","8.88","6.33","AGUAS GUARIROBA -TDC"],
+["06/05/2026","1486","HTQ4263","RODRIGO","06:28","06:58","9.92","25.55","ANHANDUIZINHO"],
+["06/05/2026","1485","NRP7G12","ADRIANO","06:03","06:28","10.49","25.24","IMBIRUSSU"],
+["06/05/2026","1484","HRO8J03","ANTÔNIO CARLOS","05:50","06:03","10.01","6.53","AGUAS GUARIROBA -TDC"],
+["06/05/2026","1483","HTP2I40","CRISTIANO","05:41","05:50","9.93","6.39","AGUAS GUARIROBA -TDC"],
+["06/05/2026","1482","QAJ2389","AUGUSTO","05:32","05:41","11.11","6.82","AGUAS GUARIROBA - RIAL"],
+["06/05/2026","1481","FFN5E40","LEOVANI","05:06","05:32","11.50","14.74","TERCEIROS - JOSUE"],
+["06/05/2026","1480","HTQ4C66","OSMIR","04:37","05:06","9.61","25.71","ANHANDUIZINHO"],
+["06/05/2026","1479","NSB9C49","ALEXANDRE","04:06","04:37","10.37","25.72","ANHANDUIZINHO"],
+["06/05/2026","1478","HSH0C00","MIGUEL","03:37","04:06","10.30","25.68","IMBIRUSSU"],
+["05/05/2026","1469","HTQ4263","RODRIGO","08:35","09:03","9.91","25.51","ANHANDUIZINHO"],
+["05/05/2026","1468","HTQ3F44","LUIZ","08:02","08:35","9.69","25.67","ANHANDUIZINHO"],
+["05/05/2026","1467","NRP7G12","ADRIANO","07:30","08:02","10.49","25.59","IMBIRUSSU"],
+["05/05/2026","1466","HTQ4C66","OSMIR","06:58","07:30","9.60","25.66","SEGREDO"],
+["05/05/2026","1465","LZB7B92","RAFAEL","06:48","06:58","8.85","6.81","AGUAS GUARIROBA -TDC"],
+["05/05/2026","1464","HRO8J03","ANTÔNIO CARLOS","06:37","06:48","9.99","6.75","AGUAS GUARIROBA -TDC"],
+["05/05/2026","1463","HTP2I40","CRISTIANO","06:25","06:37","9.83","07.03","AGUAS GUARIROBA -TDC"],
+["05/05/2026","1462","FFN5E40","LEOVANI","05:52","06:25","11.95","16.74","TERCEIROS - JOSUE"],
+["05/05/2026","1461","TAS0I93","ODAIR","05:41","05:52","8.33","10.41","AGUAS GUARIROBA - CB"],
+["05/05/2026","1460","QAJ2389","AUGUSTO","05:31","05:41","11.10","6.95","AGUAS GUARIROBA - RIAL"],
+["05/05/2026","1459","NSB9C49","ALEXANDRE","04:59","05:31","10.38","25.73","ANHANDUIZINHO"],
+["05/05/2026","1458","HSH0C00","MIGUEL","04:26","04:59","10.31","25.68","ANHANDUIZINHO"],
+["04/05/2026","1457","NSB9C49","ALEXANDRE","08:40","09:10","10.37","25.67","ANHANDUIZINHO"],
+["04/05/2026","1456","HTQ4263","RODRIGO","08:09","08:40","9.92","25.73","SEGREDO"],
+["04/05/2026","1455","HTQ3F44","LUIZ","07:37","08:09","9.70","25.61","ANHANDUIZINHO"],
+["04/05/2026","1454","LZB7B92","RAFAEL","07:26","07:37","8.77","7.39","AGUAS GUARIROBA -TDC"],
+["04/05/2026","1453","HRO8J03","ANTÔNIO CARLOS","07:11","07:20","10.15","7.47","AGUAS GUARIROBA -TDC"],
+["04/05/2026","1452","HTP2I40","CRISTIANO","06:50","07:11","9.88","08.05","AGUAS GUARIROBA -TDC"],
+["04/05/2026","1451","SED0C56","WILLIAN","06:22","07:26","8.24","7.00","AGUAS GUARIROBA - CB TÉRMICO"],
+["04/05/2026","1450","FFN5E40","ELSO","06:27","06:50","11.90","14.69","TERCEIROS - JOSUE"],
+["04/05/2026","1449","NRP7G12","ADRIANO","05:56","06:27","10.49","25.54","ANHANDUIZINHO"],
+["04/05/2026","1448","HTQ4C66","OSMIR","05:25","05:56","9.61","25.53","SEGREDO"],
+["04/05/2026","1447","QAJ2389","AUGUSTO","05:12","05:25","11.10","7.76","AGUAS GUARIROBA - RIAL"],
+["04/05/2026","1446","HSH0C00","MIGUEL","04:38","05:12","10.32","25.78","ANHANDUIZINHO"],
+["02/05/2026","1445","HTQ4263","RODRIGO","07:01","07:33","10.32","25.66","ANHANDUIZINHO"],
+["02/05/2026","1444","HTQ3F44","LUIZ","06:29","07:01","9.70","25.59","LAGOA - GS"],
+["02/05/2026","1443","NRP7G12","ADRIANO","05:56","06:29","10.49","25.47","ANHANDUIZINHO"],
+["02/05/2026","1442","FFN5E40","ELSO","05:31","05:56","11.90","14.90","TERCEIROS - JOSUE"],
+["02/05/2026","1441","HTQ4C66","OSMIR","04:59","05:31","9.61","25.62","LAGOA - GS"],
+["02/05/2026","1440","NSB9C49","ALEXANDRE","04:28","04:59","10.37","25.79","ANHANDUIZINHO"],
+["02/05/2026","1439","QAJ2389","AUGUSTO","04:19","04:28","11.10","6.94","AGUAS GUARIROBA - RIAL"],
+["30/04/2026","1438","NRP7G12","ADRIANO","08:42","09:13","10.49","25.56","ANHANDUIZINHO"],
+["30/04/2026","1437","HTQ4263","RODRIGO","08:11","08:42","10.32","25.63","IMBIRUSSU"],
+["30/04/2026","1436","HTQ3F44","LUIZ","07:40","08:11","9.69","25.63","ANHANDUIZINHO"],
+["30/04/2026","1435","QAJ2389","AUGUSTO","07:29","07:40","11.10","7.22","AGUAS GUARIROBA - RIAL"],
+["30/04/2026","1434","LZB7B92","RAFAEL","07:18","07:29","8.96","7.12","AGUAS GUARIROBA -TDC"],
+["30/04/2026","1433","HRO8J03","ANTÔNIO CARLOS","07:07","07:18","10.02","6.95","AGUAS GUARIROBA -TDC"],
+["30/04/2026","1432","HTP2I40","CRISTIANO","06:57","07:07","9.95","6.29","AGUAS GUARIROBA -TDC"],
+["30/04/2026","1431","HSH0C00","MIGUEL","06:27","06:57","10.31","25.71","IMBIRUSSU"],
+["30/04/2026","1430","HTQ4C66","OSMIR","05:56","06:27","9.60","25.59","SEGREDO"],
+["30/04/2026","1429","NSB9C49","ALEXANDRE","05:25","05:56","10.36","25.48","ANHANDUIZINHO"],
+["30/04/2026","1428","FFN5E40","ELSO","04:58","05:25","11.90","14.74","TERCEIROS - JOSUE"],
+["29/04/2026","1427","HTQ4263","RODRIGO","10:02","10:29","10.32","25.61","IMBIRUSSU"],
+["29/04/2026","1426","NRP7G12","ADRIANO","09:22","10:02","10.49","25.67","ANHANDUIZINHO"],
+["29/04/2026","1425","HTQ3F44","LUIZ","08:47","09:22","9.69","25.48","ANHANDUIZINHO"],
+["29/04/2026","1424","HSH0C00","MIGUEL","08:14","08:47","10.31","25.62","IMBIRUSSU"],
+["29/04/2026","1423","HTQ4C66","OSMIR","07:41","08:14","9.60","25.71","SEGREDO"],
+["29/04/2026","1422","HSX6F99","SILAS","07:33","07:41","9.70","5.52","RELEVO"],
+["29/04/2026","1421","NSB9C49","ALEXANDRE","06:58","07:33","10.36","25.53","ANHANDUIZINHO"],
+["29/04/2026","1420","HRO8J03","ANTÔNIO CARLOS","06:46","06:58","10.08","7.49","AGUAS GUARIROBA -TDC"],
+["29/04/2026","1419","LZB7B92","RAFAEL","06:34","06:46","8.89","3.34","AGUAS GUARIROBA -TDC"],
+["29/04/2026","1418","HTP2I40","CRISTIANO","06:22","06:34","9.85","8.15","AGUAS GUARIROBA -TDC"],
+["29/04/2026","1417","SED0C56","ODAIR","06:14","06:22","13.79","8.28","AGUAS GUARIROBA - CB TÉRMICO"],
+["29/04/2026","1416","QAJ2389","AUGUSTO","05:55","06:14","10.83","8.71","AGUAS GUARIROBA - RIAL"],
+["29/04/2026","1415","FFN5E40","ELSO","05:24","05:55","11.90","13.98","TERCEIROS - JOSUE"],
+["28/04/2026","1414","NRP7G12","ADRIANO","08:40","09:42","10.49","25.71","ANHANDUIZINHO"],
+["28/04/2026","1413","HTQ4263","RODRIGO","08:03","08:40","9.91","25.69","SEGREDO"],
+["28/04/2026","1412","HTQ6A98","ALFREDO","07:42","08:03","10.32","25.54","IMBIRUSSU"],
+["28/04/2026","1411","LZB7B92","RAFAEL","07:28","07:42","8.93","7.85","AGUAS GUARIROBA -TDC"],
+["28/04/2026","1410","HRO8J03","ANTÔNIO CARLOS","06:51","07:28","10.11","7.86","AGUAS GUARIROBA -TDC"],
+["28/04/2026","1409","QAJ2389","AUGUSTO","06:04","06:26","11.10","7.50","AGUAS GUARIROBA - RIAL"],
+["28/04/2026","1408","HTQ3F44","LUIZ","04:41","06:04","9.69","25.63","ANHANDUIZINHO"],
+["28/04/2026","1407","HSH0C00","MIGUEL","04:05","04:41","10.31","25.46","IMBIRUSSU"],
+["28/04/2026","1406","HSF2616","OSMIR","03:29","04:05","9.60","25.78","SEGREDO"],
+["28/04/2026","1405","NSB9C49","ALEXANDRE","02:55","03:29","10.36","25.57","ANHANDUIZINHO"],
+["27/04/2026","1404","QAJ2389","AUGUSTO","15:06","15:14","10.95","3.15","AGUAS GUARIROBA - RIAL"],
+["27/04/2026","1403","LZB7B92","RAFAEL","15:02","15:06","8.85","3.22","AGUAS GUARIROBA -TDC"],
+["27/04/2026","1402","HRO8J03","ANTÔNIO CARLOS","14:51","15:02","10.13","3.12","AGUAS GUARIROBA -TDC"],
+["27/04/2026","1401","HTP2I40","CRISTIANO","14:44","14:51","9.84","4.36","AGUAS GUARIROBA -TDC"],
+["27/04/2026","1400","SED0C56","ODAIR","04:35","04:48","13.54","7.94","AGUAS GUARIROBA - CB TÉRMICO"],
+["27/04/2026","1399","FFN5E40","ELSO","04:14","04:35","11.90","14.48","TERCEIROS - JOSUE"],
+["27/04/2026","1398","HSH0C00","MIGUEL","03:42","04:13","10.30","25.66","IMBIRUSSU"],
+["27/04/2026","1397","HSF2616","OSMIR","03:11","03:42","9.61","25.54","SEGREDO"],
+["27/04/2026","1396","NSB9C49","ALEXANDRE","02:42","03:11","10.35","25.41","ANHANDUIZINHO"],
+["25/04/2026","1395","HTQ6A98","AUGUSTO","07:19","07:47","9.65","25.55","ANHANDUIZINHO"],
+["25/04/2026","1394","NRP7G12","ADRIANO","06:49","07:19","10.49","25.63","ANHANDUIZINHO"],
+["25/04/2026","1393","HTQ4263","RODRIGO","06:18","06:49","9.91","25.43","SEGREDO"],
+["25/04/2026","1392","HTQ3F44","LUIZ","05:48","06:18","9.69","25.76","ANHANDUIZINHO"],
+["25/04/2026","1391","QAJ2389","ALFREDO","05:38","05:48","10.95","7.11","AGUAS GUARIROBA - RIAL"],
+["25/04/2026","1390","KWP6E40","LEOVANI","05:13","05:38","11.95","14.62","TERCEIROS - JOSUE"],
+["25/04/2026","1389","HSH0C00","MIGUEL","04:44","05:13","10.31","25.51","IMBIRUSSU"],
+["25/04/2026","1388","HSF2616","OSMIR","04:13","04:44","9.60","25.68","SEGREDO"],
+["25/04/2026","1387","NSB9C49","ALEXANDRE","03:44","04:13","10.37","25.54","ANHANDUIZINHO"],
+["24/04/2026","1386","HTQ4263","RODRIGO","10:21","10:57","9.90","8.45","SEGREDO"],
+["24/04/2026","1385","HTQ3F44","LUIZ","09:51","10:21","9.70","25.69","ANHANDUIZINHO"],
+["24/04/2026","1384","KWP6E40","LEOVANI","09:26","09:51","11.95","14.80","TERCEIROS - JOSUE"],
+["24/04/2026","1383","HSK0C00","MIGUEL","08:58","09:26","10.32","25.76","IMBIRUSSU"],
+["24/04/2026","1382","HTQ4C66","OSMIR","07:43","08:58","9.61","25.62","SEGREDO"],
+["24/04/2026","1381","NSB9C49","ALEXANDRE","06:48","07:30","10.36","25.53","ANHANDUIZINHO"],
+["24/04/2026","1380","LZB7B92","RAFAEL","07:30","07:43","8.81","7.99","AGUAS GUARIROBA -TDC"],
+["24/04/2026","1379","HRO8J03","ANTÔNIO CARLOS","06:35","06:48","9.96","7.66","AGUAS GUARIROBA -TDC"],
+["24/04/2026","1378","SED0C56","WILLIAN","06:23","06:35","13.61","08.03","AGUAS GUARIROBA - CB TÉRMICO"],
+["24/04/2026","1377","HTP2I40","JONAS","06:08","06:23","9.83","7.94","AGUAS GUARIROBA -TDC"],
+["24/04/2026","1376","QAJ2389","ALFREDO","05:50","06:08","10.95","09.06","AGUAS GUARIROBA - RIAL"],
+["23/04/2026","1375","HTQ6A98","AUGUSTO","10:14","10:53","9.66","25.55","ANHANDUIZINHO"],
+["23/04/2026","1374","QAJ2389","ADRIANO","09:38","10:14","10.57","25.65","IMBIRUSSU"],
+["23/04/2026","1373","HTQ4263","RODRIGO","09:04","09:38","9.92","25.45","SEGREDO"],
+["23/04/2026","1372","HTQ3F44","LUIZ","08:34","09:04","9.69","25.70","ANHANDUIZINHO"],
+["23/04/2026","1371","HSF2616","MIGUEL","08:03","08:34","10.31","25.68","IMBIRUSSU"],
+["23/04/2026","1370","HTQ4C66","OSMIR","07:06","07:36","9.63","25.68","SEGREDO"],
+["23/04/2026","1369","KWP6E40","LEOVANI","06:42","07:06","11.97","14.70","TERCEIROS - JOSUE"],
+["23/04/2026","1368","LZB7B92","RAFAEL","06:31","06:42","8.84","6.73","AGUAS GUARIROBA -TDC"],
+["23/04/2026","1367","HRO8J03","ANTÔNIO CARLOS","06:23","06:31","9.98","6.60","AGUAS GUARIROBA -TDC"],
+["23/04/2026","1366","QAJ2389","ALFREDO","06:11","06:23","10.95","13.30","AGUAS GUARIROBA - RIAL"],
+["23/04/2026","1365","HTP2I40","JONAS","06:01","06:11","9.86","6.67","AGUAS GUARIROBA -TDC"],
+["23/04/2026","1364","NSB9C49","ALEXANDRE","05:31","06:01","10.34","25.50","ANHANDUIZINHO"],
+["22/04/2026","1363","HTQ6A98","AUGUSTO","08:26","08:57","9.66","25.55","ANHANDUIZINHO"],
+["22/04/2026","1362","QAJ2389","ADRIANO","07:49","08:26","10.58","25.80","IMBIRUSSU"],
+["22/04/2026","1361","HTQ4263","RODRIGO","07:08","07:49","9.91","25.68","SEGREDO"],
+["22/04/2026","1360","LZB7B92","RAFAEL","06:53","07:08","8.77","7.99","AGUAS GUARIROBA -TDC"],
+["22/04/2026","1359","SED0C56","WILLIAN","06:38","06:53","13.54","7.83","AGUAS GUARIROBA - CB TÉRMICO"],
+["22/04/2026","1358","HTP2I40","JONAS","06:14","06:38","8.92","7.35","AGUAS GUARIROBA -TDC"],
+["22/04/2026","1357","HRO8J03","ANTÔNIO CARLOS","06:07","06:14","9.81","7.54","AGUAS GUARIROBA -TDC"],
+["22/04/2026","1356","HTQ3F44","LUIZ","05:32","06:07","9.71","25.56","ANHANDUIZINHO"],
+["22/04/2026","1355","QAJ2389","ALFREDO","05:14","05:32","11.10","7.91","AGUAS GUARIROBA - RIAL"],
+["22/04/2026","1354","KWP6E40","LEOVANI","04:47","05:14","11.84","17.65","TERCEIROS - JOSUE"],
+["22/04/2026","1353","HSF2616","MIGUEL","04:11","04:47","10.30","25.48","IMBIRUSSU"],
+["22/04/2026","1352","HTQ4C66","OSMIR","03:35","04:11","9.62","25.45","SEGREDO"],
+["22/04/2026","1351","NSB9C49","ALEXANDRE","03:00","03:35","10.35","25.50","ANHANDUIZINHO"],
+["20/04/2026","1350","HTQ3F44","LUIZ","07:05","07:40","9.70","25.75","ANHANDUIZINHO"],
+["20/04/2026","1349","LZB7B92","RAFAEL","06:51","07:05","8.77","7.89","AGUAS GUARIROBA -TDC"],
+["20/04/2026","1348","HRO8J03","ANTÔNIO CARLOS","06:38","06:51","9.97","7.68","AGUAS GUARIROBA -TDC"],
+["20/04/2026","1347","SED0C56","ODAIR","06:24","06:38","14.44","08.02","AGUAS GUARIROBA - CB TÉRMICO"],
+["20/04/2026","1346","HTP2I40","JONAS","06:12","06:24","9.76","7.35","AGUAS GUARIROBA -TDC"],
+["20/04/2026","1345","QAJ2389","ALFREDO","05:37","06:12","10.57","25.68","IMBIRUSSU"],
+["20/04/2026","1344","HTQ4263","RODRIGO","05:05","05:37","9.90","25.73","SEGREDO"],
+["20/04/2026","1343","HTQ6A98","AUGUSTO","04:31","05:05","9.65","25.63","ANHANDUIZINHO"],
+["20/04/2026","1342","QWP6E40","VANDER","04:06","04:31","11.84","14.76","TERCEIROS - JOSUE"],
+["20/04/2026","1341","HSF2616","MIGUEL","03:34","04:06","10.32","25.75","IMBIRUSSU"],
+["20/04/2026","1340","HTQ4C66","OSMIR","03:01","03:34","9.61","25.68","SEGREDO"],
+["20/04/2026","1339","NSB9C49","ALEXANDRE","02:28","03:01","10.36","25.50","ANHANDUIZINHO"],
+["18/04/2026","1338","QWP6E40","VANDER","07:08","07:35","11.84","14.75","TERCEIROS - JOSUE"],
+["18/04/2026","1337","LZB7B92","RAFAEL","06:58","07:08","8.87","06.01","AGUAS GUARIROBA -TDC"],
+["18/04/2026","1336","HRO8J03","ANTÔNIO CARLOS","06:45","06:58","10.05","5.68","AGUAS GUARIROBA -TDC"],
+["18/04/2026","1335","HSF2616","MIGUEL","06:14","06:45","10.29","25.58","IMBIRUSSU"],
+["18/04/2026","1334","HTQ4C66","OSMIR","05:41","06:14","9.58","25.75","SEGREDO"],
+["18/04/2026","1333","HTQ6A98","AUGUSTO","05:08","05:41","9.66","25.50","ANHANDUIZINHO"],
+["18/04/2026","1332","NSB9C49","ALEXANDRE","04:34","05:08","10.37","25.45","ANHANDUIZINHO"],
+["17/04/2026","1331","QAJ2389","ADRIANO","07:26","08:32","10.59","25.80","IMBIRUSSU"],
+["17/04/2026","1330","HTQ4263","RODRIGO","07:26","07:59","9.92","25.58","SEGREDO"],
+["17/04/2026","1329","TAS0I93","WILLIAN","07:15","07:26","8.38","6.89","AGUAS GUARIROBA - CB TÉRMICO"],
+["17/04/2026","1328","HTQ3F44","LUIZ","06:42","07:15","9.71","25.65","ANHANDUIZINHO"],
+["17/04/2026","1327","LZB7B92","RAFAEL","06:30","06:42","8.78","6.82","AGUAS GUARIROBA -TDC"],
+["17/04/2026","1326","HRO8J03","ANTÔNIO CARLOS","06:16","06:30","10.02","6.97","AGUAS GUARIROBA -TDC"],
+["17/04/2026","1325","KWP6E40","VANDER","05:51","06:16","11.91","14.56","TERCEIROS - JOSUE"],
+["17/04/2026","1324","HTP2I40","JONAS","05:40","05:51","9.80","6.61","AGUAS GUARIROBA -TDC"],
+["17/04/2026","1323","HSF2616","MIGUEL","05:04","05:40","10.28","25.80","IMBIRUSSU"],
+["17/04/2026","1322","HTQ4C66","OSMIR","04:26","05:04","9.57","25.70","SEGREDO"],
+["17/04/2026","1321","HTQ6A98","AUGUSTO","03:48","04:26","9.66","25.55","ANHANDUIZINHO"],
+["17/04/2026","1320","NSB9C49","ALEXANDRE","03:11","03:48","10.38","20.35","AEGEA"],
+["16/04/2026","1319","HTQ6A98","AUGUSTO","07:30","08:09","9.64","25.43","ANHANDUIZINHO"],
+["16/04/2026","1318","QAJ2388","ALFREDO","06:53","07:30","10.56","25.63","IMBIRUSSU"],
+["16/04/2026","1317","LZB7B92","VALDIR","06:39","06:53","8.94","6.59","AGUAS GUARIROBA -TDC"],
+["16/04/2026","1316","HRO8J03","ANTÔNIO CARLOS","06:25","06:39","10.13","6.76","AGUAS GUARIROBA -TDC"],
+["16/04/2026","1315","HTP2I40","JONAS","06:12","06:25","9.90","6.60","AGUAS GUARIROBA -TDC"],
+["16/04/2026","1314","KWP6E40","VANDER","05:43","06:12","11.91","14.94","TERCEIROS - JOSUE"],
+["16/04/2026","1313","HTQ4263","RODRIGO","05:07","05:43","9.89","25.68","SEGREDO"],
+["16/04/2026","1312","HTQ3F44","LUIZ","04:30","05:07","9.69","25.80","ANHANDUIZINHO"],
+["16/04/2026","1311","HSF2616","MIGUEL","03:55","04:30","10.31","25.60","IMBIRUSSU"],
+["16/04/2026","1310","HTQ4C66","OSMIR","03:18","03:55","9.60","25.55","SEGREDO"],
+["16/04/2026","1309","NSB9C49","ALEXANDRE","02:35","03:18","10.38","25.59","ANHANDUIZINHO"],
+["15/04/2026","1308","HSI0I56","CLAUDINEI","06:51","07:29","9.95","25.45","ANHANDUIZINHO"],
+["15/04/2026","1307","LZB7B92","VALDIR","06:40","06:51","8.84","6.97","AGUAS GUARIROBA -TDC"],
+["15/04/2026","1306","HRO8J03","ANTÔNIO CARLOS","06:28","06:40","9.94","8.43","AGUAS GUARIROBA -TDC"],
+["15/04/2026","1305","HTP2I40","JONAS","06:16","06:28","9.88","8.59","AGUAS GUARIROBA -TDC"],
+["15/04/2026","1304","NRP7G12","RAMÃO","05:42","06:16","10.49","25.80","IMBIRUSSU"],
+["15/04/2026","1303","HTQ4263","RODRIGO","05:10","05:42","9.91","25.58","SEGREDO"],
+["15/04/2026","1302","HTQ3F44","LUIZ","04:39","05:10","9.68","25.73","ANHANDUIZINHO"],
+["15/04/2026","1301","KWP6E40","VANDER","04:15","04:39","10.22","15.65","TERCEIROS - JOSUE"],
+["15/04/2026","1300","HSF2616","MIGUEL","03:43","04:15","10.29","25.75","IMBIRUSSU"],
+["15/04/2026","1299","HTQ4C66","OSMIR","03:12","03:43","9.58","25.70","SEGREDO"],
+["15/04/2026","1298","NSB9C49","ALEXANDRE","02:38","03:12","10.36","25.61","ANHANDUIZINHO"],
+["14/04/2026","1297","HSI0I56","CLAUDINEI","09:47","10:21","9.92","25.60","ANHANDUIZINHO"],
+["14/04/2026","1296","QAJ2389","ALFREDO","09:15","09:47","10.59","25.66","IMBIRUSSU"],
+["14/04/2026","1295","HTQ4263","RODRIGO","08:44","09:15","9.88","25.42","SEGREDO"],
+["14/04/2026","1294","HTQ3F44","LUIZ","08:12","08:44","9.71","25.74","ANHANDUIZINHO"],
+["14/04/2026","1293","KWP6E40","LEOVANE","07:48","08:12","10.22","15.62","TERCEIROS - JOSUE"],
+["14/04/2026","1292","HSF2616","MIGUEL","07:14","07:48","10.34","25.75","IMBIRUSSU"],
+["14/04/2026","1291","HTQ4C66","OSMIR","06:44","07:14","9.62","25.70","SEGREDO"],
+["14/04/2026","1290","LXB7B92","RAFAEL","06:32","06:44","8.84","08.02","AGUAS GUARIROBA - TDC"],
+["14/04/2026","1289","HTQ6A98","AUGUSTO","06:00","06:32","9.62","25.55","ANHANDUIZINHO"],
+["14/04/2026","1288","HRO8J03","ANTONIO","05:45","06:00","10.00","7.89","AGUAS GUARIROBA - TDC"],
+["14/04/2026","1287","NSB9C49","ALEXANDRE","05:15","05:45","10.41","25.65","ANHANDUIZINHO"],
+["14/04/2026","1286","HTP2I40","JONAS","05:02","05:15","9.72","7.93","AGUAS GUARIROBA - TDC"],
+["14/04/2026","1285","SED0C56","ODAIR","04:40","05:02","13.74","9.46","AGUAS GUARIROBA - CB TÉRMICO"],
+["13/04/2026","1284","QAJ2389","ALFREDO","08:32","09:04","10.53","25.70","ANHANDUIZINHO - IMBIRUSSU"],
+["13/04/2026","1283","HTQ3F44","LUIZ","08:00","08:32","9.83","25.70","ANHANDUIZINHO"],
+["13/04/2026","1282","HTQ4263","RODRIGO","07:29","08:00","9.92","25.50","SEGREDO"],
+["13/04/2026","1281","BTS4806","JOSÉ DIAS","06:56","07:29","9.81","25.45","ANHANDUIZINHO"],
+["13/04/2026","1280","KWP6E40","LEOVANE","06:22","06:56","10.29","22.48","TERCEIROS - JOSUE"],
+["13/04/2026","1279","HSK0C00","MIGUEL","05:51","06:22","10.27","25.58","ANHANDUIZINHO - IMBIRUSSU"],
+["13/04/2026","1278","HTQ4C66","OSMIR","05:20","05:51","9.80","25.63","SEGREDO"],
+["13/04/2026","1277","NSB9C49","ALEXANDRE","04:46","05:20","10.49","25.80","ANHANDUIZINHO"],
+["11/04/2026","1276","QAJ2389","ALFREDO","09:11","09:43","10.44","25.39","ANHANDUIZINHO - IMBIRUSSU"],
+["11/04/2026","1275","HTQ3F44","LUIZ","08:37","","9.70","25.76","ANHANDUIZINHO - SEGREDO"],
+["11/04/2026","1274","MCG9D04","ISMAEL","08:02","08:37","10.73","25.57","ANHANDUIZINHO"],
+["11/04/2026","1273","KWP6E40","LEOVANE","07:26","08:01","10.27","20.47","TERCEIROS - JOSUE"],
+["11/04/2026","1272","BXB6F17","FABIO","07:15","07:25","9.52","5.34","TERCEIROS - JOSUE - PARTICULAR"],
+["11/04/2026","1271","HSF2616","MIGUEL","06:41","07:14","10.36","25.34","ANHANDUIZINHO - IMBIRUSSU"],
+["11/04/2026","1270","HTQ4C66","OSMIR","06:07","06:41","9.66","25.72","ANHANDUIZINHO - SEGREDO"],
+["11/04/2026","1269","BTS4860","JOSÉ DIAS","05:31","06:06","10.28","25.78","ANHANDUIZINHO"],
+["11/04/2026","1268","HTQ6A98","AUGUSTO","05:05","05:30","9.47","15.33","PELEZINHO"],
+["10/04/2026","1267","HTQ3F44","LUIZ","09:52","","9.69","25.78","SEGREDO"],
+["10/04/2026","1266","HTQ6A98","AUGUSTO","09:17","09:52","9.43","25.44","ANHANDUIZINHO"],
+["10/04/2026","1265","QAJ2389","ALFREDO","08:47","09:17","10.42","25.39","IMBIRUSSU"],
+["10/04/2026","1264","HSI0I56","CLAUDINEI","08:14","08:45","9","25.71","ANHANDUIZINHO"],
+["10/04/2026","1263","KWP6E40","LEOVANE","07:46","08:13","10.29","15.43","TERCEIROS - JOSUE"],
+["10/04/2026","1262","HSF2616","MIGUEL","07:12","07:46","10.38","25.65","IMBIRUSSU"],
+["10/04/2026","1261","HTQ4C66","OSMIR","06:38","07:12","9.68","25.72","SEGREDO"],
+["10/04/2026","1260","NSB9C49","ALEXANDRE","06:05","06:37","10.49","25.45","ANHANDUIZINHO"],
+["09/04/2026","1259","QAJ2389","ALFREDO","08:41","09:14","10.49","25.68","IMBIRUSSU"],
+["09/04/2026","1258","HTQ6A98","AUGUSTO","08:06","08:41","9.49","25.55","ANHANDUIZINHO"],
+["09/04/2026","1257","HTQ4263","RODRIGO","07:33","08:06","9.78","25.98","SEGREDO"],
+["09/04/2026","1256","AWC5A98","LEOVANE","07:08","07:33","10.33","15.75","TERCEIROS - JOSUE"],
+["09/04/2026","1255","HSK0C00","MIGUEL","06:33","07:08","10.20","25.75","IMBIRUSSU"],
+["09/04/2026","1254","HTQ4C66","OSMIR","06:00","06:33","9.72","25.80","SEGREDO"],
+["09/04/2026","1253","NSB9C49","ALEXANDRE","05:24","06:00","10.53","25.65","ANHANDUIZINHO"],
+["09/04/2026","1252","NRP7G12","ADRIANO","04:48","05:24","10.56","25.35","AEGEA"],
+["08/04/2026","1221","QAJ2389","ALFREDO","10:26","11:02","10.49","25.37","IMBIRUSSU"],
+["08/04/2026","1220","HTQ6A98","AUGUSTO","09:53","10:26","9.56","25.71","ANHANDUIZINHO"],
+["08/04/2026","1219","HTQ3F44","LUIZ","09:24","09:53","9.79","25.69","SEGREDO"],
+["08/04/2026","1218","HSI0I56","CLAUDINEI","08:51","09:23","9.89","25.73","ANHANDUIZINHO"],
+["08/04/2026","1217","AWC5A98","LEOVANE","08:26","08:59","10.29","15.33","TERCEIROS - JOSUE"],
+["08/04/2026","1216","HSK0C00","MIGUEL","07:52","08:25","10.26","25.51","IMBIRUSSU"],
+["08/04/2026","1215","HTQ4C66","OSMIR","07:21","07:52","9.82","25.72","SEGREDO"],
+["08/04/2026","1214","NSB9C49","ALEXANDRE","06:47","07:21","10.41","25.61","ANHANDUIZINHO"],
+["07/04/2026","1213","NRP7G12","HENRIQUE","08:58","09:25","10.59","25.75","SEGREDO"],
+["07/04/2026","1212","QAJ2389","ALFREDO","07:51","08:22","10.55","25.62","IMBIRUSSU"],
+["07/04/2026","1211","HTQ6A98","AUGUSTO","07:21","07:51","9.60","25.42","ANHANDUIZINHO"],
+["07/04/2026","1210","HSI0I56","CLAUDINEI","06:51","07:21","9.82","25.73","ANHANDUIZINHO"],
+["07/04/2026","1209","AWC5A98","LEOVANE","06:19","06:50","10.33","20.45","TERCEIROS - JOSUE"],
+["07/04/2026","1208","HTQ3F44","LUIZ","","","9.83","25.69","SEGREDO"],
+["07/04/2026","1207","HSK0C00","MIGUEL","05:16","05:46","10.31","25.73","IMBIRUSSU"],
+["07/04/2026","1206","NSB9C49","ALEXANDRE","04:44","05:16","10.49","25.57","ANHANDUIZINHO"],
+["06/04/2026","1205","HTQ4263","RODRIGO","08:58","09:25","9.88","25.55","IMBIRUSSU"],
+["06/04/2026","1204","HTQ6A98","AUGUSTO","08:24","08:58","9.66","25.81","ANHANDUIZINHO"],
+["06/04/2026","1203","HSK0C00","MIGUEL","07:54","08:23","10.26","25.77","IMBIRUSSU"],
+["06/04/2026","1202","HTQ3F44","LUIZ","07:22","07:53","9.75","25.69","SEGREDO"],
+["06/04/2026","1201","HSI0I56","CLAUDINEI","06:51","07:21","9.78","25.71","ANHANDUIZINHO"],
+["06/04/2026","1200","AWC5A98","LEOVANE","06:28","06:50","10.27","12.63","TERCEIROS - JOSUE"],
+["06/04/2026","1199","HTQ4C66","OSMIR","06:00","06:28","9.77","25.72","SEGREDO"],
+["06/04/2026","1198","NSB9C49","ALEXANDRE","05:28","06:00","10.53","25.55","ANHANDUIZINHO"],
+["02/04/2026","1197","HTJ5258","RENATO","08:46","09:12","9.82","17.62","TERCEIROS GS"],
+["02/04/2026","1196","BTR7A09","FRANCISCO","09:40","10:03","9.79","15.73","TERCEIROS - RR BARROS"],
+["02/04/2026","1195","BBY1G20","ADRIANO","08:38","08:45","9.89","15.51","TERCEIROS - RR BARROS"],
+["02/04/2026","1194","HTQ4263","RODRIGO","07:52","08:38","9.83","25.67","IMBIRUSSU"],
+["02/04/2026","1193","HTQ6A98","AUGUSTO","07:20","07:52","9.91","25.67","ANHANDUIZINHO"],
+["02/04/2026","1192","HSK0C00","MIGUEL","06:51","07:20","10.31","25.65","IMBIRUSSU"],
+["02/04/2026","1191","HTQ3F44","LUIZ","06:26","06:50","9.86","20.76","SEGREDO"],
+["02/04/2026","1190","HSI0I56","CLAUDINEI","05:56","06:26","9.80","25.62","ANHANDUIZINHO"],
+["02/04/2026","1189","FFN5E40","ELSON","05:39","05:55","11.81","12.71","TERCEIROS - PREFEITURA"],
+["02/04/2026","1188","HTQ4C66","OSMIR","05:11","05:32","9.79","20.52","SEGREDO"],
+["02/04/2026","1187","NSB9C49","ALEXANDRE","04:40","05:11","10.40","25.61","ANHANDUIZINHO"],
+["01/04/2026","1186","HTQ4263","RODRIGO","08:24","08:55","9.72","25.73","IMBIRUSSU"],
+["01/04/2026","1185","HTQ6A98","AUGUSTO","07:51","08:23","9.75","25.91","ANHANDUIZINHO"],
+["01/04/2026","1184","HSK0C00","MIGUEL","07:20","07:51","10.30","25.65","IMBIRUSSU"],
+["01/04/2026","1183","HTQ3F44","LUIZ","06:50","07:20","9.71","25.92","ANHANDUIZINHO"],
+["01/04/2026","1182","RWJ9G98","RUBERSOM","06:10","06:50","10.40","25.52","TERCEIROS - AVANCE"],
+["01/04/2026","1181","RWJ9H02","MARCELO","05:31","06:10","10.33","25.85","TERCEIROS - AVANCE"],
+["01/04/2026","1180","SLW6E82","WESLEY","04:51","05:30","9.89","25.59","TERCEIROS - AVANCE"],
+["01/04/2026","1179","FFN5E40","ELSON","04:39","04:50","11.79","8.31","TERCEIROS - PREFEITURA"],
+["01/04/2026","1178","HTQ4C66","OSMIR","04:08","04:38","9.83","25.68","SEGREDO"],
+["01/04/2026","1177","HSI0I56","CLAUDINEI","03:36","04:07","9.66","25.75","ANHANDUIZINHO"],
+["01/04/2026","1176","NSB9C49","ALEXANDRE","03:17","03:35","10.56","12.55","SANTA RITA"],
+["31/03/2026","1175","HTQ4263","RODRIGO","08:29","09:00","9.79","25.62","IMBIRUSSU"],
+["31/03/2026","1174","HTQ3F44","LUIZ","07:58","08:29","9.83","25.85","ANHANDUIZINHO"],
+["31/03/2026","1173","HTQ6A98","AUGUSTO","07:27","07:57","9.81","25.74","SEGREDO"],
+["31/03/2026","1172","HSK0C00","MIGUEL","06:56","07:26","10.37","25.82","IMBIRUSSU"],
+["31/03/2026","1171","HSI0I56","CLAUDINEI","06:23","06:55","9.72","25.74","ANHANDUIZINHO"],
+["31/03/2026","1170","FFN5E40","ELSON","06:04","06:22","11.83","12.61","SEGREDO"],
+["31/03/2026","1169","HTQ4C66","OSMIR","05:32","06:03","9.90","25.73","SEGREDO"],
+["31/03/2026","1168","NSB9C49","ALEXANDRE","05:02","05:32","10.40","25.60","ANHANDUIZINHO"],
+["31/03/2026","1167","SLW6E82","","04:45","05:01","9.92","10.40","AEGEA"],
+["30/03/2026","1166","HTQ4263","RODRIGO","08:45","09:17","9.87","25.69","IMBIRUSSU"],
+["30/03/2026","1165","HTQ3F44","LUIZ","08:12","08:45","9.91","25.79","ANHANDUIZINHO"],
+["30/03/2026","1164","HSK0C00","MIGUEL","07:40","08:12","10.26","25.82","IMBIRUSSU"],
+["30/03/2026","1163","NRP7G12","HENRIQUE","07:15","07:40","10.49","20.55","SEGREDO"],
+["30/03/2026","1162","HTQ6A98","AUGUSTO","06:42","07:15","9.90","25.89","ANHANDUIZINHO"],
+["30/03/2026","1161","HTQ4C66","OSMIR","06:19","06:42","9.88","20.61","SEGREDO"],
+["30/03/2026","1160","FFN5E40","ELSON","05:46","06:19","11.87","20.85","AQUIDAUANA"],
+["30/03/2026","1159","NSB9C49","ALEXANDRE","05:22","05:46","10.52","15.56","AQUIDAUANA"],
+["30/03/2026","1158","HSI0I56","CLAUDINEI","04:50","05:22","9.84","21.74","AEGEA"],
+["28/03/2026","1157","HTQ4263","RODRIGO","07:42","08:15","9.81","25.92","IMBIRUSSU"],
+["28/03/2026","1156","HTQ6A98","AUGUSTO","07:10","07:42","9.93","25.83","ANHANDUIZINHO"],
+["28/03/2026","1155","HSK0C00","MIGUEL","06:35","07:10","10.34","25.71","IMBIRUSSU"],
+["28/03/2026","1154","HTQ3F44","LUIZ","06:03","06:35","9.65","25.93","ANHANDUIZINHO"],
+["28/03/2026","1153","HTQ4C66","OSMIR","05:28","06:03","9.78","25.81","SEGREDO"],
+["28/03/2026","1152","HSI0I56","CLAUDINEI","05:11","05:28","9.70","11.72","AEGEA"],
+["28/03/2026","1151","NSB9C49","ALEXANDRE","04:45","05:11","10.56","15.69","AQUIDAUANA"],
+["27/03/2026","1150","HSI0I56","CLAUDINEI","08:27","09:00","9.73","25.76","ANHANDUIZINHO"],
+["27/03/2026","1149","HTQ4263","RODRIGO","07:52","08:26","9.93","25.87","IMBIRUSSU"],
+["27/03/2026","1148","HTQ3F44","LUIZ","07:20","07:52","9.88","25.73","SEGREDO"],
+["27/03/2026","1147","HTQ6A98","AUGUSTO","06:46","07:20","9.88","25.97","ANHANDUIZINHO"],
+["27/03/2026","1146","HSK0C00","MIGUEL","06:15","06:46","10.21","25.83","IMBIRUSSU"],
+["27/03/2026","1145","FFN5E40","ELSON","05:50","06:15","11.86","15.91","SEGREDO"],
+["27/03/2026","1144","HTQ4C66","OSMIR","05:16","05:50","9.62","25.60","SEGREDO"],
+["27/03/2026","1143","NSB9C49","ALEXANDRE","04:42","05:16","10.41","25.65","ANHANDUIZINHO"],
+["26/03/2026","1142","HSF2616","CAIO","10:19","11:00","9.62","25.40","IMBIRUSSU"],
+["26/03/2026","1141","HTQ3F44","LUIZ","09:45","10:19","9.72","25.80","SEGREDO"],
+["26/03/2026","1140","HSI0I56","CLAUDINEI","09:10","09:45","9.81","25.80","ANHANDUIZINHO"],
+["26/03/2026","1139","HTQ4263","RODRIGO","08:36","09:10","9.80","25.60","IMBIRUSSU"],
+["26/03/2026","1138","HSK0C00","MIGUEL","07:55","08:36","10.36","25.71","IMBIRUSSU"],
+["26/03/2026","1137","HTQ4C66","OSMIR","07:26","07:55","9.71","25.65","SEGREDO"],
+["26/03/2026","1136","FFN5E40","ELSON","06:50","07:25","11.72","22.84","ANHANDUIZINHO"],
+["26/03/2026","1135","HTQ6A98","AUGUSTO","06:15","06:49","9.82","25.82","ANHANDUIZINHO"],
+["26/03/2026","1134","NSB9C49","ALEXANDRE","05:45","06:15","10.56","22.75","ANHANDUIZINHO"],
+["25/03/2026","1133","HSK0C00","MIGUEL","06:08","06:43","10.47","25.84","IMBIRUSSU"],
+["25/03/2026","1132","NSB9249","ALEXANDRE","05:33","06:08","10","25.73","ANHANDUIZINHO"],
+["25/03/2026","1131","HSI0I56","CLAUDINEI","05:25","05:33","9.79","6.31","AEGEA"],
+["25/03/2026","1130","HTQ4C66","OSMIR","04:50","05:25","10.45","25.71","SEGREDO"],
+["24/03/2026","1120","QAJ2389","ALFREDO","09:16","09:45","10.61","25.23","IMBIRUSSU"],
+["24/03/2026","1119","HTQ3F44","LUIZ","08:43","09:16","9.68","25.35","SEGREDO"],
+["24/03/2026","1118","HSI0I56","CLAUDINEI","08:10","08:43","9.85","25.55","ANHANDUIZINHO"],
+["24/03/2026","1117","FFN5E40","ELSON","07:46","08:10","11.87","16.20","IMBIRUSSU"],
+["24/03/2026","1116","HSK0C00","MIGUEL","07:13","07:46","10.21","25.38","IMBIRUSSU"],
+["24/03/2026","1115","HTQ4263","RODRIGO","06:40","07:13","9.89","25.83","ANHANDUIZINHO"],
+["24/03/2026","1114","HTQ6A98","AUGUSTO","06:05","06:40","9.84","25.83","ANHANDUIZINHO"],
+["24/03/2026","1113","HTQ4C66","OSMIR","05:30","06:05","9.52","25.23","SEGREDO"],
+["24/03/2026","1112","NSB9C49","ALEXANDRE","04:50","05:30","10.59","23.10","QUEBRA - MOLAS"],
+["23/03/2026","1111","FFN5E40","ELSON","08:23","08:52","11.81","20.30","SEGREDO"],
+["23/03/2026","1110","HTQ3F44","LUIZ","07:47","08:22","9.72","25.50","SEGREDO"],
+["23/03/2026","1109","QAJ2389","ALFREDO","07:20","07:47","10.51","25.45","IMBIRUSSU"],
+["23/03/2026","1108","HTQ4C66","OSMIR","06:45","07:20","9.66","25.83","SEGREDO"],
+["23/03/2026","1107","HSK0C00","MIGUEL","06:15","06:45","10.29","25.48","IMBIRUSSU"],
+["23/03/2026","1106","NSB9C49","ALEXANDRE","05:40","06:15","10.40","25.12","ANHANDUIZINHO"],
+["23/03/2026","1105","HTQ6A98","AUGUSTO","05:06","05:40","9.93","25.83","ANHANDUIZINHO"],
+["21/03/2026","1129","FFN5E40","ELSON","08:55","09:10","11.71","10.96","SEGREDO"],
+["21/03/2026","1128","HTQ4C66","OSMIR","08:24","08:55","9.70","25.83","SEGREDO"],
+["21/03/2026","1127","HSK0C00","MIGUEL","07:55","08:24","10.41","25.48","IMBIRUSSU"],
+["21/03/2026","1126","HTQ6A98","AUGUSTO","07:26","07:55","9.80","25.83","ANHANDUIZINHO"],
+["21/03/2026","1125","HSI0I56","CLAUDINEI","06:55","07:26","9.76","25.75","ANHANDUIZINHO"],
+["21/03/2026","1124","MCG9D04","ESMAEL","06:22","06:55","10.75","22.33","JARAGUARI"],
+["21/03/2026","1123","HTQ3F44","LUIZ","05:50","06:22","9.82","21.67","JARAGUARI"],
+["21/03/2026","1122","QAJ2389","ALFREDO","05:15","05:50","10.43","21.35","JARAGUARI"],
+["21/03/2026","1121","NSB9C49","ALEXANDRE","04:50","05:15","10.56","21.16","JARAGUARI"],
+["20/03/2026","1104","BPY1G20","ADRIANO (RR BARROS)","10:11","","9.34","13.89","TERCEIROS"],
+["20/03/2026","1103","HTJ5258","RENATO (GS CONSTRUTORA)","09:40","10:10","9.66","17.06","TERCEIROS"],
+["20/03/2026","1102","HTQ4C66","OSMIR","09:18","09:40","9.82","21.34","SEGREDO"],
+["20/03/2026","1101","HTQ6A98","AUGUSTO","08:51","09:18","9.87","25.60","IMBIRUSSU"],
+["20/03/2026","1100","QAJ2389","ALFREDO","08:22","08:51","10.51","25.53","ANHANDUIZINHO"],
+["20/03/2026","1099","FFN5E40","ELSON","07:59","08:22","11.78","15.59","IMBIRUSSU"],
+["20/03/2026","1098","HSK0C00","MIGUEL","07:28","07:59","10.57","25.45","IMBIRUSSU"],
+["20/03/2026","1097","HSI0I56","CLAUDINEI","07:08","07:28","9.87","21.23","SEGREDO"],
+["20/03/2026","1096","CPI6418","DIOGO","06:38","07:08","9.78","25.31","PELEZINHO"],
+["20/03/2026","1095","BTS4860","JOSÉ DIAS","06:00","06:38","10.30","25.06","PELEZINHO"],
+["20/03/2026","1094","AOM6G71","IZAIAS","05:09","05:58","10.74","25.81","PELEZINHO"],
+["20/03/2026","1093","MCG9D04","ESMAEL","04:38","05:09","10.85","24.50","PELEZINHO"],
+["20/03/2026","1092","NSB9C49","ALEXANDRE","03:45","04:28","10.43","25.10","ANHANDUIZINHO"],
+["19/03/2026","1091","QAJ2389","ALFREDO","07:03","07:43","10.55","25.10","ANHANDUIZINHO"],
+["19/03/2026","1090","NSB9C49","ALEXANDRE","06:30","07:03","10.43","25.10","ANHANDUIZINHO"],
+["19/03/2026","1089","FFN5E40","ELSON","06:06","06:30","11.85","14.83","SEGREDO"],
+["19/03/2026","1088","HTQ4C66","OSMIR","05:35","06:06","9.81","25.15","SEGREDO"],
+["19/03/2026","1087","HSK0C00","MIGUEL","05:03","05:35","10.56","25.20","IMBIRUSSU"],
+["19/03/2026","1086","HSI0I56","CLAUDINEI","04:44","05:03","9.83","12.20","AEGEA"],
+["19/03/2026","1085","HTQ6A98","AUGUSTO","04:15","04:44","9.76","25.20","ANHANDUIZINHO"],
+["18/03/2026","1084","QAJ2389","ALFREDO","07:09","07:40","10.46","25.30","IMBIRUSSU"],
+["18/03/2026","1083","FFN5E40","ELSON","06:05","06:38","11.90","22.25","SEGREDO"],
+["18/03/2026","1082","HTQ4C66","OSMIR","05:19","06:05","9.93","25.50","SEGREDO"],
+["18/03/2026","1081","BTS4806","JOSÉ DIAS","04:50","05:19","9.89","25.10","SEGREDO"],
+["18/03/2026","1080","HSK0C00","MIGUEL","04:19","04:50","10.43","25.10","IMBIRUSSU"],
+["18/03/2026","1079","HSI0I56","CLAUDINEI","03:45","04:19","9.91","25.00","ANHANDUIZINHO"],
+["18/03/2026","1078","NSB9C49","ALEXANDRE","03:15","03:45","10.54","15.40","AQUIDAUANA"],
+["17/03/2026","1077","HTQ4C66","OSMIR","07:12","07:55","9.83","25.20","SEGREDO"],
+["17/03/2026","1076","FFN5E40","ELSON","06:40","07:12","11.81","13.64","ANHANDUIZINHO"],
+["17/03/2026","1075","HSI0I56","CLAUDINEI","05:13","06:01","9.87","25.60","ANHANDUIZINHO"],
+["17/03/2026","1074","HSK0C00","MIGUEL","04:37","05:13","10.51","25.11","IMBIRUSSU"],
+["17/03/2026","1073","NSB9C49","ALEXANDRE","03:30","03:57","10.67","15.10","AQUIDAUANA"],
+["16/03/2026","1072","FFN5E40","ELSON","07:27","07:40","11.78","6.84","SEGREDO"],
+["16/03/2026","1071","HTQ4C66","OSMIR","06:48","07:27","9.93","25.20","SEGREDO"],
+["16/03/2026","1070","QAJ2389","ALFREDO","06:12","06:48","10.55","25.23","IMBIRUSSU"],
+["16/03/2026","1069","HSK0C00","MIGUEL","04:54","05:51","10.36","25.20","IMBIRUSSU"],
+["16/03/2026","1068","NSB9C49","ALEXANDRE","04:20","04:54","10.71","25.11","ANHANDUIZINHO"],
+["13/03/2026","1067","HTQ4C66","OSMIR","06:16","07:02","10.41","25.73","SEGREDO"],
+["13/03/2026","1066","FFN5E40","ELSON","06:05","06:16","11.92","5.54","IMBIRUSSU"],
+["13/03/2026","1065","HSK0C00","MIGUEL","05:30","06:05","10.55","25.37","IMBIRUSSU"],
+["13/03/2026","1064","HSI0I56","CLAUDINEI","04:54","05:30","9.81","21.15","AEGEA"],
+["13/03/2026","1063","NSB9249","ALEXANDRE","04:10","04:54","10","25.10","ANHANDUIZINHO"],
+["12/03/2026","1062","QAJ2389","ALFREDO","08:36","09:06","10.40","21.31","ANHANDUIZINHO"],
+["12/03/2026","1061","HSK0C00","MIGUEL","08:06","08:36","10.55","18.21","IMBIRUSSU"],
+["12/03/2026","1060","HTQ4C66","OSMIR","07:08","07:44","10.45","19.91","SEGREDO"],
+["12/03/2026","1059","HSI0I56","CLAUDINEI","06:29","07:08","9.79","21.51","AEGEA"],
+["12/03/2026","1058","FFN5E40","ELSON","06:16","06:29","11.83","6.61","AQUIDAUANA"],
+["12/03/2026","1057","NSB9249","ALEXANDRE","05:56","06:16","10","16.51","AQUIDAUANA"],
+["11/03/2026","1052","HTQ4263","RODRIGO","06:54","07:36","9.80","25.70","ANHANDUIZINHO"],
+["11/03/2026","1051","QAJ2389","ALDREDO","06:13","06:54","10.40","25.51","IMBIRUSSU"],
+["11/03/2026","1050","FFN5E40","ELSON","05:53","06:13","11.87","9.44","SEGREDO"],
+["11/03/2026","1049","HTQ3F44","AUGUSTO","05:12","05:53","9.87","25.62","SEGREDO"],
+["11/03/2026","1048","NSB9249","ALEXANDRE","04:41","05:12","10","16.32","QUEBRA MOLA"],
+["10/03/2026","1056","QAJ2389","ALFREDO","08:25","09:03","10.54","25.39","SEGREDO"],
+["10/03/2026","1055","FFN5E40","ELSON","08:07","08:25","11.82","6.68","ANHANDUIZINHO"],
+["10/03/2026","1054","HTQ4263","RODRIGO","07:23","08:07","9.89","25.25","ANHANDUIZINHO"],
+["10/03/2026","1053","HSK0C00","MIGUEL","06:37","07:23","10.47","25.33","IMBIRUSSU"],
+["09/03/2026","1047","FFN5E40","ELSON","06:58","07:44","11.82","12.76","SEGREDO"],
+["09/03/2026","1046","HTQ3F44","AUGUSTO","06:06","06:58","9.80","25.53","SEGREDO"],
+["09/03/2026","1045","HSK0C00","MIGUEL","05:19","06:06","10.39","25.41","IMBIRUSSU"],
+["09/03/2026","1044","HTQ4263","RODRIGO","04:37","05:19","9.72","25.42","ANHANDUIZINHO"],
+["05/03/2026","1043","HTQ4C66","OSMIR","12:19","12:26","10.51","8.83","SEGREDO"],
+["05/03/2026","1042","BTS4806","JOSÉ DIAS","11:44","12:19","10.15","25.73","ANHANDUIZINHO"],
+["05/03/2026","1041","HRO3201","JULIANO","11:00","11:44","8.40","24.41","JARAGUARI"],
+["05/03/2026","1040","CPI6418","DIOGO","10:16","11:00","9.68","25.61","JARAGUARI"],
+["05/03/2026","1039","HRE9801","OSVALDO","09:41","10:16","8.92","20.91","JARAGUARI"],
+["05/03/2026","1038","AOM6G71","ISAIAS","08:55","09:41","10.74","26.20","JARAGUARI"],
+["05/03/2026","1037","FFN5E40","ELSON","08:31","08:55","11.85","13.31","ANHANDUIZINHO"],
+["05/03/2026","1036","QAJ2389","ALFREDO","07:48","08:31","10.50","25.90","ANHANDUIZINHO"],
+["05/03/2026","1035","HSI0I56","CLAUDINEI","07:13","07:48","9.88","25.94","ANHANDUIZINHO"],
+["05/03/2026","1034","HTQ3F44","AUGUSTO","06:36","07:13","9.70","25.64","SEGREDO"],
+["05/03/2026","1033","DXY2824","FILLYPE","","","9.81","24.65","JARAGUARI"],
+["05/03/2026","1032","NRP7G12","MARCOS","05:10","05:51","10.64","22.39","JARAGUARI"],
+["05/03/2026","1031","NSB9249","ALEXANDRE","04:30","05:10","10.58","22.93","JARAGUARI"],
+["05/03/2026","1030","HSK0C00","MIGUEL","03:43","04:30","10.46","25.21","AEGEA"],
+["03/03/2026","1029","QAJ2389","ALFREDO","07:32","08:11","10.42","25.83","IMBIRUSSU"],
+["03/03/2026","1028","HTQ4C66","OSMIR","06:57","07:32","10.57","25.49","SEGREDO"],
+["03/03/2026","1027","HSI0I56","CLAUDINEI","06:21","06:57","9.88","25.73","ANHANDUIZINHO"],
+["03/03/2026","1026","HSK0C00","MIGUEL","05:44","06:21","10.52","25.49","IMBIRUSSU"],
+["03/03/2026","1025","FFN5E40","EMERSON","05:15","05:44","11.85","15.29","SEGREDO"],
+["03/03/2026","1024","HTQ3F44","AUGUSTO","04:40","05:15","9.74","25.58","SEGREDO"],
+["03/03/2026","1023","HTQ4263","RODRIGO","04:04","04:40","9.71","25.56","ANHANDUIZINHO"],
+["03/03/2026","1022","NSB9249","ALEXANDRE","03:29","04:04","10.49","25.14","QUEBRA MOLAS"],
+["02/03/2026","1021","HTQ4263","RODRIGO","07:30","08:06","9.89","25.94","ANHANDUIZINHO"],
+["02/03/2026","1020","HTQ3F44","AUGUSTO","05:17","05:53","9.83","25.28","SEGREDO"],
+["02/03/2026","1019","HSI0I56","CLAUDINEI","04:41","05:17","9.76","25.99","ANHANDUIZINHO"],
+["02/03/2026","1018","HTQ4C66","OSMIR","04:06","04:41","10.49","25.97","SEGREDO"],
+["02/03/2026","1017","QAJ2389","ALFREDO","03:32","04:06","10.50","25.43","IMBIRUSSU"],
+["02/03/2026","1016","NSB9249","ALEXANDRE","02:57","03:32","10.61","25.76","ANHANDUIZINHO"]
+];
+
+const fmt = n => Number(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const peso = r => parseFloat(r[7]) || 0;
+
+function tipoRegiao(reg) {
+  const r = (reg||'').toUpperCase();
+  if (r.includes('GUARIROBA')) return 'GUA';
+  if (r.includes('AEGEA')) return 'AEG';
+  const limpo = r.replace(/ANHANDUIZINHO/g,'').replace(/IMBIRUSSU/g,'').replace(/SEGREDO/g,'').replace(/[\s\-]/g,'');
+  return limpo.length === 0 ? 'INT' : 'EXT';
+}
+
+function badgeLabel(tipo) {
+  if (tipo==='AEG') return '<span class="badge badge-aeg">AEGEA</span>';
+  if (tipo==='GUA') return '<span class="badge badge-gua">Águas Guariroba</span>';
+  if (tipo==='INT') return '<span class="badge badge-int">Interno</span>';
+  return '<span class="badge badge-ext">Externo</span>';
+}
+
+// KPIs
+const totalPeso = ROWS.reduce((s,r)=>s+peso(r),0);
+const extPeso = ROWS.filter(r=>tipoRegiao(r[8])==='EXT').reduce((s,r)=>s+peso(r),0);
+const aegPeso = ROWS.filter(r=>tipoRegiao(r[8])==='AEG').reduce((s,r)=>s+peso(r),0);
+const guaPeso = ROWS.filter(r=>tipoRegiao(r[8])==='GUA').reduce((s,r)=>s+peso(r),0);
+const intPeso = ROWS.filter(r=>tipoRegiao(r[8])==='INT').reduce((s,r)=>s+peso(r),0);
+const pctExt = ((extPeso+aegPeso+guaPeso)/totalPeso*100).toFixed(1);
+
+document.getElementById('dataAtual').textContent = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+document.getElementById('gerado').textContent = new Date().toLocaleDateString('pt-BR');
+document.getElementById('totalRows').textContent = ROWS.length;
+
+document.getElementById('kpiGrid').innerHTML = `
+  <div class="kpi blue"><div class="kpi-label">Total de Viagens</div><div class="kpi-value">${ROWS.length}</div><div class="kpi-unit">registros</div></div>
+  <div class="kpi"><div class="kpi-label">Massa Total Carregada</div><div class="kpi-value">${fmt(totalPeso)}</div><div class="kpi-unit">toneladas</div></div>
+  <div class="kpi orange"><div class="kpi-label">Contratos Externos</div><div class="kpi-value">${fmt(extPeso+aegPeso+guaPeso)}</div><div class="kpi-unit">toneladas · ${pctExt}% do total</div></div>
+  <div class="kpi green"><div class="kpi-label">Regiões Internas</div><div class="kpi-value">${fmt(intPeso)}</div><div class="kpi-unit">toneladas · ${(intPeso/totalPeso*100).toFixed(1)}% do total</div></div>
+`;
+
+// Normalizar regiões para agrupamento nos gráficos
+// Regiões combinadas como "ANHANDUIZINHO - SEGREDO" indicam que outra equipe atuou no local →
+// agrupa na primeira região (destino principal)
+function normReg(reg) {
+  const r = (reg||'').toUpperCase().trim();
+  if (r.includes('GUARIROBA')) return 'Águas Guariroba';
+  if (r.includes('AEGEA')) return 'AEGEA';
+  if (r.includes('TERCEIROS')) return 'TERCEIROS';
+  if (r.includes('QUEBRA')) return 'QUEBRA MOLAS';
+  if (r.includes(' - ')) {
+    const partes = reg.split(' - ');
+    const internas = ['ANHANDUIZINHO','IMBIRUSSU','SEGREDO'];
+    const todasInt = partes.every(p => internas.includes(p.trim().toUpperCase()));
+    if (todasInt) return partes[0].trim(); // destino principal
+  }
+  return reg.trim();
+}
+
+// Chart: por região (horizontal bar)
+const porReg = {};
+ROWS.forEach(r => { const k=normReg(r[8]); porReg[k]=(porReg[k]||0)+peso(r); });
+const regEntries = Object.entries(porReg).sort((a,b)=>b[1]-a[1]);
+const regColors = regEntries.map(([k])=>{
+  const t = tipoRegiao(k);
+  if(t==='GUA') return 'rgba(39,174,96,0.85)';
+  if(t==='AEG') return 'rgba(230,126,34,0.85)';
+  if(t==='INT') return 'rgba(52,152,219,0.85)';
+  return 'rgba(231,76,60,0.85)';
+});
+
+new Chart(document.getElementById('chartRegiao'),{type:'bar',
+  data:{labels:regEntries.map(e=>e[0]),datasets:[{label:'Toneladas',data:regEntries.map(e=>+e[1].toFixed(2)),backgroundColor:regColors,borderRadius:5,borderWidth:0}]},
+  options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${fmt(c.raw)} t`}}},scales:{x:{beginAtZero:true,title:{display:true,text:'Toneladas'}}}}
+});
+
+// Chart: pizza
+new Chart(document.getElementById('chartPizza'),{type:'doughnut',
+  data:{
+    labels:[
+      `Interno (${fmt(intPeso)} t)`,
+      `Externo/Terceiros (${fmt(extPeso)} t)`,
+      `AEGEA (${fmt(aegPeso)} t)`,
+      `Águas Guariroba (${fmt(guaPeso)} t)`
+    ],
+    datasets:[{
+      data:[+intPeso.toFixed(2),+extPeso.toFixed(2),+aegPeso.toFixed(2),+guaPeso.toFixed(2)],
+      backgroundColor:['rgba(52,152,219,0.85)','rgba(231,76,60,0.85)','rgba(230,126,34,0.85)','rgba(39,174,96,0.85)'],
+      borderWidth:2,borderColor:'#fff'
+    }]
+  },
+  options:{cutout:'55%',plugins:{legend:{position:'bottom',labels:{boxWidth:14,font:{size:11}}},tooltip:{callbacks:{label:c=>{const pct=(c.raw/totalPeso*100).toFixed(1);return ` ${fmt(c.raw)} t (${pct}%)`;} }}}}
+});
+
+// Chart: tempo
+const porData={};
+ROWS.forEach(r=>{const p=peso(r);porData[r[0]]=(porData[r[0]]||0)+p;});
+const datas=Object.keys(porData).sort((a,b)=>{const[da,ma,ya]=a.split('/');const[db,mb,yb]=b.split('/');return new Date(ya,ma-1,da)-new Date(yb,mb-1,db);});
+const pesosData=datas.map(d=>+porData[d].toFixed(2));
+let acum=0;const acumulado=pesosData.map(p=>{acum+=p;return+acum.toFixed(2);});
+
+new Chart(document.getElementById('chartTempo'),{type:'bar',
+  data:{labels:datas,datasets:[
+    {label:'Diário (t)',data:pesosData,backgroundColor:'rgba(52,152,219,0.6)',borderColor:'#2980b9',borderWidth:1,borderRadius:4,yAxisID:'y'},
+    {label:'Acumulado (t)',data:acumulado,type:'line',borderColor:'#e67e22',backgroundColor:'transparent',borderWidth:2.5,pointRadius:3,tension:0.3,yAxisID:'y2'}
+  ]},
+  options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}}},
+    scales:{y:{beginAtZero:true,title:{display:true,text:'Diário (t)'},position:'left'},y2:{beginAtZero:true,title:{display:true,text:'Acumulado (t)'},position:'right',grid:{drawOnChartArea:false}},x:{ticks:{maxRotation:45,font:{size:10}}}}}
+});
+
+// Chart: motoristas
+const porMot={};
+ROWS.forEach(r=>{let m=r[3]||'N/I';if(m.length>20)m=m.split(' ').slice(0,2).join(' ');porMot[m]=(porMot[m]||0)+peso(r);});
+const mots=Object.entries(porMot).sort((a,b)=>b[1]-a[1]).slice(0,16);
+const paleta=['#2980b9','#27ae60','#e67e22','#8e44ad','#16a085','#e74c3c','#2c3e50','#f39c12','#1abc9c','#d35400','#c0392b','#7f8c8d','#2ecc71','#3498db','#9b59b6','#e91e63'];
+
+new Chart(document.getElementById('chartMot'),{type:'bar',
+  data:{labels:mots.map(m=>m[0]),datasets:[{label:'Toneladas carregadas',data:mots.map(m=>+m[1].toFixed(2)),backgroundColor:paleta,borderRadius:5,borderWidth:0}]},
+  options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${fmt(c.raw)} t`}}},
+    scales:{y:{beginAtZero:true,title:{display:true,text:'Toneladas'}},x:{ticks:{maxRotation:35,font:{size:10}}}}}
+});
+
+// Tabela com filtros
+const regioes=[...new Set(ROWS.map(r=>r[8]))].sort();
+const selReg=document.getElementById('filtroRegiao');
+regioes.forEach(reg=>{const o=document.createElement('option');o.value=reg;o.textContent=reg;selReg.appendChild(o);});
+
+let sortCol=-1,sortAsc=true;
+function sortTable(col){if(sortCol===col)sortAsc=!sortAsc;else{sortCol=col;sortAsc=true;}renderTable();}
+
+function renderTable(){
+  const busca=document.getElementById('busca').value.toLowerCase();
+  const filtReg=document.getElementById('filtroRegiao').value;
+  const filtTipo=document.getElementById('filtroTipo').value;
+
+  let filtered=ROWS.filter(r=>{
+    if(busca&&!r.join(' ').toLowerCase().includes(busca))return false;
+    if(filtReg&&r[8]!==filtReg)return false;
+    if(filtTipo&&tipoRegiao(r[8])!==filtTipo)return false;
+    return true;
+  });
+
+  if(sortCol>=0){
+    filtered.sort((a,b)=>{
+      let va=a[sortCol],vb=b[sortCol];
+      if(sortCol===7||sortCol===6){va=parseFloat(va)||0;vb=parseFloat(vb)||0;return sortAsc?va-vb:vb-va;}
+      return sortAsc?(va||'').localeCompare(vb||'','pt-BR'):(vb||'').localeCompare(va||'','pt-BR');
+    });
+  }
+
+  const tbody=document.getElementById('tbody');
+  tbody.innerHTML='';
+  filtered.forEach(r=>{
+    const tipo=tipoRegiao(r[8]);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]||'—'}</td><td>${r[4]||'—'}</td><td>${r[5]||'—'}</td><td>${r[6]}</td><td><strong>${fmt(peso(r))}</strong></td><td>${r[8]}</td><td>${badgeLabel(tipo)}</td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('infoCount').textContent=`Exibindo ${filtered.length} de ${ROWS.length} registros`;
+}
+
+document.getElementById('busca').addEventListener('input',renderTable);
+document.getElementById('filtroRegiao').addEventListener('change',renderTable);
+document.getElementById('filtroTipo').addEventListener('change',renderTable);
+renderTable();
+</script>
+</body>
+</html>

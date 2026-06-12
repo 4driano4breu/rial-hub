@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEGEA CBUQ — RIAL Hub</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8;color:#1a2636}
+header{background:linear-gradient(135deg,#003366 0%,#005fa3 100%);color:white;padding:28px 40px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+header h1{font-size:1.5rem;font-weight:700}
+header p{font-size:.85rem;opacity:.8;margin-top:4px}
+header .meta{text-align:right;font-size:.82rem;opacity:.8}
+header .meta strong{display:block;font-size:1rem;opacity:1}
+.container{max-width:1100px;margin:0 auto;padding:28px 20px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi{background:white;border-radius:12px;padding:20px 22px;box-shadow:0 2px 10px rgba(0,0,0,.07);border-top:4px solid #005fa3}
+.kpi.green{border-top-color:#27ae60}.kpi.orange{border-top-color:#e67e22}.kpi.red{border-top-color:#e74c3c}
+.kpi-label{font-size:.75rem;color:#7f8c8d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.kpi-value{font-size:2rem;font-weight:700;color:#003366}
+.kpi-unit{font-size:.8rem;color:#7f8c8d;margin-top:2px}
+.progress-card{background:white;border-radius:12px;padding:28px 32px;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:24px}
+.progress-card h2{font-size:1rem;color:#003366;margin-bottom:18px}
+.prog-labels{display:flex;justify-content:space-between;margin-bottom:8px;font-size:.88rem}
+.prog-track{background:#e8eef4;border-radius:50px;height:34px;overflow:hidden}
+.prog-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,#005fa3,#27ae60);display:flex;align-items:center;justify-content:flex-end;padding-right:14px;color:white;font-weight:700;font-size:.9rem}
+.prog-marks{display:flex;justify-content:space-between;margin-top:8px;font-size:.72rem;color:#aaa}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.card{background:white;border-radius:12px;padding:24px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.card h3{font-size:.92rem;color:#003366;margin-bottom:18px;font-weight:600}
+.cap-info{font-size:.75rem;color:#7f8c8d;margin-top:10px;padding-top:8px;border-top:1px solid #e8eef4}
+.table-card{background:white;border-radius:12px;padding:24px;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:24px;overflow-x:auto}
+.table-card h3{font-size:.92rem;color:#003366;margin-bottom:18px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+th{background:#003366;color:white;padding:10px 14px;text-align:left;font-weight:600}
+td{padding:9px 14px;border-bottom:1px solid #edf2f7}
+tr:hover td{background:#f0f7ff}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.77rem;font-weight:600;background:#e3f0fb;color:#005fa3}
+footer{text-align:center;padding:20px;color:#aab;font-size:.76rem}
+@media(max-width:700px){.kpi-grid,.two-col{grid-template-columns:1fr 1fr}}
+/* HUB DARK OVERRIDE */
+body{background:#0f172a!important;color:#f1f5f9!important}
+.container,.kpi,.card,.progress-card,.table-card,.two-col>*{background:#1e293b!important;color:#f1f5f9!important}
+.kpi-label,.kpi-unit{color:#94a3b8!important}
+.kpi-value{color:#f1f5f9!important}
+.card h3,.table-card h3,.progress-card h2{color:#f1f5f9!important}
+th{background:#0f172a!important;color:#94a3b8!important}
+td{border-bottom-color:#334155!important;color:#cbd5e1!important}
+tr:hover td{background:#263348!important}
+.prog-track{background:#334155!important}
+header{background:linear-gradient(135deg,#1e3a5f 0%,#0f172a 100%)!important}
+.badge{background:#3b82f615!important;color:#93c5fd!important}
+</style>
+</head>
+<body>
+<nav style="background:#0f172a;border-bottom:1px solid #334155;padding:0 24px;height:46px;display:flex;align-items:center;gap:8px;font-family:'Segoe UI',system-ui,sans-serif;position:sticky;top:0;z-index:9999">
+  <a href="/" style="font-size:.85rem;font-weight:700;color:#3b82f6;text-decoration:none">RIAL Hub</a>
+  <span style="color:#334155;font-size:.9rem">/</span>
+  <span style="font-size:.8rem;color:#94a3b8">Usinagem</span>
+  <span style="color:#334155;font-size:.9rem">/</span>
+  <span style="font-size:.78rem;color:#64748b">AEGEA</span>
+  <a href="/usinagem/" style="margin-left:auto;font-size:.78rem;color:#64748b;text-decoration:none">← Módulo</a>
+</nav>
+<header>
+  <div>
+    <h1>AEGEA</h1>
+    <p>Controle de Usinagem de Massa CBUQ · Contrato Principal</p>
+  </div>
+  <div class="meta">
+    <strong id="dataAtual"></strong>
+    Relatório de Usinagem
+  </div>
+</header>
+
+<div class="container">
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Massa Produzida</div><div class="kpi-value" id="kpiProd">—</div><div class="kpi-unit">toneladas</div></div>
+    <div class="kpi green"><div class="kpi-label">Meta Total (CAP 30t)</div><div class="kpi-value">588,24</div><div class="kpi-unit">toneladas estimadas</div></div>
+    <div class="kpi orange"><div class="kpi-label">CAP Consumido</div><div class="kpi-value" id="kpiCapCons">—</div><div class="kpi-unit">de 30 toneladas</div></div>
+    <div class="kpi red"><div class="kpi-label">CAP Restante</div><div class="kpi-value" id="kpiCapRest">—</div><div class="kpi-unit">toneladas disponíveis</div></div>
+  </div>
+
+  <div class="progress-card">
+    <h2>Progressão da Meta</h2>
+    <div class="prog-labels">
+      <span>0 t</span>
+      <span style="color:#005fa3;font-weight:600" id="progLabel">—</span>
+      <span>588,24 t</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%">—</div></div>
+    <div class="prog-marks"><span>0%</span><span>25% · 147t</span><span>50% · 294t</span><span>75% · 441t</span><span>100% · 588t</span></div>
+    <div class="cap-info">CAP fornecido pela AEGEA: 30t · Composição: 5,1% · Meta estimada: 588,24t · CAP consumido: <span id="capConsInfo">—</span>t · restante: <span id="capRestInfo">—</span>t</div>
+  </div>
+
+  <div class="two-col">
+    <div class="card"><h3>📅 Produção por Data (toneladas)</h3><canvas id="chartDatas" height="240"></canvas></div>
+    <div class="card"><h3>📈 Acumulado vs. Meta (588t)</h3><canvas id="chartAcum" height="240"></canvas></div>
+  </div>
+  <div class="two-col">
+    <div class="card"><h3>🛢️ CAP — Consumido vs. Disponível</h3><canvas id="chartCap" height="220"></canvas></div>
+    <div class="card"><h3>🚛 Viagens por Motorista</h3><canvas id="chartMot" height="220"></canvas></div>
+  </div>
+
+  <div class="table-card">
+    <h3 id="tblTitle">📋 Detalhamento — Viagens AEGEA</h3>
+    <table>
+      <thead><tr><th>Data</th><th>Ticket</th><th>Placa</th><th>Motorista</th><th>Entrada</th><th>Saída</th><th>Tara (t)</th><th>Peso (t)</th><th>Região</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+<footer>Relatório gerado em <span id="gerado"></span> · Dados: Base_Notas · CBUQ = massa asfáltica · CAP = 5,1% da composição</footer>
+
+<script>
+const AEGEA_ROWS = [
+["23/05/2026","1630","HTQ3F44","LUIZ","06:11","06:54","11.410","24.77","AEGEA"],
+["22/05/2026","1624","HTQ4C66","OSMIR","06:38","07:01","9.74","25.74","AEGEA"],
+["12/05/2026","1551","HSF6629","ANDERSON","09:32","10:02","9.14","20.46","AEGEA"],
+["11/05/2026","1536","CPI6418","DIOGO FRETEIRO","10:42","11:13","9.64","18.75","AEGEA"],
+["08/05/2026","1524","CPI6418","DIOGO","08:07","08:58","9.68","19.05","AEGEA"],
+["07/05/2026","1512","DXY2B24","FILLYPE","08:21","08:50","10.58","20.71","AEGEA"],
+["17/04/2026","1320","NSB9C49","ALEXANDRE","03:11","03:48","10.38","20.35","AEGEA"],
+["09/04/2026","1252","NRP7G12","ADRIANO","04:48","05:24","10.56","25.35","AEGEA"],
+["31/03/2026","1167","SLW6E82","","04:45","05:01","9.92","10.40","AEGEA"],
+["30/03/2026","1158","HSI0I56","CLAUDINEI","04:50","05:22","9.84","21.74","AEGEA"],
+["28/03/2026","1152","HSI0I56","CLAUDINEI","05:11","05:28","9.70","11.72","AEGEA"],
+["25/03/2026","1131","HSI0I56","CLAUDINEI","05:25","05:33","9.79","6.31","AEGEA"],
+["19/03/2026","1086","HSI0I56","CLAUDINEI","04:44","05:03","9.83","12.20","AEGEA"],
+["13/03/2026","1064","HSI0I56","CLAUDINEI","04:54","05:30","9.81","21.15","AEGEA"],
+["12/03/2026","1059","HSI0I56","CLAUDINEI","06:29","07:08","9.79","21.51","AEGEA"],
+["05/03/2026","1030","HSK0C00","MIGUEL","03:43","04:30","10.46","25.21","AEGEA"]
+];
+
+const CAP_TOTAL=30, CAP_COMP=0.051, META=CAP_TOTAL/CAP_COMP;
+const fmt = n => Number(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+document.getElementById('dataAtual').textContent = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+document.getElementById('gerado').textContent = new Date().toLocaleDateString('pt-BR');
+
+const totalPeso = AEGEA_ROWS.reduce((s,r)=>s+(parseFloat(r[7])||0),0);
+const capConsumido = +(totalPeso*CAP_COMP).toFixed(2);
+const capRestante = +(CAP_TOTAL-capConsumido).toFixed(2);
+const pct = +(totalPeso/META*100).toFixed(1);
+
+document.getElementById('kpiProd').textContent = fmt(totalPeso);
+document.getElementById('kpiCapCons').textContent = fmt(capConsumido)+' t';
+document.getElementById('kpiCapRest').textContent = fmt(capRestante)+' t';
+document.getElementById('progLabel').textContent = `${fmt(totalPeso)} t produzidas (${pct}%)`;
+document.getElementById('progFill').style.width = pct+'%';
+document.getElementById('progFill').textContent = pct+'%';
+document.getElementById('capConsInfo').textContent = fmt(capConsumido);
+document.getElementById('capRestInfo').textContent = fmt(capRestante);
+document.getElementById('tblTitle').textContent = `📋 Detalhamento — Todas as Viagens para AEGEA (${AEGEA_ROWS.length} registros)`;
+
+// Aggregated by date
+const porData = {};
+AEGEA_ROWS.forEach(r=>{ const p=parseFloat(r[7])||0; porData[r[0]]=(porData[r[0]]||0)+p; });
+const datas = Object.keys(porData).sort((a,b)=>{const[da,ma,ya]=a.split('/');const[db,mb,yb]=b.split('/');return new Date(ya,ma-1,da)-new Date(yb,mb-1,db);});
+const pesos = datas.map(d=>+porData[d].toFixed(2));
+
+new Chart(document.getElementById('chartDatas'),{type:'bar',data:{labels:datas,datasets:[{label:'Toneladas',data:pesos,backgroundColor:'rgba(0,95,163,0.75)',borderColor:'#003366',borderWidth:1.5,borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,title:{display:true,text:'Toneladas'}},x:{ticks:{maxRotation:45}}}}});
+
+let acum=0; const acumulado=pesos.map(p=>{acum+=p;return+acum.toFixed(2);});
+new Chart(document.getElementById('chartAcum'),{type:'line',data:{labels:datas,datasets:[{label:'Acumulado (t)',data:acumulado,borderColor:'#27ae60',backgroundColor:'rgba(39,174,96,0.1)',borderWidth:2.5,fill:true,tension:0.3,pointRadius:5},{label:'Meta 588t',data:datas.map(()=>META),borderColor:'#e74c3c',borderDash:[6,4],borderWidth:1.5,pointRadius:0,fill:false}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:14,font:{size:11}}}},scales:{y:{beginAtZero:true,title:{display:true,text:'Toneladas'}}}}});
+
+new Chart(document.getElementById('chartCap'),{type:'doughnut',data:{labels:['CAP Consumido ('+fmt(capConsumido)+'t)','CAP Disponível ('+fmt(capRestante)+'t)'],datasets:[{data:[capConsumido,capRestante],backgroundColor:['#e67e22','#27ae60'],borderWidth:2,borderColor:['#fff','#fff']}]},options:{cutout:'60%',plugins:{legend:{position:'bottom',labels:{boxWidth:14,font:{size:11}}},tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.raw)} t`}}}}});
+
+const porMot={};
+AEGEA_ROWS.forEach(r=>{const m=r[3]||'N/I'; porMot[m]=(porMot[m]||0)+(parseFloat(r[7])||0);});
+const mots=Object.entries(porMot).sort((a,b)=>b[1]-a[1]);
+new Chart(document.getElementById('chartMot'),{type:'bar',data:{labels:mots.map(m=>m[0]),datasets:[{label:'Toneladas',data:mots.map(m=>+m[1].toFixed(2)),backgroundColor:['#2980b9','#27ae60','#e67e22','#9b59b6','#16a085','#e74c3c'],borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,title:{display:true,text:'Toneladas'}},x:{ticks:{maxRotation:30}}}}});
+
+const tbody=document.getElementById('tbody');
+AEGEA_ROWS.forEach(r=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]||'—'}</td><td>${r[4]||'—'}</td><td>${r[5]||'—'}</td><td>${r[6]}</td><td><strong>${fmt(parseFloat(r[7])||0)}</strong></td><td><span class="badge">${r[8]}</span></td>`;
+  tbody.appendChild(tr);
+});
+</script>
+</body>
+</html>

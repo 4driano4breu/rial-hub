@@ -1,70 +1,90 @@
 {% extends "base.html" %}
 {% block title %}Usinagem CBUQ — RIAL Hub{% endblock %}
-{% block nav_cur %}Usinagem{% endblock %}
+{% block nav_cur %}Usinagem CBUQ{% endblock %}
 
 {% block head %}
 <style>
   .module-header { display:flex; align-items:center; gap:14px; margin-bottom:28px; }
-  .module-icon { width:48px; height:48px; background:#d9770620; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+  .module-icon { width:48px; height:48px; background:#3b82f620; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
   .module-title { font-size:1.3rem; font-weight:700; }
   .module-sub { color:var(--muted); font-size:.82rem; margin-top:3px; }
 
-  .roadmap { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px; }
-  .roadmap-title { font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:600; margin-bottom:18px; }
-  .roadmap-item { display:flex; align-items:flex-start; gap:14px; padding:14px 0; border-bottom:1px solid var(--border); }
-  .roadmap-item:last-child { border-bottom:none; }
-  .step-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:700; flex-shrink:0; margin-top:1px; }
-  .dot-done { background:#10b98120; color:#34d399; border:1px solid #10b98140; }
-  .dot-next { background:#3b82f620; color:#93c5fd; border:1px solid #3b82f640; }
-  .dot-later { background:#33415530; color:var(--muted); border:1px solid var(--border); }
-  .step-label { font-size:.88rem; font-weight:600; margin-bottom:3px; }
-  .step-desc { font-size:.78rem; color:var(--muted); line-height:1.5; }
+  .section-title { font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:600; margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+
+  /* Dashboard grid */
+  .dash-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:28px; }
+  @media(max-width:640px){ .dash-grid { grid-template-columns:1fr; } }
+
+  .dash-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:10px; transition:border-color .2s, transform .15s; }
+  .dash-card:hover { border-color:var(--accent); transform:translateY(-2px); }
+  .dash-card-icon { font-size:1.8rem; line-height:1; }
+  .dash-card h3 { font-size:.98rem; font-weight:700; }
+  .dash-card p { font-size:.82rem; color:var(--muted); flex:1; line-height:1.5; }
+
+  .btn { display:inline-block; padding:8px 16px; border-radius:8px; font-size:.82rem; font-weight:600; text-decoration:none; cursor:pointer; border:none; transition:opacity .15s; }
+  .btn:hover { opacity:.85; }
+  .btn-primary { background:var(--accent); color:#fff; }
+  .btn-success { background:#16a34a; color:#fff; }
+
+  /* Upload card */
+  .upload-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:22px; }
+  .upload-card form { display:flex; flex-direction:column; gap:14px; }
+  .field label { display:block; font-size:.82rem; color:var(--muted); margin-bottom:6px; }
+  .field input[type="file"] { background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:8px 10px; color:var(--text); font-size:.82rem; width:100%; cursor:pointer; }
+  .hint { font-size:.78rem; color:var(--muted); background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:8px 12px; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="module-header">
-  <div class="module-icon">⚙</div>
+  <div class="module-icon">&#9881;</div>
   <div>
     <div class="module-title">Usinagem CBUQ</div>
-    <div class="module-sub">Controle de CAP consumido por contrato e região — Google Sheets</div>
+    <div class="module-sub">Controle de toneladas CAP por contrato &mdash; 3 dashboards</div>
   </div>
 </div>
 
-<div class="roadmap">
-  <div class="roadmap-title">Roadmap de integração</div>
+<!-- Dashboards -->
+<div class="section-title">Dashboards</div>
+<div class="dash-grid">
 
-  <div class="roadmap-item">
-    <div class="step-dot dot-done">✓</div>
-    <div>
-      <div class="step-label">Script base disponível</div>
-      <div class="step-desc">O script <code>atualizar_dashboards.py</code> processa o CSV do Google Sheets de controle CBUQ/CAP.</div>
-    </div>
+  <div class="dash-card">
+    <div class="dash-card-icon" style="color:#3b82f6;">&#128200;</div>
+    <h3>Geral</h3>
+    <p>Todos os registros de CBUQ, todos os contratos e regioes consolidados.</p>
+    <a href="{{ url_for('usinagem.geral') }}" class="btn btn-primary">Abrir</a>
   </div>
 
-  <div class="roadmap-item">
-    <div class="step-dot dot-next">2</div>
-    <div>
-      <div class="step-label">Importação via CSV ou link Google Sheets</div>
-      <div class="step-desc">Formulário para upload do CSV exportado ou integração direta via Google Sheets API.</div>
-    </div>
+  <div class="dash-card">
+    <div class="dash-card-icon" style="color:#22c55e;">&#128176;</div>
+    <h3>AEGEA</h3>
+    <p>Somente contrato AEGEA &mdash; controle de 30t de CAP fornecidas.</p>
+    <a href="{{ url_for('usinagem.aegea') }}" class="btn btn-primary">Abrir</a>
   </div>
 
-  <div class="roadmap-item">
-    <div class="step-dot dot-later">3</div>
-    <div>
-      <div class="step-label">Dashboard de toneladas</div>
-      <div class="step-desc">Visualização interativa de toneladas consumidas por contrato, equipamento e período.</div>
-    </div>
+  <div class="dash-card">
+    <div class="dash-card-icon" style="color:#f59e0b;">&#128167;</div>
+    <h3>Guariroba</h3>
+    <p>Aguas Guariroba &mdash; TDC, CB Termico e RIAL separados por subcontrato.</p>
+    <a href="{{ url_for('usinagem.guariroba') }}" class="btn btn-primary">Abrir</a>
   </div>
 
-  <div class="roadmap-item">
-    <div class="step-dot dot-later">4</div>
-    <div>
-      <div class="step-label">Exportação de relatórios</div>
-      <div class="step-desc">Geração de relatórios consolidados em Excel com totais por região e contrato.</div>
-    </div>
-  </div>
+</div>
 
+<!-- Atualizar dados -->
+<div class="section-title">Atualizar dados</div>
+<div class="upload-card">
+  <form method="POST" action="{{ url_for('usinagem.atualizar') }}" enctype="multipart/form-data">
+    <div class="field">
+      <label for="csv-input">CSV do Google Sheets (File &rarr; Download &rarr; CSV)</label>
+      <input id="csv-input" type="file" name="csv" accept=".csv" required>
+    </div>
+    <div class="hint">
+      O upload regenera os 3 dashboards automaticamente.
+    </div>
+    <div>
+      <button type="submit" class="btn btn-success">&#11014; Atualizar Dashboards</button>
+    </div>
+  </form>
 </div>
 {% endblock %}

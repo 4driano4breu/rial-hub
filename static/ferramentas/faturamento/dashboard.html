@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faturamento 2026 — RIAL Hub</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card2: #263348;
+    --border: #334155;
+    --accent: #3b82f6;
+    --accent2: #10b981;
+    --accent3: #f59e0b;
+    --accent4: #ef4444;
+    --accent5: #8b5cf6;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+  header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .logo {
+    width: 44px; height: 44px; background: var(--accent);
+    border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-size: 22px;
+  }
+  header h1 { font-size: 1.35rem; font-weight: 700; }
+  header span { font-size: 0.85rem; color: var(--muted); }
+
+  .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+
+  /* KPI cards */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px; margin-bottom: 28px;
+  }
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative; overflow: hidden;
+  }
+  .kpi::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--kpi-color, var(--accent));
+  }
+  .kpi-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+  .kpi-value { font-size: 1.55rem; font-weight: 700; }
+  .kpi-sub { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+
+  /* charts grid */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px; margin-bottom: 20px;
+  }
+  .charts-row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px; margin-bottom: 20px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card h2 {
+    font-size: 0.92rem; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .06em;
+    margin-bottom: 16px;
+  }
+  canvas { width: 100% !important; }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  thead th {
+    background: var(--card2);
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+  }
+  tbody tr { border-bottom: 1px solid #1e293b; transition: background .15s; cursor: default; }
+  tbody tr:hover { background: var(--card2); }
+  tbody td { padding: 9px 12px; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .badge-jan { background:#1d4ed820; color:#60a5fa; }
+  .badge-fev { background:#06524220; color:#34d399; }
+  .badge-mar { background:#78350f20; color:#fbbf24; }
+  .badge-abr { background:#4c1d9520; color:#a78bfa; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: #34d399; }
+  .neg { color: #f87171; }
+
+  /* filter */
+  .filter-bar {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 14px; align-items: center;
+  }
+  .filter-bar select, .filter-bar input {
+    background: var(--card2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px;
+    padding: 7px 12px; font-size: 0.83rem;
+  }
+  .filter-bar label { font-size: 0.82rem; color: var(--muted); }
+
+  .total-row { font-weight: 700; background: #1e3a5f !important; color: #93c5fd; }
+
+  /* Recebido */
+  tr.row-recebido { background: #052e1640 !important; }
+  tr.row-recebido:hover { background: #052e1660 !important; }
+  .check-wrap { display: flex; align-items: center; gap: 8px; }
+  .check-recebido { width: 17px; height: 17px; accent-color: #10b981; cursor: pointer; flex-shrink:0; }
+  .data-recebimento {
+    background: #0f172a; border: 1px solid #334155; color: #f1f5f9;
+    border-radius: 6px; padding: 3px 7px; font-size: 0.78rem;
+    width: 120px; display: none;
+  }
+  .data-recebimento.visible { display: inline-block; }
+  .badge-recebido   { background:#05280e40; color:#4ade80; }
+  .badge-pendente   { background:#1e293b;   color:#94a3b8; }
+
+  /* ── Painel Recebimentos ── */
+  .rec-section { display:block; margin-bottom:20px; }
+  .rec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px; margin-bottom: 18px;
+  }
+  .rec-kpi {
+    border-radius: 10px; padding: 16px 18px;
+    position: relative; overflow: hidden;
+  }
+  .rec-kpi::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .rec-pago       { background:#052e1640; border:1px solid #10b98130; }
+  .rec-pago::before { background:#10b981; }
+  .rec-pendente   { background:#1e293b;   border:1px solid #334155; }
+  .rec-pendente::before { background:#94a3b8; }
+  .rec-pct        { background:#1e3a5f40; border:1px solid #3b82f640; }
+  .rec-pct::before { background:#3b82f6; }
+  .rec-label { font-size:.74rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-bottom:7px; }
+  .rec-value { font-size:1.4rem; font-weight:700; }
+  .rec-sub   { font-size:.76rem; color:var(--muted); margin-top:3px; }
+  .rec-pago .rec-value     { color:#4ade80; }
+  .rec-pendente .rec-value { color:#94a3b8; }
+  .rec-pct .rec-value      { color:#60a5fa; }
+  /* Barra empilhada */
+  .rec-barra-labels { display:flex; justify-content:space-between; font-size:.75rem; color:var(--muted); margin-bottom:5px; }
+  .rec-barra-bg { height:14px; border-radius:99px; background:#1e293b; overflow:hidden; display:flex; }
+  .rec-barra-pago     { height:100%; background:linear-gradient(90deg,#10b981,#059669); transition:width .8s ease; min-width:0; }
+  .rec-barra-pendente { height:100%; background:#334155; flex:1; }
+  .rec-overlay {
+    position:absolute; inset:0; border-radius:12px;
+    background: #0f172acc; backdrop-filter: blur(2px);
+    display:flex; align-items:center; justify-content:center;
+    font-size:.88rem; color:var(--muted); gap:8px; z-index:2;
+  }
+
+  /* ── Painel Conferência (flutuante) ── */
+  .painel-conf {
+    position: fixed; bottom: 28px; right: 28px;
+    width: 320px; z-index: 200;
+    background: #1e293b; border: 1px solid #3b82f6;
+    border-radius: 14px; box-shadow: 0 8px 32px #0008;
+    display: none; flex-direction: column;
+    overflow: hidden;
+  }
+  .painel-conf.aberto { display: flex; }
+  .painel-conf-header {
+    background: #1e3a5f; padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #334155;
+    cursor: grab; user-select: none;
+  }
+  .painel-conf-header:active { cursor: grabbing; }
+  .painel-conf-titulo { font-size:.85rem; font-weight:700; color:#60a5fa; }
+  .painel-conf-fechar {
+    background:none; border:none; color:#94a3b8;
+    font-size:1.1rem; cursor:pointer; line-height:1; padding:2px 4px;
+    border-radius:4px;
+  }
+  .painel-conf-fechar:hover { background:#334155; color:#f1f5f9; }
+  .painel-conf-lista {
+    max-height: 220px; overflow-y: auto;
+    padding: 8px 0; border-bottom: 1px solid #334155;
+  }
+  .painel-conf-lista::-webkit-scrollbar { width:4px; }
+  .painel-conf-lista::-webkit-scrollbar-track { background:#1e293b; }
+  .painel-conf-lista::-webkit-scrollbar-thumb { background:#334155; border-radius:4px; }
+  .painel-conf-item {
+    display: flex; justify-content: space-between; align-items:center;
+    padding: 5px 14px; font-size:.8rem; gap:8px;
+  }
+  .painel-conf-item:hover { background:#263348; }
+  .painel-conf-nf  { color:#94a3b8; white-space:nowrap; }
+  .painel-conf-org { color:#cbd5e1; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.75rem; }
+  .painel-conf-val { color:#34d399; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .painel-conf-remove { background:none; border:none; color:#475569; cursor:pointer; font-size:.85rem; padding:0 2px; }
+  .painel-conf-remove:hover { color:#ef4444; }
+  .painel-conf-footer { padding: 12px 14px; }
+  .painel-conf-totais { margin-bottom:10px; }
+  .painel-conf-tot-row {
+    display:flex; justify-content:space-between;
+    font-size:.82rem; padding:3px 0;
+    border-bottom: 1px solid #263348;
+  }
+  .painel-conf-tot-row:last-child { border-bottom:none; }
+  .painel-conf-tot-label { color:#94a3b8; }
+  .painel-conf-tot-val   { font-weight:700; }
+  .painel-conf-tot-bruto { color:#60a5fa; }
+  .painel-conf-tot-liq   { color:#4ade80; font-size:.92rem; }
+  .painel-conf-acoes { display:flex; gap:8px; }
+  .btn-limpar-sel {
+    flex:1; background:#334155; color:#94a3b8; border:none;
+    border-radius:7px; padding:7px 0; font-size:.8rem; cursor:pointer;
+  }
+  .btn-limpar-sel:hover { background:#475569; color:#f1f5f9; }
+  .check-sel {
+    width:16px; height:16px; accent-color:#3b82f6; cursor:pointer; flex-shrink:0;
+  }
+  .row-selecionada { background:#1e3a5f40 !important; outline:1px solid #3b82f640; }
+  .row-selecionada:hover { background:#1e3a5f70 !important; }
+
+  /* Conexão JSON */
+  .conexao-bar {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--card2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 16px;
+    margin-bottom: 14px; font-size: 0.83rem; flex-wrap: wrap;
+  }
+  .conexao-status { display: flex; align-items: center; gap: 7px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .dot-on  { background: #10b981; box-shadow: 0 0 6px #10b98180; }
+  .dot-off { background: #94a3b8; }
+  .conexao-info { color: var(--muted); font-size: 0.78rem; }
+  .btn-conectar {
+    background: #3b82f6; color: #fff; border: none;
+    border-radius: 7px; padding: 6px 14px;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .btn-conectar:hover { background: #2563eb; }
+  .btn-reconectar {
+    background: #f59e0b; color: #0f172a; border: none;
+    border-radius: 7px; padding: 6px 14px;
+    font-size: 0.82rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+    animation: pulse-btn 1.5s infinite;
+  }
+  .btn-reconectar:hover { background: #d97706; }
+  @keyframes pulse-btn {
+    0%,100% { box-shadow: 0 0 0 0 #f59e0b55; }
+    50%      { box-shadow: 0 0 0 6px #f59e0b00; }
+  }
+  .btn-save-UNUSED {
+    margin-left: auto; background: #10b981; color: #fff; border: none;
+    border-radius: 8px; padding: 7px 16px;
+    font-size: 0.83rem; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; transition: background .2s;
+  }
+  .btn-save-UNUSED:hover { background: #059669; }
+  .btn-save-UNUSED.saved { background: #1e3a5f; color: #60a5fa; }
+  .save-toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: #10b981; color: #fff; padding: 12px 20px;
+    border-radius: 10px; font-size: 0.88rem; font-weight: 600;
+    opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 999;
+  }
+  .save-toast.show { opacity: 1; }
+
+  /* ── Teto Lucro Presumido ── */
+  .teto-section {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 22px 24px; margin-bottom: 20px;
+  }
+  .teto-section h2 {
+    font-size: 0.92rem; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 18px;
+  }
+  .teto-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px; margin-bottom: 22px;
+  }
+  .teto-kpi {
+    background: var(--card2); border-radius: 10px; padding: 16px;
+    position: relative; overflow: hidden;
+  }
+  .teto-kpi::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--kpi-color, #ef4444);
+  }
+  .teto-kpi-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing:.05em; margin-bottom: 6px; }
+  .teto-kpi-value { font-size: 1.4rem; font-weight: 700; }
+  .teto-kpi-sub   { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+  .alert-box { border-radius: 10px; padding: 14px 18px; font-size: 0.88rem; display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
+  .alert-danger  { background: #450a0a40; border: 1px solid #ef444460; color: #fca5a5; }
+  .alert-warning { background: #451a0340; border: 1px solid #f59e0b60; color: #fcd34d; }
+  .alert-icon { font-size: 1.2rem; flex-shrink: 0; }
+  .alert-text strong { display: block; margin-bottom: 2px; }
+  .progress-wrap { margin-top: 6px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 0.77rem; color: var(--muted); margin-bottom: 6px; }
+  .progress-bar-bg { background: #1e293b; border-radius: 99px; height: 12px; overflow: hidden; position: relative; }
+  .progress-bar-fill { height: 100%; border-radius: 99px; transition: width .6s ease; }
+  .progress-teto-line { position: absolute; top: 0; bottom: 0; width: 2px; background: #ef4444cc; }
+  .progress-teto-label { position: absolute; top: -18px; font-size: 0.68rem; color: #ef4444; transform: translateX(-50%); white-space: nowrap; }
+
+  /* ── TABS ── */
+  .tab-nav { display:flex; gap:4px; padding:0 32px; background:#0f172a; border-bottom:1px solid #1e293b; }
+  .tab-btn { padding:12px 22px; font-size:0.875rem; font-weight:600; color:#64748b; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:color .15s,border-color .15s; }
+  .tab-btn:hover { color:#94a3b8; }
+  .tab-btn.active { color:#f1f5f9; border-bottom-color:#3b82f6; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+
+  /* ── ABA MEDIÇÕES ── */
+  .med-main { padding:28px 32px; max-width:1400px; margin:0 auto; }
+  .med-kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:28px; }
+  .med-filter-bar { display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+  .med-filter-bar label { font-size:.82rem; color:var(--muted); }
+  .med-filter-bar select, .med-filter-bar input { background:#0f172a; border:1px solid var(--border); color:var(--text); border-radius:6px; padding:6px 10px; font-size:.82rem; }
+  .med-group { background:var(--card); border:1px solid var(--border); border-radius:12px; margin-bottom:20px; overflow:hidden; }
+  .med-group-header { padding:14px 20px; display:flex; align-items:center; justify-content:space-between; background:var(--card2); cursor:pointer; user-select:none; }
+  .med-group-title { font-size:.95rem; font-weight:700; }
+  .med-group-sub { font-size:.8rem; color:var(--muted); margin-top:2px; }
+  .med-group-total { font-size:1rem; font-weight:700; color:var(--accent); }
+  .med-table-wrap { overflow-x:auto; }
+  .med-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+  .med-table th { background:#0f1e35; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.04em; font-size:.72rem; padding:10px 14px; text-align:left; }
+  .med-table th.num, .med-table td.num { text-align:right; }
+  .med-table td { padding:10px 14px; border-top:1px solid #1e293b; }
+  .med-table tr:hover td { background:#1a2535; }
+  .med-table .subtotal td { background:#0f1e35; font-weight:700; color:var(--accent2); font-size:.83rem; }
+  .inss-detail { font-size:.75rem; color:var(--muted); margin-top:2px; }
+  .badge-princ { background:#1e3a5f; color:#93c5fd; padding:2px 8px; border-radius:4px; font-size:.72rem; font-weight:600; }
+  .badge-reaj { background:#2d1f5f; color:#c4b5fd; padding:2px 8px; border-radius:4px; font-size:.72rem; font-weight:600; }
+</style>
+</head>
+<body>
+<nav style="background:#0f172a;border-bottom:1px solid #334155;padding:0 24px;height:46px;display:flex;align-items:center;gap:8px;font-family:'Segoe UI',system-ui,sans-serif;position:sticky;top:0;z-index:9999">
+  <a href="/" style="font-size:.85rem;font-weight:700;color:#3b82f6;text-decoration:none">RIAL Hub</a>
+  <span style="color:#334155;font-size:.9rem">/</span>
+  <span style="font-size:.8rem;color:#94a3b8">Faturamento NFS-e</span>
+  <a href="/faturamento/" style="margin-left:auto;font-size:.78rem;color:#64748b;text-decoration:none">← Módulo</a>
+</nav>
+
+<header>
+  <div class="logo">📊</div>
+  <div>
+    <h1>Dashboard Faturamento 2026</h1>
+    <span>Construtora Rial Ltda — 1º Trimestre + Abril</span>
+  </div>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('faturamento',this)">📊 Faturamento Geral</button>
+  <button class="tab-btn" onclick="switchTab('medicoes',this)">🔍 Medições 037/2021</button>
+</nav>
+
+<div id="tab-faturamento" class="tab-panel active">
+<div class="main">
+
+  <!-- Teto Lucro Presumido -->
+  <div class="teto-section">
+    <h2>⚠️ Controle de Teto — Lucro Presumido (Limite: R$ 78.000.000/ano)</h2>
+    <div id="alertBox"></div>
+    <div class="teto-grid" id="tetoGrid"></div>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Acumulado Jan–Abr 2026</span>
+        <span id="progressLabel"></span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill"></div>
+        <div class="progress-teto-line" id="progressTeto">
+          <span class="progress-teto-label">Teto R$ 78M</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- Charts row 1 -->
+  <div class="charts-row">
+    <div class="card">
+      <h2>Faturamento Bruto por Mês (R$)</h2>
+      <canvas id="chartBruto"></canvas>
+    </div>
+    <div class="card">
+      <h2>Distribuição de Descontos — Total Acum.</h2>
+      <canvas id="chartPizza"></canvas>
+    </div>
+  </div>
+
+  <!-- Charts row 2 -->
+  <div class="charts-row2">
+    <div class="card">
+      <h2>INSS · IR · ISS por Mês (R$)</h2>
+      <canvas id="chartDeducoes"></canvas>
+    </div>
+    <div class="card">
+      <h2>Faturamento por Órgão — Abril 2026</h2>
+      <canvas id="chartOrgao"></canvas>
+    </div>
+  </div>
+
+  <!-- Painel Recebimentos -->
+  <div class="rec-section card" id="recSection" style="position:relative">
+    <div class="rec-overlay" id="recOverlay">🔗 Conecte ao <strong style="color:var(--text);margin:0 4px">recebimentos.json</strong> para ver os dados de recebimento</div>
+    <h2>💰 Status de Recebimentos — Notas Fiscais</h2>
+    <div class="rec-grid">
+      <div class="rec-kpi rec-pago">
+        <div class="rec-label">✅ Valor Recebido</div>
+        <div class="rec-value" id="recValorPago">—</div>
+        <div class="rec-sub" id="recSubPago">0 notas</div>
+      </div>
+      <div class="rec-kpi rec-pendente">
+        <div class="rec-label">⏳ Valor Pendente</div>
+        <div class="rec-value" id="recValorPendente">—</div>
+        <div class="rec-sub" id="recSubPendente">0 notas</div>
+      </div>
+      <div class="rec-kpi rec-pct">
+        <div class="rec-label">📊 % Recebido</div>
+        <div class="rec-value" id="recPct">—</div>
+        <div class="rec-sub" id="recSubPct">do total líquido</div>
+      </div>
+    </div>
+    <div class="rec-barra-labels">
+      <span id="recBarraLabelPago" style="color:#4ade80">Recebido</span>
+      <span id="recBarraLabelPendente" style="color:#94a3b8">Pendente</span>
+    </div>
+    <div class="rec-barra-bg">
+      <div class="rec-barra-pago"     id="recBarraPago"     style="width:0%"></div>
+      <div class="rec-barra-pendente" id="recBarraPendente"></div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card">
+    <h2>Notas Fiscais Emitidas</h2>
+    <!-- Barra de conexão ao JSON compartilhado -->
+    <div class="conexao-bar">
+      <div class="conexao-status">
+        <div class="dot dot-off" id="dotStatus"></div>
+        <span id="conexaoTexto">Desconectado</span>
+      </div>
+      <span class="conexao-info" id="conexaoInfo">Conecte ao arquivo <strong>recebimentos.json</strong> da pasta compartilhada para sincronizar com toda a equipe.</span>
+      <button class="btn-reconectar" id="btnReconectar" onclick="reconectarJson()" style="display:none">🔁 Reconectar</button>
+      <button class="btn-conectar"   id="btnConectar"   onclick="conectarJson()">📂 Conectar arquivo</button>
+    </div>
+
+    <div class="filter-bar">
+      <label>Mês:</label>
+      <select id="filtroMes" onchange="renderTable()">
+        <option value="">Todos</option>
+        <option value="JANEIRO">Janeiro</option>
+        <option value="FEVEREIRO">Fevereiro</option>
+        <option value="MARÇO">Março</option>
+        <option value="ABRIL">Abril</option>
+      </select>
+      <label>Status:</label>
+      <select id="filtroStatus" onchange="renderTable()">
+        <option value="">Todos</option>
+        <option value="recebido">Recebido</option>
+        <option value="pendente">Pendente</option>
+      </select>
+      <label>Buscar:</label>
+      <input type="text" id="filtroBusca" placeholder="Contrato, órgão, nº..." oninput="renderTable()" style="min-width:200px">
+    </div>
+    <div class="table-wrap">
+      <table id="tabelaNotas">
+        <thead>
+          <tr>
+            <th style="width:28px" title="Selecionar para conferência">☐</th>
+            <th>Mês</th><th>NF</th><th>Emissão</th><th>Contrato</th>
+            <th>Órgão</th>
+            <th class="num">Bruto (R$)</th>
+            <th class="num" title="INSS + IR + ISS — passe o mouse nas células para ver o detalhamento">Deduções ⓘ</th>
+            <th class="num">Líquido (R$)</th>
+            <th>Recebido?</th>
+            <th>Data Receb.</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyNotas"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</div><!-- /tab-faturamento -->
+
+<!-- ══════════════ ABA MEDIÇÕES 037/2021 ══════════════ -->
+<div id="tab-medicoes" class="tab-panel">
+<div class="med-main">
+
+  <div class="med-kpi-grid" id="medKpis"></div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h2>Notas por Medição — Contrato 037/2021 (AGESUL)</h2>
+    <div class="med-filter-bar">
+      <label>Mês:</label>
+      <select id="medFiltroMes" onchange="renderMedicoes()">
+        <option value="">Todos</option>
+        <option value="JANEIRO">Janeiro</option>
+        <option value="FEVEREIRO">Fevereiro</option>
+        <option value="MARÇO">Março</option>
+        <option value="ABRIL">Abril</option>
+      </select>
+      <label>Tipo:</label>
+      <select id="medFiltroTipo" onchange="renderMedicoes()">
+        <option value="">Todos</option>
+        <option value="PRINCIPAL">Principal</option>
+        <option value="REAJUSTE">Reajuste</option>
+      </select>
+      <label>Município:</label>
+      <input type="text" id="medFiltroCidade" placeholder="Filtrar cidade..." oninput="renderMedicoes()" style="min-width:160px">
+    </div>
+    <div id="medGrupos"></div>
+  </div>
+
+</div>
+</div><!-- /tab-medicoes -->
+
+<!-- Painel flutuante de conferência -->
+<div class="painel-conf" id="painelConf">
+  <div class="painel-conf-header">
+    <span class="painel-conf-titulo">🧾 Conferência de Extrato</span>
+    <button class="painel-conf-fechar" onclick="fecharPainelConf()" title="Fechar">✕</button>
+  </div>
+  <div class="painel-conf-lista" id="confLista"></div>
+  <div class="painel-conf-footer">
+    <div class="painel-conf-totais" id="confTotais"></div>
+    <div class="painel-conf-acoes">
+      <button class="btn-limpar-sel" onclick="limparSelecao()">🗑 Limpar seleção</button>
+    </div>
+  </div>
+</div>
+
+<div class="save-toast" id="saveToast">✅ Arquivo salvo com sucesso!</div>
+
+<script>
+// ───────────── DATA ─────────────
+const SUMMARY = [{"notas":7,"bruto":1993983.57,"inss":22614.73,"ir":23927.78,"iss":99699.15,"liquido":1847741.91,"mes":"JANEIRO"},{"notas":18,"bruto":7457325.23,"inss":102024.05,"ir":89487.81,"iss":347578.53,"liquido":6918234.84,"mes":"FEVEREIRO"},{"notas":31,"bruto":10729238.04,"inss":156128.38,"ir":128750.71,"iss":523001.68,"liquido":9921357.27,"mes":"MARÇO"},{"notas":22,"bruto":9397036.92,"inss":152000.18,"ir":112764.32,"iss":469851.73,"liquido":8662420.69,"mes":"ABRIL"}];
+
+const ORGAO_ABRIL = {"MUNICIPIO DE CAMPO GRANDE":{"bruto":5629521.99,"notas":9},"AGETRAN - AGENCIA MUNICIPAL DE TRANSPORTE E TRANSITO":{"bruto":70733.22,"notas":1},"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS":{"bruto":3555006.77,"notas":11},"AGUAS GUARIROBA S.A.":{"bruto":141774.94,"notas":1}};
+
+const NOTES = [{"mes":"JANEIRO","nr":2702,"emissao":"20/01/2026","contrato":"27/2025","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":123802.72,"inss":2042.74,"ir":1485.63,"iss":6190.13,"liquido":114084.22,"recebido":false,"dataRecebimento":""},{"mes":"JANEIRO","nr":2701,"emissao":"19/01/2026","contrato":"280/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":128490.11,"inss":1413.39,"ir":1541.88,"iss":6424.5,"liquido":119110.34,"recebido":false,"dataRecebimento":""},{"mes":"JANEIRO","nr":2699,"emissao":"19/01/2026","contrato":"279/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":180235.6,"inss":1982.59,"ir":2162.82,"iss":9011.78,"liquido":167078.41,"recebido":false,"dataRecebimento":""},{"mes":"JANEIRO","nr":2698,"emissao":"19/01/2026","contrato":"281/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":401514.35,"inss":4416.66,"ir":4818.17,"iss":20075.71,"liquido":372203.81,"recebido":false,"dataRecebimento":""},{"mes":"JANEIRO","nr":2697,"emissao":"19/01/2026","contrato":"280/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":468087.86,"inss":5148.97,"ir":5617.05,"iss":23404.39,"liquido":433917.45,"recebido":false,"dataRecebimento":""},{"mes":"JANEIRO","nr":2696,"emissao":"19/01/2026","contrato":"279/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":656596.01,"inss":7222.56,"ir":7879.15,"iss":32829.8,"liquido":608664.5,"recebido":false,"dataRecebimento":""},{"mes":"JANEIRO","nr":2695,"emissao":"13/01/2026","contrato":"79.325/2022-02","orgao":"AGETRAN - AGENCIA MUNICIPAL DE TRANSPORTE E TRANSITO","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":35256.92,"inss":387.82,"ir":423.08,"iss":1762.84,"liquido":32683.18,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2731,"emissao":"25/02/2026","contrato":"281/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":259480.43,"inss":2854.28,"ir":3113.76,"iss":12974.02,"liquido":240538.37,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2729,"emissao":"25/02/2026","contrato":"280/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":213712.92,"inss":2350.84,"ir":2564.55,"iss":10685.64,"liquido":198111.89,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2728,"emissao":"25/02/2026","contrato":"279/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":312131.89,"inss":3433.45,"ir":3745.58,"iss":15606.59,"liquido":289346.27,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2727,"emissao":"24/02/2026","contrato":"02/2026","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":180559.08,"inss":1986.15,"ir":2166.7,"iss":9027.95,"liquido":167378.28,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2725,"emissao":"24/02/2026","contrato":"281/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":140258.7,"inss":1542.84,"ir":1683.1,"iss":7012.93,"liquido":130019.83,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2722,"emissao":"19/02/2026","contrato":"79.325/2022-02","orgao":"AGETRAN - AGENCIA MUNICIPAL DE TRANSPORTE E TRANSITO","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":5555.74,"inss":61.11,"ir":66.66,"iss":277.78,"liquido":5150.19,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2721,"emissao":"13/02/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"TRES LAGOAS","tipo":"PRINCIPAL","bruto":53440.71,"inss":801.9,"ir":641.28,"iss":1068.81,"liquido":50928.72,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2720,"emissao":"13/02/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BRASILANDIA","tipo":"PRINCIPAL","bruto":119915.33,"inss":1752.3,"ir":1438.98,"iss":5995.76,"liquido":110728.29,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2719,"emissao":"13/02/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"SANTA RITA DO PARDO","tipo":"PRINCIPAL","bruto":1098966.51,"inss":20849.43,"ir":13187.59,"iss":32968.99,"liquido":1031960.5,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2718,"emissao":"13/02/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO DO PARDO","tipo":"PRINCIPAL","bruto":838475.58,"inss":13897.61,"ir":10061.7,"iss":41923.77,"liquido":772592.5,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2713,"emissao":"11/02/2026","contrato":"02/2026","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":612396.94,"inss":6736.37,"ir":7348.76,"iss":30619.84,"liquido":567691.97,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2711,"emissao":"11/02/2026","contrato":"27/2025","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":254340.11,"inss":4196.61,"ir":3052.08,"iss":12717.0,"liquido":234374.42,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2708,"emissao":"09/02/2026","contrato":"281/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":478557.8,"inss":5264.13,"ir":5742.69,"iss":23927.89,"liquido":443623.09,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2707,"emissao":"09/02/2026","contrato":"280/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":692552.01,"inss":7618.07,"ir":8310.62,"iss":34627.6,"liquido":641995.72,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2706,"emissao":"09/02/2026","contrato":"279/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":1013352.16,"inss":11146.87,"ir":12160.22,"iss":50667.6,"liquido":939377.47,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2705,"emissao":"06/02/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"PRINCIPAL","bruto":12528.34,"inss":185.63,"ir":150.34,"iss":626.41,"liquido":11565.96,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2704,"emissao":"06/02/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BANDEIRANTES","tipo":"PRINCIPAL","bruto":1085846.2,"inss":16084.21,"ir":13030.15,"iss":54292.31,"liquido":1002439.53,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2703,"emissao":"06/02/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"CAMAPUA","tipo":"PRINCIPAL","bruto":85254.78,"inss":1262.25,"ir":1023.05,"iss":2557.64,"liquido":80411.84,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2770,"emissao":"20/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BRASILANDIA","tipo":"REAJUSTE","bruto":573972.65,"inss":8830.52,"ir":6887.67,"iss":28698.63,"liquido":529555.83,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2769,"emissao":"20/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"SANTA RITA DO PARDO","tipo":"REAJUSTE","bruto":149150.15,"inss":3278.0,"ir":1789.8,"iss":7457.5,"liquido":136624.85,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2768,"emissao":"20/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"REAJUSTE","bruto":34987.97,"inss":1084.89,"ir":419.85,"iss":1749.39,"liquido":31733.84,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2766,"emissao":"20/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"SANTA RITA DO PARDO","tipo":"PRINCIPAL","bruto":278697.65,"inss":6144.08,"ir":3344.37,"iss":13934.88,"liquido":255274.32,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2765,"emissao":"20/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO DO PARDO","tipo":"PRINCIPAL","bruto":64796.3,"inss":1879.08,"ir":777.55,"iss":3239.81,"liquido":58899.86,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2764,"emissao":"20/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BRASILANDIA","tipo":"PRINCIPAL","bruto":1087442.19,"inss":16439.88,"ir":13049.3,"iss":54372.1,"liquido":1003580.91,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2763,"emissao":"18/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"REAJUSTE","bruto":225697.64,"inss":3436.8,"ir":2708.37,"iss":11284.88,"liquido":208267.59,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2762,"emissao":"18/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"CAMAPUA","tipo":"REAJUSTE","bruto":76819.46,"inss":1162.8,"ir":921.83,"iss":3840.97,"liquido":70893.86,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2761,"emissao":"18/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BANDEIRANTES","tipo":"REAJUSTE","bruto":292047.28,"inss":4430.16,"ir":3504.56,"iss":14602.36,"liquido":269510.2,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2760,"emissao":"18/03/2026","contrato":"280/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":248366.08,"inss":2732.03,"ir":2980.39,"iss":12418.3,"liquido":230235.36,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2759,"emissao":"18/03/2026","contrato":"279/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":331343.91,"inss":3644.78,"ir":3976.12,"iss":16567.19,"liquido":307155.82,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2758,"emissao":"18/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"PRINCIPAL","bruto":428652.07,"inss":6398.33,"ir":5143.82,"iss":21432.6,"liquido":395677.32,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2757,"emissao":"18/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"CAMAPUA","tipo":"PRINCIPAL","bruto":146103.21,"inss":2164.8,"ir":1753.23,"iss":7305.16,"liquido":134880.02,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2756,"emissao":"18/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BANDEIRANTES","tipo":"PRINCIPAL","bruto":555165.7,"inss":8247.69,"ir":6661.98,"iss":27758.28,"liquido":512497.75,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2755,"emissao":"16/03/2026","contrato":"02/2026","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":222485.05,"inss":2447.33,"ir":2669.82,"iss":11124.25,"liquido":206243.65,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2754,"emissao":"16/03/2026","contrato":"281/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":191403.14,"inss":2105.43,"ir":2296.83,"iss":9570.15,"liquido":177430.73,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2751,"emissao":"16/03/2026","contrato":"02/2026","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":754595.84,"inss":8300.55,"ir":9055.15,"iss":37729.79,"liquido":699510.35,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2750,"emissao":"11/03/2026","contrato":"79.325/2022-02","orgao":"AGETRAN - AGENCIA MUNICIPAL DE TRANSPORTE E TRANSITO","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":26932.99,"inss":296.26,"ir":323.19,"iss":1346.64,"liquido":24966.9,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2747,"emissao":"11/03/2026","contrato":"281/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":649176.25,"inss":7140.93,"ir":7790.11,"iss":32458.81,"liquido":601786.4,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2746,"emissao":"11/03/2026","contrato":"280/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":842375.83,"inss":9266.13,"ir":10108.5,"iss":42118.79,"liquido":780882.41,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2745,"emissao":"11/03/2026","contrato":"279/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":1123809.25,"inss":12361.9,"ir":13485.71,"iss":56190.46,"liquido":1041771.18,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2744,"emissao":"11/03/2026","contrato":"27/2025","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":228251.54,"inss":3766.15,"ir":2739.01,"iss":11412.57,"liquido":210333.81,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2742,"emissao":"10/03/2026","contrato":"033/2025","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"JARAGUARI","tipo":"PRINCIPAL","bruto":439346.75,"inss":10923.74,"ir":5272.16,"iss":21967.33,"liquido":401183.52,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2741,"emissao":"10/03/2026","contrato":"79.325/2022-02","orgao":"AGETRAN - AGENCIA MUNICIPAL DE TRANSPORTE E TRANSITO","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":22088.37,"inss":242.97,"ir":265.06,"iss":1104.41,"liquido":20475.93,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2739,"emissao":"09/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"SANTA RITA DO PARDO","tipo":"REAJUSTE","bruto":585934.68,"inss":11165.34,"ir":7031.21,"iss":17578.04,"liquido":550160.09,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2738,"emissao":"06/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"TRES LAGOAS","tipo":"REAJUSTE","bruto":28166.45,"inss":430.73,"ir":337.99,"iss":563.32,"liquido":26834.41,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2737,"emissao":"06/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BRASILANDIA","tipo":"REAJUSTE","bruto":60595.38,"inss":914.71,"ir":727.14,"iss":3029.76,"liquido":55923.77,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2735,"emissao":"06/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"REAJUSTE","bruto":438533.27,"inss":7475.19,"ir":5262.39,"iss":21926.66,"liquido":403869.03,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2734,"emissao":"04/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"REAJUSTE","bruto":6587.23,"inss":99.71,"ir":79.04,"iss":329.36,"liquido":6079.12,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2733,"emissao":"04/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"CAMAPUA","tipo":"REAJUSTE","bruto":44819.49,"inss":678.0,"ir":537.83,"iss":1344.58,"liquido":42259.08,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2732,"emissao":"04/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BANDEIRANTES","tipo":"REAJUSTE","bruto":570894.27,"inss":8639.47,"ir":6850.73,"iss":28544.71,"liquido":526859.36,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2794,"emissao":"17/04/2026","contrato":"27/2025","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":260750.15,"inss":4302.38,"ir":3129.0,"iss":13037.5,"liquido":240281.27,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2793,"emissao":"15/04/2026","contrato":"79.325/2022-02","orgao":"AGETRAN - AGENCIA MUNICIPAL DE TRANSPORTE E TRANSITO","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":70733.22,"inss":778.06,"ir":848.79,"iss":3536.66,"liquido":65569.71,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2792,"emissao":"15/04/2026","contrato":"033/2025","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"JARAGUARI","tipo":"PRINCIPAL","bruto":1457392.61,"inss":51583.13,"ir":17488.71,"iss":72869.63,"liquido":1315451.14,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2791,"emissao":"14/04/2026","contrato":"02/2026","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":195272.51,"inss":2148.0,"ir":2343.27,"iss":9763.62,"liquido":181017.62,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2790,"emissao":"14/04/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"SANTA RITA DO PARDO","tipo":"REAJUSTE","bruto":154667.35,"inss":3544.74,"ir":1856.0,"iss":7733.36,"liquido":141533.25,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2789,"emissao":"14/04/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"REAJUSTE","bruto":19049.13,"inss":568.59,"ir":228.58,"iss":952.45,"liquido":17299.51,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2788,"emissao":"14/04/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BRASILANDIA","tipo":"REAJUSTE","bruto":183695.87,"inss":2803.09,"ir":2204.35,"iss":9184.79,"liquido":169503.64,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2787,"emissao":"14/04/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"SANTA RITA DO PARDO","tipo":"PRINCIPAL","bruto":297387.3,"inss":6725.97,"ir":3568.64,"iss":14869.36,"liquido":272223.33,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2786,"emissao":"14/04/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO DO PARDO","tipo":"PRINCIPAL","bruto":35631.54,"inss":984.82,"ir":427.57,"iss":1781.57,"liquido":32437.58,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2785,"emissao":"14/04/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BRASILANDIA","tipo":"PRINCIPAL","bruto":348707.94,"inss":5218.54,"ir":4184.49,"iss":17435.39,"liquido":321869.52,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2783,"emissao":"10/04/2026","contrato":"281/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":290553.1,"inss":3196.08,"ir":3486.63,"iss":14527.65,"liquido":269342.74,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2782,"emissao":"10/04/2026","contrato":"280/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":294623.71,"inss":3240.86,"ir":3535.48,"iss":14731.18,"liquido":273116.19,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2781,"emissao":"10/04/2026","contrato":"279/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":442040.47,"inss":4862.44,"ir":5304.48,"iss":22102.02,"liquido":409771.53,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2780,"emissao":"10/04/2026","contrato":"02/2026","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":662299.97,"inss":7285.3,"ir":7947.59,"iss":33114.99,"liquido":613952.09,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2779,"emissao":"10/04/2026","contrato":"281/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":985460.31,"inss":10840.06,"ir":11825.52,"iss":49273.01,"liquido":913521.72,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2778,"emissao":"10/04/2026","contrato":"280/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":999266.38,"inss":10991.93,"ir":11991.19,"iss":49963.31,"liquido":926319.95,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2777,"emissao":"10/04/2026","contrato":"279/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":1499255.39,"inss":16491.81,"ir":17991.06,"iss":74962.76,"liquido":1389809.76,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2775,"emissao":"09/04/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"REAJUSTE","bruto":280952.67,"inss":4035.09,"ir":3371.43,"iss":14047.63,"liquido":259498.52,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2774,"emissao":"09/04/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"CAMAPUA","tipo":"REAJUSTE","bruto":80952.42,"inss":1162.8,"ir":971.42,"iss":4047.62,"liquido":74770.58,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2773,"emissao":"09/04/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"PRINCIPAL","bruto":540761.73,"inss":7512.17,"ir":6489.14,"iss":27038.08,"liquido":499722.34,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2772,"emissao":"09/04/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"CAMAPUA","tipo":"PRINCIPAL","bruto":155808.21,"inss":2164.8,"ir":1869.69,"iss":7790.41,"liquido":143983.31,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2771,"emissao":"02/04/2026","contrato":"148/2025","orgao":"AGUAS GUARIROBA S.A.","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":141774.94,"inss":1559.52,"ir":1701.29,"iss":7088.74,"liquido":131425.39,"recebido":false,"dataRecebimento":""}];
+
+// ───────────── HELPERS ─────────────
+const fmt = (v) => v ? v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '0,00';
+const fmtM = (v) => 'R$ ' + fmt(v);
+const COLORS = ['#3b82f6','#10b981','#f59e0b','#8b5cf6'];
+const BADGE = {JANEIRO:'badge-jan',FEVEREIRO:'badge-fev','MARÇO':'badge-mar',ABRIL:'badge-abr'};
+
+// ───────────── TETO LUCRO PRESUMIDO ─────────────
+const TETO_ANUAL   = 78_000_000;
+const TETO_MENSAL  = TETO_ANUAL / 12;
+const MESES_COUNT  = SUMMARY.length;
+const MEDIA_MENSAL = SUMMARY.reduce((a,m)=>a+m.bruto,0) / MESES_COUNT;
+const PROJ_ANUAL   = MEDIA_MENSAL * 12;
+const ACUMULADO    = SUMMARY.reduce((a,m)=>a+m.bruto,0);
+const SALDO        = TETO_ANUAL - ACUMULADO;
+const PCT_ACUM     = (ACUMULADO / TETO_ANUAL) * 100;
+const PCT_PROJ     = (PROJ_ANUAL / TETO_ANUAL) * 100;
+const ACIMA_TETO   = PROJ_ANUAL > TETO_ANUAL;
+
+document.getElementById('alertBox').innerHTML = ACIMA_TETO ? `
+  <div class="alert-box alert-danger">
+    <span class="alert-icon">🚨</span>
+    <div class="alert-text">
+      <strong>Projeção anual ultrapassa o teto do Lucro Presumido!</strong>
+      Com a média de ${fmtM(MEDIA_MENSAL)}/mês, a projeção de ${fmtM(PROJ_ANUAL)} supera o limite em
+      <strong>${fmtM(PROJ_ANUAL - TETO_ANUAL)}</strong> (${(PCT_PROJ-100).toFixed(1)}% acima). Atenção fiscal urgente.
+    </div>
+  </div>` : `
+  <div class="alert-box alert-warning">
+    <span class="alert-icon">⚡</span>
+    <div class="alert-text">
+      <strong>Atenção: monitorar ritmo de faturamento.</strong>
+      Projeção anual em ${fmtM(PROJ_ANUAL)} — ${(100-PCT_PROJ).toFixed(1)}% abaixo do teto.
+    </div>
+  </div>`;
+
+document.getElementById('tetoGrid').innerHTML = [
+  { label: 'Média Mensal (Jan–Abr)', value: fmtM(MEDIA_MENSAL), sub: `Teto mensal: ${fmtM(TETO_MENSAL)}`, color: MEDIA_MENSAL > TETO_MENSAL ? '#ef4444' : '#10b981' },
+  { label: 'Projeção Anual (12×média)', value: fmtM(PROJ_ANUAL), sub: `${PCT_PROJ.toFixed(1)}% do teto anual`, color: ACIMA_TETO ? '#ef4444' : '#f59e0b' },
+  { label: 'Acumulado Jan–Abr', value: fmtM(ACUMULADO), sub: `${PCT_ACUM.toFixed(1)}% do teto utilizado`, color: '#3b82f6' },
+  { label: 'Saldo Disponível no Teto', value: fmtM(Math.max(0, SALDO)), sub: SALDO < 0 ? '⚠️ Teto já ultrapassado' : `Restam ${12-MESES_COUNT} meses no ano`, color: SALDO < 0 ? '#ef4444' : '#10b981' },
+].map(k=>`<div class="teto-kpi" style="--kpi-color:${k.color}">
+  <div class="teto-kpi-label">${k.label}</div>
+  <div class="teto-kpi-value" style="color:${k.color}">${k.value}</div>
+  <div class="teto-kpi-sub">${k.sub}</div>
+</div>`).join('');
+
+const fillColor = PCT_ACUM > 80 ? '#ef4444' : PCT_ACUM > 50 ? '#f59e0b' : '#10b981';
+document.getElementById('progressFill').style.cssText = `width:${Math.min(PCT_ACUM,100)}%; background:${fillColor};`;
+document.getElementById('progressTeto').style.left = '100%';
+document.getElementById('progressLabel').textContent = `${fmtM(ACUMULADO)} de ${fmtM(TETO_ANUAL)} (${PCT_ACUM.toFixed(1)}%)`;
+
+// ───────────── KPIs ─────────────
+const totalBruto = SUMMARY.reduce((a,m)=>a+m.bruto,0);
+const totalLiquido = SUMMARY.reduce((a,m)=>a+m.liquido,0);
+const totalInss = SUMMARY.reduce((a,m)=>a+m.inss,0);
+const totalIr = SUMMARY.reduce((a,m)=>a+m.ir,0);
+const totalIss = SUMMARY.reduce((a,m)=>a+m.iss,0);
+const totalNotas = SUMMARY.reduce((a,m)=>a+m.notas,0);
+
+const kpis = [
+  {label:'Faturamento Bruto Acum.', value: fmtM(totalBruto), sub:'Jan–Abr 2026', color:'#3b82f6'},
+  {label:'Valor Líquido Acum.', value: fmtM(totalLiquido), sub:`${((totalLiquido/totalBruto)*100).toFixed(1)}% do bruto`, color:'#10b981'},
+  {label:'Total INSS', value: fmtM(totalInss), sub:`${((totalInss/totalBruto)*100).toFixed(2)}% do bruto`, color:'#f59e0b'},
+  {label:'Total IR', value: fmtM(totalIr), sub:`${((totalIr/totalBruto)*100).toFixed(2)}% do bruto`, color:'#ef4444'},
+  {label:'Total ISS', value: fmtM(totalIss), sub:`${((totalIss/totalBruto)*100).toFixed(2)}% do bruto`, color:'#8b5cf6'},
+  {label:'Notas Fiscais Emitidas', value: totalNotas, sub:'Todos os meses', color:'#06b6d4'},
+];
+
+document.getElementById('kpiGrid').innerHTML = kpis.map(k=>`
+<div class="kpi" style="--kpi-color:${k.color}">
+  <div class="kpi-label">${k.label}</div>
+  <div class="kpi-value">${k.value}</div>
+  <div class="kpi-sub">${k.sub}</div>
+</div>`).join('');
+
+// ───────────── CHART 1: Bruto por mês ─────────────
+const tetoLinePlugin = {
+  id: 'tetoLine',
+  afterDraw(chart) {
+    const {ctx, chartArea: {left, right, top, bottom}, scales: {y}} = chart;
+    if (!y) return;
+    const yPos = y.getPixelForValue(TETO_MENSAL);
+    if (yPos < top || yPos > bottom) return;
+    ctx.save();
+    ctx.beginPath(); ctx.setLineDash([6,4]);
+    ctx.strokeStyle = '#ef444499'; ctx.lineWidth = 2;
+    ctx.moveTo(left, yPos); ctx.lineTo(right, yPos); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#ef4444cc'; ctx.font = 'bold 11px Segoe UI';
+    ctx.textAlign = 'right';
+    ctx.fillText(`Teto mensal ${fmtM(TETO_MENSAL)}`, right - 6, yPos - 5);
+    ctx.restore();
+  }
+};
+
+new Chart(document.getElementById('chartBruto'), {
+  type: 'bar',
+  plugins: [tetoLinePlugin],
+  data: {
+    labels: SUMMARY.map(m=>m.mes),
+    datasets: [
+      {
+        label: 'Valor Bruto',
+        data: SUMMARY.map(m=>m.bruto),
+        backgroundColor: SUMMARY.map(m => m.bruto > TETO_MENSAL ? '#ef444499' : '#3b82f699'),
+        borderColor:     SUMMARY.map(m => m.bruto > TETO_MENSAL ? '#ef4444'   : '#3b82f6'),
+        borderWidth: 2, borderRadius: 6, order: 1,
+      },
+      {
+        label: 'Valor Líquido',
+        data: SUMMARY.map(m=>m.liquido),
+        type: 'line', borderColor: '#10b981', backgroundColor: 'transparent',
+        pointBackgroundColor: '#10b981', tension: 0.35, borderWidth: 2, order: 0,
+      },
+      {
+        label: `Média ${fmtM(MEDIA_MENSAL)}/mês`,
+        data: SUMMARY.map(()=>MEDIA_MENSAL),
+        type: 'line', borderColor: '#f59e0bcc', backgroundColor: 'transparent',
+        borderDash: [8,4], pointRadius: 0, borderWidth: 2, order: 0,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {labels:{color:'#94a3b8',font:{size:11}}},
+      tooltip: { callbacks: { label: ctx => ` R$ ${fmt(ctx.raw)}` } }
+    },
+    scales: {
+      x: {ticks:{color:'#94a3b8'},grid:{color:'#1e293b'}},
+      y: {ticks:{color:'#94a3b8',callback:v=>'R$ '+fmt(v)},grid:{color:'#334155'}}
+    }
+  }
+});
+
+// ───────────── CHART 2: Pizza deduções ─────────────
+new Chart(document.getElementById('chartPizza'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Valor Líquido', 'INSS', 'IR', 'ISS'],
+    datasets: [{
+      data: [totalLiquido, totalInss, totalIr, totalIss],
+      backgroundColor: ['#10b981','#f59e0b','#ef4444','#8b5cf6'],
+      borderWidth: 0,
+      hoverOffset: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '60%',
+    plugins: {
+      legend: {labels:{color:'#94a3b8',font:{size:11}}},
+      tooltip: {callbacks:{label: ctx => ` R$ ${fmt(ctx.raw)} (${((ctx.raw/totalBruto)*100).toFixed(1)}%)`}}
+    }
+  }
+});
+
+// ───────────── CHART 3: INSS IR ISS por mês ─────────────
+new Chart(document.getElementById('chartDeducoes'), {
+  type: 'bar',
+  data: {
+    labels: SUMMARY.map(m=>m.mes),
+    datasets: [
+      {label:'INSS', data: SUMMARY.map(m=>m.inss), backgroundColor:'#f59e0b', borderRadius:4},
+      {label:'IR',   data: SUMMARY.map(m=>m.ir),   backgroundColor:'#ef4444', borderRadius:4},
+      {label:'ISS',  data: SUMMARY.map(m=>m.iss),  backgroundColor:'#8b5cf6', borderRadius:4},
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend:{labels:{color:'#94a3b8',font:{size:11}}},
+      tooltip:{callbacks:{label:ctx=>` R$ ${fmt(ctx.raw)}`}}
+    },
+    scales: {
+      x:{ticks:{color:'#94a3b8'},grid:{color:'#1e293b'},stacked:true},
+      y:{ticks:{color:'#94a3b8',callback:v=>'R$ '+fmt(v)},grid:{color:'#334155'},stacked:true}
+    }
+  }
+});
+
+// ───────────── CHART 4: Por Órgão Abril ─────────────
+const orgaos = Object.keys(ORGAO_ABRIL);
+const orgaoLabels = orgaos.map(o => o.length > 30 ? o.slice(0,28)+'…' : o);
+new Chart(document.getElementById('chartOrgao'), {
+  type: 'bar',
+  indexAxis: 'y',
+  data: {
+    labels: orgaoLabels,
+    datasets: [{
+      data: orgaos.map(o=>ORGAO_ABRIL[o].bruto),
+      backgroundColor: ['#3b82f6','#10b981','#f59e0b','#8b5cf6'],
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>` R$ ${fmt(ctx.raw)}`}}
+    },
+    scales: {
+      x:{ticks:{color:'#94a3b8',callback:v=>'R$ '+fmt(v)},grid:{color:'#334155'}},
+      y:{ticks:{color:'#94a3b8',font:{size:11}},grid:{color:'#1e293b'}}
+    }
+  }
+});
+
+// ───────────── PAINEL CONFERÊNCIA ─────────────
+const selecionadas = new Set();
+
+function toggleSelecao(nr) {
+  if (selecionadas.has(nr)) selecionadas.delete(nr);
+  else selecionadas.add(nr);
+  renderTable();
+  renderPainelConf();
+  if (selecionadas.size > 0) abrirPainelConf();
+}
+
+function abrirPainelConf() {
+  const p = document.getElementById('painelConf');
+  p.classList.add('aberto');
+  // Posiciona no canto inferior direito apenas na primeira abertura
+  if (!p.style.bottom && !p.style.top) {
+    p.style.bottom = '28px';
+    p.style.right  = '28px';
+  }
+}
+function fecharPainelConf() { document.getElementById('painelConf').classList.remove('aberto'); }
+
+// ── Drag do painel ──
+(function() {
+  let dragging = false, ox = 0, oy = 0;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const painel = document.getElementById('painelConf');
+    const header = painel.querySelector('.painel-conf-header');
+
+    header.addEventListener('mousedown', e => {
+      if (e.target.closest('.painel-conf-fechar')) return;
+      dragging = true;
+      // Converte posição para top/left para facilitar o drag
+      const rect = painel.getBoundingClientRect();
+      painel.style.top    = rect.top  + 'px';
+      painel.style.left   = rect.left + 'px';
+      painel.style.bottom = 'auto';
+      painel.style.right  = 'auto';
+      ox = e.clientX - rect.left;
+      oy = e.clientY - rect.top;
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      let nx = e.clientX - ox;
+      let ny = e.clientY - oy;
+      // Mantém dentro da janela
+      nx = Math.max(0, Math.min(window.innerWidth  - painel.offsetWidth,  nx));
+      ny = Math.max(0, Math.min(window.innerHeight - painel.offsetHeight, ny));
+      painel.style.left = nx + 'px';
+      painel.style.top  = ny + 'px';
+    });
+
+    document.addEventListener('mouseup', () => { dragging = false; });
+  });
+})();
+
+function limparSelecao() {
+  selecionadas.clear();
+  renderTable();
+  renderPainelConf();
+  fecharPainelConf();
+}
+
+function renderPainelConf() {
+  const notas = NOTES.filter(n => selecionadas.has(n.nr));
+  const lista = document.getElementById('confLista');
+  const totais = document.getElementById('confTotais');
+
+  if (notas.length === 0) {
+    lista.innerHTML  = '<div style="padding:14px;text-align:center;color:#475569;font-size:.8rem">Nenhuma nota selecionada</div>';
+    totais.innerHTML = '';
+    return;
+  }
+
+  lista.innerHTML = notas.map(n => `
+    <div class="painel-conf-item">
+      <span class="painel-conf-nf">NF ${n.nr}</span>
+      <span class="painel-conf-org" title="${n.orgao}">${n.orgao.split(' ').slice(0,3).join(' ')}</span>
+      <span class="painel-conf-val">${fmtM(n.liquido)}</span>
+      <button class="painel-conf-remove" onclick="toggleSelecao(${n.nr})" title="Remover">✕</button>
+    </div>`).join('');
+
+  const totBruto = notas.reduce((a,n) => a + n.bruto, 0);
+  const totInss  = notas.reduce((a,n) => a + n.inss,  0);
+  const totIr    = notas.reduce((a,n) => a + n.ir,    0);
+  const totIss   = notas.reduce((a,n) => a + n.iss,   0);
+  const totLiq   = notas.reduce((a,n) => a + n.liquido, 0);
+
+  totais.innerHTML = `
+    <div class="painel-conf-tot-row">
+      <span class="painel-conf-tot-label">${notas.length} nota${notas.length>1?'s':''} selecionada${notas.length>1?'s':''}</span>
+    </div>
+    <div class="painel-conf-tot-row">
+      <span class="painel-conf-tot-label">Bruto total</span>
+      <span class="painel-conf-tot-val painel-conf-tot-bruto">${fmtM(totBruto)}</span>
+    </div>
+    <div class="painel-conf-tot-row">
+      <span class="painel-conf-tot-label">INSS + IR + ISS</span>
+      <span class="painel-conf-tot-val" style="color:#f87171">- ${fmtM(totInss+totIr+totIss)}</span>
+    </div>
+    <div class="painel-conf-tot-row">
+      <span class="painel-conf-tot-label" style="font-weight:700;color:#f1f5f9">💰 Líquido total</span>
+      <span class="painel-conf-tot-val painel-conf-tot-liq">${fmtM(totLiq)}</span>
+    </div>`;
+}
+
+// ───────────── TABLE ─────────────
+function toggleRecebido(nr, checked) {
+  const nota = NOTES.find(n => n.nr === nr);
+  if (!nota) return;
+  nota.recebido = checked;
+  if (!checked) nota.dataRecebimento = '';
+  renderTable();
+  gravarJson();
+}
+
+function atualizarData(nr, valor) {
+  const nota = NOTES.find(n => n.nr === nr);
+  if (nota) { nota.dataRecebimento = valor; gravarJson(); }
+}
+
+// ───────────── PAINEL RECEBIMENTOS ─────────────
+function renderRecebimentos() {
+  const pagas    = NOTES.filter(n => n.recebido);
+  const pendentes = NOTES.filter(n => !n.recebido);
+
+  const liqPago     = pagas.reduce((s, n)    => s + (n.liquido || 0), 0);
+  const liqPendente = pendentes.reduce((s, n) => s + (n.liquido || 0), 0);
+  const liqTotal    = liqPago + liqPendente;
+  const pct         = liqTotal > 0 ? (liqPago / liqTotal * 100) : 0;
+
+  document.getElementById('recValorPago').textContent     = fmtM(liqPago);
+  document.getElementById('recSubPago').textContent       = `${pagas.length} nota${pagas.length !== 1 ? 's' : ''}`;
+  document.getElementById('recValorPendente').textContent = fmtM(liqPendente);
+  document.getElementById('recSubPendente').textContent   = `${pendentes.length} nota${pendentes.length !== 1 ? 's' : ''}`;
+  document.getElementById('recPct').textContent           = pct.toFixed(1).replace('.', ',') + '%';
+  document.getElementById('recSubPct').textContent        = `de ${fmtM(liqTotal)} líquido total`;
+
+  document.getElementById('recBarraPago').style.width     = pct.toFixed(2) + '%';
+  document.getElementById('recBarraLabelPago').textContent =
+    `✅ Recebido: ${fmtM(liqPago)} (${pagas.length} NF)`;
+  document.getElementById('recBarraLabelPendente').textContent =
+    `⏳ Pendente: ${fmtM(liqPendente)} (${pendentes.length} NF)`;
+
+  const overlay = document.getElementById('recOverlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+
+
+function renderTable() {
+  const filtroMes    = document.getElementById('filtroMes').value;
+  const filtroStatus = document.getElementById('filtroStatus').value;
+  const busca        = document.getElementById('filtroBusca').value.toLowerCase();
+
+  const filtered = NOTES.filter(n => {
+    if (!n.nr) return false;
+    if (filtroMes && n.mes !== filtroMes) return false;
+    if (filtroStatus === 'recebido' && !n.recebido) return false;
+    if (filtroStatus === 'pendente' && n.recebido)  return false;
+    if (busca) {
+      if (![n.mes,n.nr,n.contrato,n.orgao].join(' ').toLowerCase().includes(busca)) return false;
+    }
+    return true;
+  });
+
+  const totBruto = filtered.reduce((a,n)=>a+n.bruto,0);
+  const totInss  = filtered.reduce((a,n)=>a+n.inss,0);
+  const totIr    = filtered.reduce((a,n)=>a+n.ir,0);
+  const totIss   = filtered.reduce((a,n)=>a+n.iss,0);
+  const totLiq   = filtered.reduce((a,n)=>a+n.liquido,0);
+  const totRecLiq = filtered.filter(n=>n.recebido).reduce((a,n)=>a+n.liquido,0);
+
+  const rows = filtered.map(n => {
+    const sel      = selecionadas.has(n.nr);
+    const rowClass = [n.recebido ? 'row-recebido' : '', sel ? 'row-selecionada' : ''].join(' ').trim();
+    const status   = n.recebido
+      ? `<span class="badge badge-recebido">✓ Recebido</span>`
+      : `<span class="badge badge-pendente">Pendente</span>`;
+    const dataVis  = n.recebido ? 'visible' : '';
+    const dataVal  = n.dataRecebimento || '';
+    return `
+    <tr class="${rowClass}">
+      <td style="text-align:center"><input type="checkbox" class="check-sel" ${sel?'checked':''} onchange="toggleSelecao(${n.nr})" title="Selecionar para conferência"></td>
+      <td><span class="badge ${BADGE[n.mes]||''}">${n.mes}</span></td>
+      <td>${n.nr}</td>
+      <td>${n.emissao}</td>
+      <td>${n.contrato||'—'}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${n.orgao}">${n.orgao||'—'}</td>
+      <td class="num">${fmt(n.bruto)}</td>
+      <td class="num neg" title="INSS: R$ ${fmt(n.inss)} | IR: R$ ${fmt(n.ir)} | ISS: R$ ${fmt(n.iss)}">${fmt(n.inss+n.ir+n.iss)}</td>
+      <td class="num pos">${fmt(n.liquido)}</td>
+      <td>
+        <div class="check-wrap">
+          <input type="checkbox" class="check-recebido" ${n.recebido?'checked':''} onchange="toggleRecebido(${n.nr}, this.checked)">
+          ${status}
+        </div>
+      </td>
+      <td>
+        <input type="date" class="data-recebimento ${dataVis}" value="${dataVal}"
+          onchange="atualizarData(${n.nr}, this.value)">
+      </td>
+    </tr>`;
+  }).join('');
+
+  const recCount = filtered.filter(n=>n.recebido).length;
+  const totalRow = `
+    <tr class="total-row">
+      <td colspan="6">TOTAL (${filtered.length} notas · ${recCount} recebidas)</td>
+      <td class="num">${fmt(totBruto)}</td>
+      <td class="num" title="INSS: R$ ${fmt(totInss)} | IR: R$ ${fmt(totIr)} | ISS: R$ ${fmt(totIss)}">${fmt(totInss+totIr+totIss)}</td>
+      <td class="num">${fmt(totLiq)}</td>
+      <td colspan="2" style="font-size:.8rem;color:#4ade80">Líq. recebido: ${fmtM(totRecLiq)}</td>
+    </tr>`;
+
+  document.getElementById('tbodyNotas').innerHTML = rows + totalRow;
+}
+
+// ───────────── JSON COMPARTILHADO (File System Access API) ─────────────
+let jsonFileHandle = null;
+
+// ── IndexedDB: persiste o FileHandle entre sessões ──
+const IDB_NAME  = 'faturamento_rial_db';
+const IDB_STORE = 'handles';
+const IDB_KEY   = 'recebimentos_json';
+
+function abrirDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore(IDB_STORE);
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror   = e => reject(e.target.error);
+  });
+}
+async function salvarHandleDB(handle) {
+  const db = await abrirDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put(handle, IDB_KEY);
+    tx.oncomplete = () => resolve();
+    tx.onerror    = e => reject(e.target.error);
+  });
+}
+async function recuperarHandleDB() {
+  const db = await abrirDB();
+  return new Promise((resolve, reject) => {
+    const tx  = db.transaction(IDB_STORE, 'readonly');
+    const req = tx.objectStore(IDB_STORE).get(IDB_KEY);
+    req.onsuccess = e => resolve(e.target.result || null);
+    req.onerror   = e => reject(e.target.error);
+  });
+}
+
+// ── Lê o JSON e aplica nas notas ──
+async function carregarDoHandle(handle) {
+  const file  = await handle.getFile();
+  const dados = JSON.parse(await file.text());
+  let count = 0;
+  NOTES.forEach(n => {
+    if (n.nr && dados[String(n.nr)]) {
+      n.recebido        = dados[String(n.nr)].recebido        ?? false;
+      n.dataRecebimento = dados[String(n.nr)].dataRecebimento ?? '';
+      count++;
+    }
+  });
+  document.getElementById('dotStatus').className      = 'dot dot-on';
+  document.getElementById('conexaoTexto').textContent = `Conectado: ${handle.name}`;
+  document.getElementById('conexaoInfo').innerHTML    =
+    `✅ ${count} notas sincronizadas. Alterações são gravadas automaticamente.`;
+  document.getElementById('btnReconectar').style.display = 'none';
+  document.getElementById('btnConectar').style.display   = 'none';
+  renderTable();
+  renderRecebimentos();
+}
+
+// ── Auto-connect ao abrir ──
+// queryPermission não exige clique — se já tiver permissão, conecta sozinho.
+// Só mostra botão "Reconectar" se precisar pedir permissão ao usuário.
+async function tentarAutoConectar() {
+  try {
+    const handle = await recuperarHandleDB();
+    if (!handle) return;
+
+    const perm = await handle.queryPermission({ mode: 'readwrite' });
+
+    if (perm === 'granted') {
+      // Permissão já ativa — conecta silenciosamente
+      jsonFileHandle = handle;
+      await carregarDoHandle(handle);
+    } else {
+      // Precisa de clique — mostra botão amarelo
+      document.getElementById('btnReconectar').style.display = '';
+      document.getElementById('btnConectar').style.display   = 'none';
+      document.getElementById('conexaoInfo').innerHTML =
+        `📁 Arquivo lembrado: <strong>${handle.name}</strong> — clique em <strong>🔁 Reconectar</strong>.`;
+      // Guarda handle para o botão usar
+      window._handleSalvo = handle;
+    }
+  } catch(e) {
+    console.log('Auto-connect:', e.message);
+  }
+}
+
+// ── Botão Reconectar (requer clique — pedido de permissão) ──
+async function reconectarJson() {
+  const handle = window._handleSalvo;
+  if (!handle) return;
+  try {
+    const perm = await handle.requestPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') {
+      document.getElementById('conexaoInfo').innerHTML =
+        '⚠️ Permissão negada. Use <strong>📂 Conectar arquivo</strong>.';
+      document.getElementById('btnReconectar').style.display = 'none';
+      document.getElementById('btnConectar').style.display   = '';
+      return;
+    }
+    jsonFileHandle = handle;
+    await carregarDoHandle(handle);
+  } catch(e) {
+    alert('Erro ao reconectar: ' + e.message);
+  }
+}
+
+// ── Conectar manualmente ──
+async function conectarJson() {
+  try {
+    const [handle] = await window.showOpenFilePicker({
+      types: [{ description: 'JSON', accept: {'application/json': ['.json']} }],
+      multiple: false
+    });
+    jsonFileHandle = handle;
+    await salvarHandleDB(handle);
+    await carregarDoHandle(handle);
+  } catch(e) {
+    if (e.name !== 'AbortError') alert('Erro ao abrir arquivo: ' + e.message);
+  }
+}
+
+// ── Grava alterações no JSON ──
+async function gravarJson() {
+  if (!jsonFileHandle) return;
+  try {
+    const dados = {};
+    NOTES.forEach(n => {
+      if (n.nr) dados[String(n.nr)] = {
+        recebido:        n.recebido        || false,
+        dataRecebimento: n.dataRecebimento || ''
+      };
+    });
+    const writable = await jsonFileHandle.createWritable();
+    await writable.write(JSON.stringify(dados, null, 2));
+    await writable.close();
+
+    const hora = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    document.getElementById('conexaoInfo').innerHTML = `✅ Salvo automaticamente às ${hora}`;
+
+    renderRecebimentos();
+
+    const toast = document.getElementById('saveToast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  } catch(e) {
+    console.error('Erro ao gravar JSON:', e);
+  }
+}
+
+renderTable();
+tentarAutoConectar();
+
+// ══════════════ TABS ══════════════
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'medicoes') renderMedicoes();
+}
+
+// ══════════════ ABA MEDIÇÕES 037/2021 ══════════════
+const NOTAS_037 = NOTES.filter(n => n.contrato && n.contrato.replace(/\s/g,'') === '037/2021');
+
+function renderMedicoes() {
+  const filtroMes    = document.getElementById('medFiltroMes').value;
+  const filtroTipo   = document.getElementById('medFiltroTipo').value;
+  const filtroCidade = document.getElementById('medFiltroCidade').value.toLowerCase();
+
+  let notas = NOTAS_037.filter(n =>
+    (!filtroMes    || n.mes === filtroMes) &&
+    (!filtroTipo   || n.tipo === filtroTipo) &&
+    (!filtroCidade || (n.municipio||'').toLowerCase().includes(filtroCidade))
+  );
+
+  // KPIs
+  const totBruto = notas.reduce((a,n)=>a+n.bruto,0);
+  const totInss  = notas.reduce((a,n)=>a+n.inss,0);
+  const totLiq   = notas.reduce((a,n)=>a+n.liquido,0);
+  document.getElementById('medKpis').innerHTML = [
+    {label:'Notas 037/2021', val: notas.length + ' notas', color:'#3b82f6'},
+    {label:'Total Bruto',    val: 'R$ ' + fmt(totBruto),   color:'#10b981'},
+    {label:'Total INSS',     val: 'R$ ' + fmt(totInss),    color:'#f59e0b'},
+    {label:'Total Líquido',  val: 'R$ ' + fmt(totLiq),     color:'#8b5cf6'},
+  ].map(k=>`
+    <div class="kpi" style="--kpi-color:${k.color}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value" style="font-size:1.2rem">${k.val}</div>
+    </div>`).join('');
+
+  // Agrupar por mês
+  const mesesOrdem = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+  const grupos = {};
+  notas.forEach(n => { if (!grupos[n.mes]) grupos[n.mes] = []; grupos[n.mes].push(n); });
+
+  const mesesPresentes = mesesOrdem.filter(m => grupos[m]);
+
+  document.getElementById('medGrupos').innerHTML = mesesPresentes.map(mes => {
+    const lista = grupos[mes];
+    const totalBruto = lista.reduce((a,n)=>a+n.bruto,0);
+    const totalInss  = lista.reduce((a,n)=>a+n.inss,0);
+    const totalLiq   = lista.reduce((a,n)=>a+n.liquido,0);
+
+    const linhas = lista.map(n => `
+      <tr>
+        <td>${n.municipio || '—'}</td>
+        <td><span class="${n.tipo==='PRINCIPAL'?'badge-princ':'badge-reaj'}">${n.tipo}</span></td>
+        <td>${n.nr}</td>
+        <td>${n.emissao}</td>
+        <td class="num">R$ ${fmt(n.bruto)}</td>
+        <td class="num">
+          R$ ${fmt(n.inss)}
+          <div class="inss-detail">IR: R$ ${fmt(n.ir||0)} · ISS: R$ ${fmt(n.iss||0)}</div>
+        </td>
+        <td class="num">R$ ${fmt(n.liquido)}</td>
+      </tr>`).join('');
+
+    return `
+    <div class="med-group">
+      <div class="med-group-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+        <div>
+          <div class="med-group-title">${mes} 2026</div>
+          <div class="med-group-sub">${lista.length} nota${lista.length>1?'s':''} · INSS: R$ ${fmt(totalInss)}</div>
+        </div>
+        <div class="med-group-total">R$ ${fmt(totalBruto)}</div>
+      </div>
+      <div class="med-table-wrap">
+        <table class="med-table">
+          <thead><tr>
+            <th>Município</th><th>Tipo</th><th>NF</th><th>Emissão</th>
+            <th class="num">Bruto (R$)</th><th class="num">INSS / IR / ISS</th><th class="num">Líquido (R$)</th>
+          </tr></thead>
+          <tbody>
+            ${linhas}
+            <tr class="subtotal">
+              <td colspan="4">TOTAL ${mes}</td>
+              <td class="num">R$ ${fmt(totalBruto)}</td>
+              <td class="num">R$ ${fmt(totalInss)}</td>
+              <td class="num">R$ ${fmt(totalLiq)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('') || '<p style="color:var(--muted);padding:20px">Nenhuma nota encontrada para os filtros selecionados.</p>';
+}
+</script>
+</body>
+</html>
