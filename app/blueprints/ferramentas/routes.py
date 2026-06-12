@@ -3,20 +3,21 @@ from pathlib import Path
 from app.blueprints.ferramentas import ferramentas_bp
 
 
-def _static_ferramentas():
-    return Path(current_app.static_folder) / "ferramentas"
+def _ferramenta(subdir: str, filename: str):
+    folder = Path(current_app.static_folder) / "ferramentas" / subdir
+    return send_from_directory(folder, filename)
 
 
 @ferramentas_bp.route("/medicao")
 def medicao():
-    return send_from_directory(_static_ferramentas(), "medicao.html")
+    return _ferramenta("faz_tudo", "medicao_pavimentacao_v6.0.html")
 
 
 @ferramentas_bp.route("/le-doc")
 def le_doc():
-    return send_from_directory(_static_ferramentas(), "le-doc.html")
+    return _ferramenta("le_doc", "preenchimento.html")
 
 
 @ferramentas_bp.route("/abastecimento")
 def abastecimento():
-    return send_from_directory(_static_ferramentas(), "abastecimento.html")
+    return _ferramenta("abastecimento", "Dashboard_Abastecimento.html")

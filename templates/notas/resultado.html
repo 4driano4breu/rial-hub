@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notas {{ info.num_medicao }} — Construtora Rial</title>
+<style>
+  :root {
+    --bg:#0f172a; --card:#1e293b; --card2:#263348; --border:#334155;
+    --accent:#3b82f6; --text:#f1f5f9; --muted:#94a3b8;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:"Segoe UI",system-ui,sans-serif; min-height:100vh; }
+
+  header { background:linear-gradient(135deg,#1e3a5f 0%,#0f172a 100%); border-bottom:1px solid var(--border); padding:18px 28px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+  .header-left { display:flex; align-items:center; gap:14px; }
+  .logo { width:42px; height:42px; background:var(--accent); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+  header h1 { font-size:1.15rem; font-weight:700; }
+  header .sub { font-size:.82rem; color:var(--muted); margin-top:2px; }
+
+  .btn-dl { background:var(--accent); border:none; color:#fff; padding:9px 20px; border-radius:8px; font-size:.85rem; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px; text-decoration:none; transition:opacity .15s; }
+  .btn-dl:hover { opacity:.85; }
+  .btn-back { background:transparent; border:1px solid var(--border); color:var(--muted); padding:8px 16px; border-radius:8px; font-size:.82rem; cursor:pointer; text-decoration:none; transition:all .15s; }
+  .btn-back:hover { border-color:var(--accent); color:var(--text); }
+
+  .main { padding:24px 28px; max-width:1300px; margin:0 auto; }
+
+  .kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:24px; }
+  .kpi { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 18px; border-top:3px solid var(--kpi-c,var(--accent)); }
+  .kpi-label { font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+  .kpi-value { font-size:1.3rem; font-weight:700; }
+
+  .city-card { background:var(--card); border:1px solid var(--border); border-radius:14px; margin-bottom:22px; overflow:hidden; border-left:4px solid var(--city-color); }
+  .city-header { padding:14px 20px; display:flex; align-items:center; gap:10px; background:var(--card2); }
+  .city-dot { width:11px; height:11px; border-radius:50%; flex-shrink:0; }
+  .city-name { font-size:1rem; font-weight:700; flex:1; }
+  .city-total { font-size:1.05rem; font-weight:700; color:var(--city-color); }
+
+  .city-body { display:grid; grid-template-columns:1fr 1fr; }
+  .breakdown-col { padding:18px 20px; border-right:1px solid var(--border); }
+  .text-col { padding:18px 20px; display:flex; flex-direction:column; }
+  .col-title { font-size:.75rem; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.04em; margin-bottom:10px; }
+
+  .svc-table { width:100%; border-collapse:collapse; font-size:.81rem; margin-bottom:12px; }
+  .svc-table th { color:var(--muted); font-size:.7rem; text-transform:uppercase; letter-spacing:.04em; padding:6px 8px; text-align:left; border-bottom:1px solid var(--border); }
+  .svc-table th.num, .svc-table td.num { text-align:right; }
+  .svc-table td { padding:7px 8px; border-bottom:1px solid #1e293b; }
+  .svc-table .row-isento td { color:var(--muted); font-style:italic; }
+  .badge-isento { background:#1e293b; color:#64748b; padding:2px 6px; border-radius:4px; font-size:.68rem; border:1px solid var(--border); }
+
+  .inss-box { background:#0f172a; border-radius:8px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; font-size:.8rem; color:var(--muted); }
+  .inss-val { color:#10b981; font-weight:600; }
+
+  .text-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .nota-text { flex:1; background:#0f172a; border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:"Segoe UI",monospace; font-size:.76rem; line-height:1.65; padding:12px; resize:none; min-height:170px; width:100%; }
+  .nota-text:focus { outline:none; border-color:var(--accent); }
+
+  .btn-copy { background:var(--accent); border:none; color:#fff; padding:5px 13px; border-radius:6px; font-size:.76rem; font-weight:600; cursor:pointer; transition:all .15s; }
+  .btn-copy:hover { opacity:.85; }
+  .btn-copy.copied { background:#10b981; }
+
+  @media(max-width:720px) { .city-body { grid-template-columns:1fr; } .breakdown-col { border-right:none; border-bottom:1px solid var(--border); } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo">📋</div>
+    <div>
+      <h1>{{ 'Medição' if modo == 'medicao' else 'Reajustamento' }} {{ info.num_medicao }} — Contrato 037/2021</h1>
+      <div class="sub">Período: {{ info.periodo }} · AGESUL / Construtora Rial</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <a href="{{ url_for('notas.index') }}" class="btn-back">← Nova medição</a>
+    <form method="POST" action="{{ url_for('notas.download') }}" style="display:inline">
+      <input type="hidden" name="docx_b64" value="{{ docx_b64 }}">
+      <input type="hidden" name="filename" value="{{ filename }}">
+      <button type="submit" class="btn-dl">⬇ Baixar Word</button>
+    </form>
+  </div>
+</header>
+
+<div class="main">
+  {% set total_bruto = preview | sum(attribute='total') %}
+
+  <div class="kpi-row">
+    <div class="kpi" style="--kpi-c:#3b82f6">
+      <div class="kpi-label">Cidades</div>
+      <div class="kpi-value">{{ preview | length }}</div>
+    </div>
+    <div class="kpi" style="--kpi-c:#10b981">
+      <div class="kpi-label">Total Bruto</div>
+      <div class="kpi-value">R$ {{ preview | sum(attribute='total') }}</div>
+    </div>
+    <div class="kpi" style="--kpi-c:#f59e0b">
+      <div class="kpi-label">{{ 'Medição' if modo == 'medicao' else 'Reajuste' }}</div>
+      <div class="kpi-value">{{ info.num_medicao }}</div>
+    </div>
+  </div>
+
+  {% for c in preview %}
+  <div class="city-card" style="--city-color:{{ c.cor }}">
+    <div class="city-header">
+      <div class="city-dot" style="background:{{ c.cor }}"></div>
+      <span class="city-name">{{ c.nome }}</span>
+      <span class="city-total">R$ {{ c.total }}</span>
+    </div>
+    <div class="city-body">
+      <div class="breakdown-col">
+        <div class="col-title">Composição</div>
+        <table class="svc-table">
+          <thead>
+            <tr>
+              <th>Serviço</th>
+              <th class="num">Valor</th>
+              <th class="num">Alíq.</th>
+              <th class="num">Base INSS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in c.servicos %}
+            <tr>
+              <td>{{ s.label }}</td>
+              <td class="num">R$ {{ s.valor }}</td>
+              <td class="num">{{ s.aliq }}%</td>
+              <td class="num">R$ {{ s.base }}</td>
+            </tr>
+            {% endfor %}
+            {% if c.adm %}
+            <tr class="row-isento">
+              <td>Administração</td>
+              <td class="num">R$ {{ c.adm }}</td>
+              <td class="num">—</td>
+              <td class="num"><span class="badge-isento">ISENTO</span></td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+        <div class="inss-box">
+          <span>Base INSS: <strong>R$ {{ c.base_inss }}</strong></span>
+          <span class="inss-val">INSS 11%: <strong>R$ {{ c.inss_val }}</strong></span>
+        </div>
+      </div>
+      <div class="text-col">
+        <div class="text-header">
+          <div class="col-title" style="margin-bottom:0">Texto para a nota</div>
+          <button class="btn-copy" onclick="copiar(this,'txt{{ loop.index0 }}')">📋 Copiar</button>
+        </div>
+        <textarea id="txt{{ loop.index0 }}" class="nota-text" readonly>{{ c.texto }}</textarea>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+function copiar(btn, id) {
+  const txt = document.getElementById(id);
+  navigator.clipboard.writeText(txt.value).then(() => {
+    btn.textContent = "✅ Copiado!";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = "📋 Copiar"; btn.classList.remove("copied"); }, 2200);
+  });
+}
+</script>
+</body>
+</html>

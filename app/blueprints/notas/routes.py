@@ -1,16 +1,28 @@
 import re
-from pathlib import Path
-from flask import render_template, request, send_file, flash, redirect, url_for
 import io
+import tempfile
+from pathlib import Path
+from flask import render_template, request, send_file, flash, redirect, url_for, session
 
 from app.blueprints.notas import notas_bp
 from app.blueprints.notas.logic import calcular_reajuste
-from core.extractor import extrair_dados_xlsx, extrair_pdf_reajuste, fmt
-from core.generator import gerar_word_medicao, gerar_word_reajuste
+from core.extractor import extrair_dados_xlsx, extrair_pdf_reajuste
+from core.generator import gerar_word_medicao, gerar_word_reajuste, gerar_texto_medicao, gerar_texto_reajuste
+from core.extractor import fmt
+from core.config import ALIQUOTAS, SERVICE_LABELS, CIDADE_DISPLAY
 
 
 def _allowed(filename: str, exts: set[str]) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in exts
+
+
+def _save_upload(file_storage, suffix: str) -> Path:
+    """Salva FileStorage em arquivo temporário e retorna o Path."""
+    buf = file_storage.read()
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+    tmp.write(buf)
+    tmp.close()
+    return Path(tmp.name)
 
 
 @notas_bp.route("/")
@@ -20,45 +32,88 @@ def index():
 
 @notas_bp.route("/gerar-medicao", methods=["POST"])
 def gerar_medicao():
-    xlsx = request.files.get("xlsx")
-    if not xlsx or not _allowed(xlsx.filename, {"xlsx"}):
+    xlsx_file = request.files.get("xlsx")
+    if not xlsx_file or not _allowed(xlsx_file.filename, {"xlsx"}):
         flash("Envie um arquivo .xlsx de medição.", "error")
         return redirect(url_for("notas.index"))
 
+    tmp_path = None
     try:
-        info, cidades = extrair_dados_xlsx(xlsx)
+        tmp_path = _save_upload(xlsx_file, ".xlsx")
+        info, cidades = extrair_dados_xlsx(tmp_path)
         docx_bytes = gerar_word_medicao(info, cidades)
         digitos = re.sub(r"[^\d]", "", info["num_medicao"])
         filename = f"notas_{digitos}_medicao.docx"
-        return send_file(
-            io.BytesIO(docx_bytes),
-            as_attachment=True,
-            download_name=filename,
-            mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+
+        # Monta dados de preview para exibir no template
+        preview = _build_preview_medicao(info, cidades)
+        docx_b64 = __import__("base64").b64encode(docx_bytes).decode()
+
+        return render_template(
+            "notas/resultado.html",
+            info=info,
+            preview=preview,
+            filename=filename,
+            docx_b64=docx_b64,
+            modo="medicao",
         )
     except Exception as e:
         flash(f"Erro ao processar: {e}", "error")
         return redirect(url_for("notas.index"))
+    finally:
+        if tmp_path and tmp_path.exists():
+            tmp_path.unlink()
 
 
 @notas_bp.route("/gerar-reajuste", methods=["POST"])
 def gerar_reajuste():
-    xlsx = request.files.get("xlsx")
-    pdf  = request.files.get("pdf")
-    if not xlsx or not _allowed(xlsx.filename, {"xlsx"}):
+    xlsx_file = request.files.get("xlsx")
+    pdf_file  = request.files.get("pdf")
+    if not xlsx_file or not _allowed(xlsx_file.filename, {"xlsx"}):
         flash("Envie o arquivo .xlsx de medição.", "error")
         return redirect(url_for("notas.index"))
-    if not pdf or not _allowed(pdf.filename, {"pdf"}):
+    if not pdf_file or not _allowed(pdf_file.filename, {"pdf"}):
         flash("Envie o arquivo .pdf de reajuste.", "error")
         return redirect(url_for("notas.index"))
 
+    tmp_xlsx = tmp_pdf = None
     try:
-        info, cidades = extrair_dados_xlsx(xlsx)
-        coefs, total_pdf, reaj_secao = extrair_pdf_reajuste(pdf)
+        tmp_xlsx = _save_upload(xlsx_file, ".xlsx")
+        tmp_pdf  = _save_upload(pdf_file, ".pdf")
+        info, cidades = extrair_dados_xlsx(tmp_xlsx)
+        coefs, total_pdf, reaj_secao = extrair_pdf_reajuste(tmp_pdf)
         reajuste = calcular_reajuste(cidades, coefs, total_pdf, reaj_secao)
         docx_bytes = gerar_word_reajuste(info, reajuste)
         digitos = re.sub(r"[^\d]", "", info["num_medicao"])
         filename = f"reajuste_{digitos}_medicao.docx"
+
+        preview = _build_preview_reajuste(info, reajuste)
+        docx_b64 = __import__("base64").b64encode(docx_bytes).decode()
+
+        return render_template(
+            "notas/resultado.html",
+            info=info,
+            preview=preview,
+            filename=filename,
+            docx_b64=docx_b64,
+            modo="reajuste",
+        )
+    except Exception as e:
+        flash(f"Erro ao processar: {e}", "error")
+        return redirect(url_for("notas.index"))
+    finally:
+        for p in (tmp_xlsx, tmp_pdf):
+            if p and p.exists():
+                p.unlink()
+
+
+@notas_bp.route("/download", methods=["POST"])
+def download():
+    import base64
+    docx_b64 = request.form.get("docx_b64", "")
+    filename  = request.form.get("filename", "nota.docx")
+    try:
+        docx_bytes = base64.b64decode(docx_b64)
         return send_file(
             io.BytesIO(docx_bytes),
             as_attachment=True,
@@ -66,5 +121,61 @@ def gerar_reajuste():
             mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )
     except Exception as e:
-        flash(f"Erro ao processar: {e}", "error")
+        flash(f"Erro no download: {e}", "error")
         return redirect(url_for("notas.index"))
+
+
+# ── Helpers de preview ────────────────────────────────────────────────────────
+
+def _build_preview_medicao(info: dict, cidades: dict) -> list:
+    CORES = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ef4444"]
+    preview = []
+    for idx, (nome_upper, vals) in enumerate(cidades.items()):
+        cidade_display = CIDADE_DISPLAY.get(nome_upper.rstrip(), nome_upper)
+        servicos = []
+        base_inss = 0.0
+        for key, aliq in [("pav", ALIQUOTAS["pav"]), ("canteiro", ALIQUOTAS["canteiro"]),
+                           ("rocada", ALIQUOTAS["rocada"]), ("terra", ALIQUOTAS["terra"])]:
+            if vals[key] > 0:
+                base = vals[key] * aliq
+                base_inss += base
+                servicos.append({"label": SERVICE_LABELS[key], "valor": fmt(vals[key]),
+                                  "aliq": int(aliq * 100), "base": fmt(base)})
+        preview.append({
+            "nome": cidade_display,
+            "total": fmt(vals["total"]),
+            "cor": CORES[idx % len(CORES)],
+            "servicos": servicos,
+            "adm": fmt(vals["adm"]) if vals["adm"] > 0 else None,
+            "base_inss": fmt(base_inss),
+            "inss_val": fmt(base_inss * ALIQUOTAS["inss"]),
+            "texto": gerar_texto_medicao(info, nome_upper, vals),
+        })
+    return preview
+
+
+def _build_preview_reajuste(info: dict, reajuste: dict) -> list:
+    CORES = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ef4444"]
+    preview = []
+    for idx, (nome, reaj) in enumerate(reajuste.items()):
+        cidade_display = CIDADE_DISPLAY.get(nome.rstrip(), nome)
+        servicos = []
+        base_inss = 0.0
+        for key, aliq in [("pav", ALIQUOTAS["pav"]), ("canteiro", ALIQUOTAS["canteiro"]),
+                           ("rocada", ALIQUOTAS["rocada"]), ("terra", ALIQUOTAS["terra"])]:
+            if reaj[key] > 0:
+                base = reaj[key] * aliq
+                base_inss += base
+                servicos.append({"label": SERVICE_LABELS[key], "valor": fmt(reaj[key]),
+                                  "aliq": int(aliq * 100), "base": fmt(base)})
+        preview.append({
+            "nome": cidade_display,
+            "total": fmt(reaj["total"]),
+            "cor": CORES[idx % len(CORES)],
+            "servicos": servicos,
+            "adm": fmt(reaj["adm"]) if reaj["adm"] > 0 else None,
+            "base_inss": fmt(base_inss),
+            "inss_val": fmt(base_inss * ALIQUOTAS["inss"]),
+            "texto": gerar_texto_reajuste(info, nome, reaj),
+        })
+    return preview

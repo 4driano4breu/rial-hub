@@ -1,75 +1,118 @@
-{% extends "base.html" %}
-{% block title %}Notas de Medição — RIAL Hub{% endblock %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notas de Medição — RIAL Hub</title>
+<style>
+  :root { --bg:#0f172a; --card:#1e293b; --card2:#263348; --border:#334155; --accent:#3b82f6; --text:#f1f5f9; --muted:#94a3b8; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:"Segoe UI",system-ui,sans-serif; min-height:100vh; }
 
-{% block content %}
-<div class="d-flex align-items-center mb-4">
-  <i class="bi bi-file-earmark-word fs-2 text-primary me-3"></i>
-  <div>
-    <h2 class="mb-0 fw-bold">Notas de Medição</h2>
-    <small class="text-muted">Contrato 037/2021 — AGESUL / Construtora Rial</small>
-  </div>
-</div>
+  nav { background:#0f172a; border-bottom:1px solid var(--border); padding:14px 28px; display:flex; align-items:center; gap:12px; }
+  .nav-logo { font-size:.9rem; font-weight:700; color:var(--accent); text-decoration:none; }
+  .nav-sep { color:var(--border); }
+  .nav-cur { font-size:.9rem; color:var(--text); }
+  .nav-home { margin-left:auto; color:var(--muted); font-size:.82rem; text-decoration:none; }
+  .nav-home:hover { color:var(--text); }
 
-<div class="row g-4">
+  .main { padding:36px 28px; max-width:900px; margin:0 auto; }
+  h1 { font-size:1.5rem; font-weight:700; margin-bottom:6px; }
+  .subtitle { color:var(--muted); font-size:.88rem; margin-bottom:32px; }
 
-  <!-- Medição Parcial -->
-  <div class="col-md-6">
-    <div class="card border-0 shadow-sm h-100">
-      <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Medição Parcial</h5>
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+  @media(max-width:640px) { .grid { grid-template-columns:1fr; } }
+
+  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .card-header { padding:16px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); }
+  .card-header .icon { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+  .card-header h2 { font-size:.95rem; font-weight:700; }
+  .card-header .tag { font-size:.7rem; color:var(--muted); margin-top:2px; }
+  .card-body { padding:20px; }
+
+  label { display:block; font-size:.8rem; color:var(--muted); margin-bottom:6px; font-weight:500; }
+  .file-input { width:100%; background:#0f172a; border:1px solid var(--border); border-radius:8px; color:var(--text); padding:9px 12px; font-size:.83rem; cursor:pointer; }
+  .file-input:hover { border-color:#475569; }
+  .hint { font-size:.73rem; color:#64748b; margin-top:5px; }
+
+  .btn-submit { width:100%; margin-top:18px; background:var(--accent); border:none; color:#fff; padding:11px; border-radius:9px; font-size:.88rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:opacity .15s; }
+  .btn-submit:hover { opacity:.85; }
+  .btn-submit.green { background:#10b981; }
+
+  .info-box { background:#0f172a; border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-top:24px; font-size:.8rem; color:var(--muted); display:flex; flex-direction:column; gap:6px; }
+  .info-box strong { color:var(--text); }
+
+  .alert { background:#1e293b; border:1px solid #ef444450; border-left:3px solid #ef4444; border-radius:8px; padding:12px 16px; margin-bottom:18px; font-size:.84rem; color:#fca5a5; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">RIAL Hub</a>
+  <span class="nav-sep">/</span>
+  <span class="nav-cur">Notas de Medição</span>
+  <a class="nav-home" href="/">← Início</a>
+</nav>
+
+<div class="main">
+  <h1>📋 Notas de Medição</h1>
+  <p class="subtitle">Contrato 037/2021 · AGESUL / Construtora Rial · 3ª Residência Regional de Três Lagoas/MS</p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+    <div class="alert">⚠ {{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <div class="grid">
+
+    <!-- Medição Parcial -->
+    <div class="card">
+      <div class="card-header">
+        <div class="icon" style="background:#1d4ed820">📊</div>
+        <div>
+          <h2>Medição Parcial</h2>
+          <div class="tag">XLSX → Word + Visualização</div>
+        </div>
       </div>
       <div class="card-body">
-        <p class="text-muted">
-          Envie a planilha <strong>.xlsx</strong> de medição. O sistema extrai os dados
-          da aba <em>Cidades</em> e gera as notas em Word por município.
-        </p>
         <form method="POST" action="{{ url_for('notas.gerar_medicao') }}" enctype="multipart/form-data">
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Planilha de Medição (.xlsx)</label>
-            <input type="file" name="xlsx" accept=".xlsx" class="form-control" required>
-          </div>
-          <button type="submit" class="btn btn-primary w-100">
-            <i class="bi bi-download me-2"></i>Gerar Word
-          </button>
+          <label>Planilha de medição (.xlsx)</label>
+          <input type="file" name="xlsx" accept=".xlsx" class="file-input" required>
+          <div class="hint">Arquivo AGESUL com abas "Med" e "Cidades".</div>
+          <button type="submit" class="btn-submit">⚡ Gerar notas</button>
         </form>
       </div>
     </div>
-  </div>
 
-  <!-- Reajustamento -->
-  <div class="col-md-6">
-    <div class="card border-0 shadow-sm h-100">
-      <div class="card-header bg-success text-white">
-        <h5 class="mb-0"><i class="bi bi-file-earmark-pdf me-2"></i>Reajustamento</h5>
+    <!-- Reajustamento -->
+    <div class="card">
+      <div class="card-header">
+        <div class="icon" style="background:#05966920">📈</div>
+        <div>
+          <h2>Reajustamento</h2>
+          <div class="tag">PDF + XLSX → Word</div>
+        </div>
       </div>
       <div class="card-body">
-        <p class="text-muted">
-          Envie o <strong>.pdf</strong> de reajuste AGESUL (coeficientes FGV) e a
-          planilha <strong>.xlsx</strong> de medição. A distribuição por cidade é proporcional ao valor medido.
-        </p>
         <form method="POST" action="{{ url_for('notas.gerar_reajuste') }}" enctype="multipart/form-data">
-          <div class="mb-3">
-            <label class="form-label fw-semibold">PDF de Reajuste (.pdf)</label>
-            <input type="file" name="pdf" accept=".pdf" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Planilha de Medição (.xlsx)</label>
-            <input type="file" name="xlsx" accept=".xlsx" class="form-control" required>
-          </div>
-          <button type="submit" class="btn btn-success w-100">
-            <i class="bi bi-download me-2"></i>Gerar Word
-          </button>
+          <label>PDF de reajuste (.pdf)</label>
+          <input type="file" name="pdf" accept=".pdf" class="file-input" required>
+          <div class="hint" style="margin-bottom:14px">Boletim AGESUL com coeficientes FGV.</div>
+          <label>Planilha de medição (.xlsx)</label>
+          <input type="file" name="xlsx" accept=".xlsx" class="file-input" required>
+          <div class="hint">Mesma planilha usada na medição parcial.</div>
+          <button type="submit" class="btn-submit green">⚡ Gerar reajuste</button>
         </form>
       </div>
     </div>
+
   </div>
 
+  <div class="info-box">
+    <div><strong>Alíquotas configuradas:</strong> Pavimentação 10% · Canteiro 35% · Roçada 35% · Terraplenagem 15% · INSS 11%</div>
+    <div>Para alterar: edite <strong>core/config.py</strong> → ALIQUOTAS.</div>
+  </div>
 </div>
-
-<div class="alert alert-light border mt-4">
-  <i class="bi bi-info-circle me-2 text-primary"></i>
-  <strong>Alíquotas configuradas:</strong>
-  Pavimentação 10% · Canteiro 35% · Roçada 35% · Terraplenagem 15% · INSS 11%
-  <small class="text-muted d-block mt-1">Para alterar, edite <code>core/config.py</code>.</small>
-</div>
-{% endblock %}
+</body>
+</html>
