@@ -26,3 +26,8 @@ def le_doc():
 @ferramentas_bp.route("/abastecimento")
 def abastecimento():
     return _ferramenta("abastecimento", "Dashboard_Abastecimento.html")
+
+
+@ferramentas_bp.route("/notas-html")
+def notas_html():
+    return _ferramenta("notas", "notas_037.html")

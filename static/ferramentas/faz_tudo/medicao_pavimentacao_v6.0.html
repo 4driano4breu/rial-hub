@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Medição de Pavimentação</title>
+<title>Faz Tudo 3000 — RIAL Hub</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
   :root{
-    --bg:#f4f1eb;--surface:#fff;--border:#d6d0c4;--border-dark:#b8b0a0;
-    --text:#1a1814;--text-muted:#6b6560;--text-faint:#9c9590;
-    --accent:#c84b2f;--accent-light:#f5ede9;--accent-border:#e8a090;
-    --green:#2d6a4f;--green-light:#e8f4ef;--green-border:#95c9b0;
-    --amber:#92600a;--amber-light:#fef3e2;--amber-border:#f0c870;
-    --blue:#1e4d8c;--blue-light:#e8eef8;--blue-border:#90aad4;
-    --purple:#5a2d8c;--purple-light:#ede8f8;
+    --bg:#0f172a;--surface:#1e293b;--border:#334155;--border-dark:#475569;
+    --text:#f1f5f9;--text-muted:#94a3b8;--text-faint:#64748b;
+    --accent:#3b82f6;--accent-light:#3b82f615;--accent-border:#3b82f640;
+    --green:#10b981;--green-light:#10b98115;--green-border:#10b98140;
+    --amber:#f59e0b;--amber-light:#f59e0b15;--amber-border:#f59e0b40;
+    --blue:#3b82f6;--blue-light:#3b82f615;--blue-border:#3b82f640;
+    --purple:#8b5cf6;--purple-light:#8b5cf615;
     --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -63,7 +63,7 @@
   .region-selector-label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
   .region-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
   .region-chip{font-family:var(--mono);font-size:12px;padding:6px 14px;border-radius:3px;border:1px solid var(--border-dark);background:var(--bg);color:var(--text-muted);cursor:pointer;transition:all .15s;user-select:none}
-  .region-chip:hover{border-color:var(--text);color:var(--text);background:#ede9e0}
+  .region-chip:hover{border-color:var(--text);color:var(--text);background:#263348}
   .region-chip.active{background:var(--text);color:var(--bg);border-color:var(--text)}
   .chip-count{font-size:10px;opacity:.55;margin-left:5px}
   /* Region preview */
@@ -89,7 +89,7 @@
   .perda-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:1rem}
   /* File drop */
   .file-drop{border:1px dashed var(--border-dark);border-radius:3px;padding:1.5rem;text-align:center;cursor:pointer;background:var(--bg);transition:all .15s}
-  .file-drop:hover{background:#ede9e0;border-color:var(--text)}
+  .file-drop:hover{background:#263348;border-color:var(--text)}
   .file-drop-icon{font-size:22px;margin-bottom:6px;color:var(--text-muted)}
   .file-drop-text{font-size:13px;color:var(--text-muted)}
   .file-drop-sub{font-family:var(--mono);font-size:11px;color:var(--text-faint);margin-top:3px}
@@ -164,6 +164,12 @@
 </style>
 </head>
 <body>
+<nav style="background:#0f172a;border-bottom:1px solid #334155;padding:0 24px;height:46px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:9999;font-family:'Segoe UI',system-ui,sans-serif">
+  <a href="/" style="font-size:.85rem;font-weight:700;color:#3b82f6;text-decoration:none">RIAL Hub</a>
+  <span style="color:#334155;font-size:.9rem">/</span>
+  <span style="font-size:.8rem;color:#94a3b8">Faz Tudo 3000</span>
+  <a href="/" style="margin-left:auto;font-size:.78rem;color:#64748b;text-decoration:none">← Início</a>
+</nav>
 <div class="page">
 
 <div class="header">

@@ -27,7 +27,7 @@ def _save_upload(file_storage, suffix: str) -> Path:
 
 @notas_bp.route("/")
 def index():
-    return render_template("notas/index.html")
+    return redirect(url_for("ferramentas.notas_html"))
 
 
 @notas_bp.route("/gerar-medicao", methods=["POST"])
