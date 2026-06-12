@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medição de Pavimentação</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+  :root{
+    --bg:#f4f1eb;--surface:#fff;--border:#d6d0c4;--border-dark:#b8b0a0;
+    --text:#1a1814;--text-muted:#6b6560;--text-faint:#9c9590;
+    --accent:#c84b2f;--accent-light:#f5ede9;--accent-border:#e8a090;
+    --green:#2d6a4f;--green-light:#e8f4ef;--green-border:#95c9b0;
+    --amber:#92600a;--amber-light:#fef3e2;--amber-border:#f0c870;
+    --blue:#1e4d8c;--blue-light:#e8eef8;--blue-border:#90aad4;
+    --purple:#5a2d8c;--purple-light:#ede8f8;
+    --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1rem}
+  .page{max-width:960px;margin:0 auto}
+  /* Header */
+  .header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--text);padding-bottom:1rem;margin-bottom:2rem;gap:1rem;flex-wrap:wrap}
+  .header-tag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+  .header-title{font-size:26px;font-weight:600;letter-spacing:-.02em;line-height:1.1}
+  .header-title span{color:var(--accent)}
+  .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+  .header-badge{font-family:var(--mono);font-size:11px;background:var(--text);color:var(--bg);padding:4px 10px;border-radius:2px;white-space:nowrap}
+  .api-indicator{font-family:var(--mono);font-size:10px;display:flex;align-items:center;gap:5px;color:var(--text-faint)}
+  .api-dot{width:6px;height:6px;border-radius:50%;background:var(--border-dark);flex-shrink:0}
+  .api-dot.ok{background:var(--green)}.api-dot.err{background:var(--accent)}.api-dot.spin{background:var(--amber);animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  /* Tabs */
+  .mode-tabs{display:flex;margin-bottom:1.5rem;border:1px solid var(--border-dark);border-radius:4px;overflow:hidden;width:fit-content;flex-wrap:wrap}
+  .mode-tab{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:10px 18px;cursor:pointer;background:var(--surface);color:var(--text-muted);border:none;transition:all .15s;border-right:1px solid var(--border-dark)}
+  .mode-tab:last-child{border-right:none}
+  .mode-tab:hover{background:var(--bg);color:var(--text)}
+  .mode-tab.active{background:var(--text);color:var(--bg)}
+  .tab-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;vertical-align:middle}
+  .tab-tb .tab-dot{background:var(--accent)}.tab-qm .tab-dot{background:var(--blue)}
+  .tab-hist .tab-dot{background:var(--purple)}.tab-cfg .tab-dot{background:var(--text-faint)}
+  .mode-tab.active .tab-dot{background:var(--bg)!important;opacity:.6}
+  .panel{display:none}.panel.active{display:block}
+  /* Cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1.5rem;margin-bottom:1.25rem}
+  .card-title{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+  .card-title::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .panel-tb .card-title::before{background:var(--accent)}.panel-qm .card-title::before{background:var(--blue)}
+  .panel-hist .card-title::before,.panel-cfg .card-title::before{background:var(--purple)}
+  label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:5px;font-family:var(--mono)}
+  textarea{width:100%;border:1px solid var(--border);border-radius:3px;padding:10px 12px;font-size:12.5px;font-family:var(--mono);background:var(--bg);color:var(--text);resize:vertical;transition:border-color .15s;line-height:1.6}
+  textarea:focus{outline:none;border-color:var(--text)}
+  input[type=number],input[type=text],input[type=date]{border:1px solid var(--border);border-radius:3px;padding:8px 12px;font-size:13px;font-family:var(--mono);background:var(--bg);color:var(--text);transition:border-color .15s}
+  input[type=number]{width:130px}input[type=date]{width:165px}
+  input:focus{outline:none;border-color:var(--text)}
+  select{border:1px solid var(--border);border-radius:3px;padding:8px 12px;font-size:13px;font-family:var(--mono);background:var(--bg);color:var(--text)}
+  .hint{font-family:var(--mono);font-size:11px;color:var(--text-faint);margin-top:6px}
+  .hint.warn{color:var(--amber)}
+  /* Region selector */
+  .region-selector-wrap{display:none;margin-top:1.25rem}.region-selector-wrap.visible{display:block}
+  .divider{height:1px;background:var(--border);margin:1rem 0}
+  .region-selector-label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+  .region-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+  .region-chip{font-family:var(--mono);font-size:12px;padding:6px 14px;border-radius:3px;border:1px solid var(--border-dark);background:var(--bg);color:var(--text-muted);cursor:pointer;transition:all .15s;user-select:none}
+  .region-chip:hover{border-color:var(--text);color:var(--text);background:#ede9e0}
+  .region-chip.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+  .chip-count{font-size:10px;opacity:.55;margin-left:5px}
+  /* Region preview */
+  .region-preview{display:none;background:var(--bg);border:1px solid var(--border);border-radius:3px;overflow:hidden}
+  .region-preview.visible{display:block}
+  .rp-header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface)}
+  .rp-tag{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:var(--text);color:var(--bg);padding:3px 8px;border-radius:2px}
+  .rp-eq{font-family:var(--mono);font-size:12px;color:var(--text-muted);flex:1;min-width:200px}
+  .rp-eq b{color:var(--accent)}
+  .rp-truck-row{display:flex;align-items:center;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px}
+  .rp-truck-row:last-child{border-bottom:none}
+  .rp-cell{padding:7px 12px;border-right:1px solid var(--border);color:var(--text-muted);white-space:nowrap}
+  .rp-cell:last-child{border-right:none}
+  .rp-cell.num{font-weight:500;color:var(--text);min-width:36px;text-align:center;background:var(--surface)}
+  .rp-cell.peso-val{color:var(--accent);font-weight:500}.rp-cell.name{flex:1;color:var(--text)}
+  .rp-total{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;background:var(--accent-light);border-top:1px solid var(--border);font-family:var(--mono);font-size:12px}
+  .rp-total-label{color:var(--text-muted)}.rp-total-val{color:var(--accent);font-weight:500;font-size:14px}.rp-total-sep{color:var(--border-dark)}
+  /* Notas config */
+  .notas-config{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;padding:12px 0 4px}
+  .notas-config-group{display:flex;flex-direction:column;gap:5px}
+  .notas-config-group label{margin-bottom:0}
+  /* Perda */
+  .perda-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:1rem}
+  /* File drop */
+  .file-drop{border:1px dashed var(--border-dark);border-radius:3px;padding:1.5rem;text-align:center;cursor:pointer;background:var(--bg);transition:all .15s}
+  .file-drop:hover{background:#ede9e0;border-color:var(--text)}
+  .file-drop-icon{font-size:22px;margin-bottom:6px;color:var(--text-muted)}
+  .file-drop-text{font-size:13px;color:var(--text-muted)}
+  .file-drop-sub{font-family:var(--mono);font-size:11px;color:var(--text-faint);margin-top:3px}
+  .file-name{font-family:var(--mono);font-size:12px;color:var(--green);margin-top:8px;min-height:18px}
+  .sep{border:none;border-top:1px solid var(--border);margin:1.25rem 0}
+  /* Buttons */
+  .btn-row{display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:12px;letter-spacing:.05em;padding:10px 18px;border-radius:3px;cursor:pointer;border:1px solid var(--border-dark);background:var(--surface);color:var(--text);transition:all .15s}
+  .btn:hover{background:var(--bg);border-color:var(--text)}.btn:active{transform:scale(.98)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  .btn-primary{background:var(--text);color:var(--bg);border-color:var(--text)}.btn-primary:hover:not(:disabled){background:#333}
+  .btn-green{background:var(--green);color:#fff;border-color:var(--green)}.btn-green:hover:not(:disabled){background:#235a41}
+  .btn-amber{background:var(--amber);color:#fff;border-color:var(--amber)}.btn-amber:hover:not(:disabled){background:#7a500a}
+  .btn-purple{background:var(--purple);color:#fff;border-color:var(--purple)}.btn-purple:hover:not(:disabled){background:#491f75}
+  .btn-danger{background:#fff;color:var(--accent);border-color:var(--accent-border)}.btn-danger:hover{background:var(--accent-light)}
+  .btn-sm{padding:6px 12px;font-size:11px}
+  /* Metrics */
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+  .metric{background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:1rem;text-align:center}
+  .metric-val{font-family:var(--mono);font-size:20px;font-weight:500;letter-spacing:-.02em}
+  .metric-lbl{font-size:11px;color:var(--text-muted);margin-top:4px;font-family:var(--mono)}
+  .val-ok{color:var(--green)}.val-warn{color:var(--amber)}.val-err{color:var(--accent)}
+  .region-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--border)}
+  .region-row:last-child{border-bottom:none}
+  .region-tag{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:var(--text);color:var(--bg);padding:3px 8px;border-radius:2px;white-space:nowrap}
+  .region-info{color:var(--text-muted);font-size:12.5px}.region-info b{color:var(--text)}
+  /* Tables */
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px;font-family:var(--mono)}
+  thead tr{border-bottom:2px solid var(--text)}
+  th{padding:8px 10px;text-align:left;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);font-weight:500;white-space:nowrap}
+  td{padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+  tr:last-child td{border-bottom:none}tr:hover td{background:var(--bg)}td b{color:var(--accent)}
+  .badge{font-size:10px;padding:2px 7px;border-radius:2px;font-family:var(--mono);letter-spacing:.05em;background:var(--green-light);color:var(--green);border:1px solid var(--green-border)}
+  .badge.mod{background:var(--amber-light);color:var(--amber);border-color:var(--amber-border)}
+  .badge.tb{background:var(--accent-light);color:var(--accent);border-color:var(--accent-border)}
+  .badge.qm{background:var(--blue-light);color:var(--blue);border-color:var(--blue-border)}
+  /* Histórico */
+  .hist-filters{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:1rem}
+  .hist-filter-group{display:flex;flex-direction:column;gap:5px}
+  .hist-filter-group label{margin-bottom:0}
+  .hist-list{display:flex;flex-direction:column;gap:10px}
+  .hist-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color .15s}
+  .hist-card:hover{border-color:var(--border-dark)}
+  .hist-card-header{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;flex-wrap:wrap}
+  .hist-card-meta{flex:1;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .hist-date{font-family:var(--mono);font-size:13px;font-weight:500}
+  .hist-region{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;background:var(--text);color:var(--bg);padding:2px 7px;border-radius:2px;white-space:nowrap}
+  .hist-card-actions{display:flex;gap:6px;flex-shrink:0}
+  .hist-card-body{display:none;border-top:1px solid var(--border);background:var(--bg)}
+  .hist-card-body.open{display:block}
+  .hist-preview-table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono)}
+  .hist-preview-table th{padding:6px 10px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);text-align:left;background:var(--surface)}
+  .hist-preview-table td{padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+  .hist-preview-table tr:last-child td{border-bottom:none}
+  /* Config */
+  .cfg-url-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:.5rem}
+  .cfg-url-row input{flex:1;min-width:200px}
+  .cfg-status-row{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-top:6px}
+  .cfg-steps{font-size:13px;line-height:1.9;color:var(--text-muted)}
+  .cfg-steps b{color:var(--text)}
+  .cfg-steps a{color:var(--blue)}
+  .cfg-steps code{font-family:var(--mono);font-size:12px;background:var(--bg);padding:1px 6px;border-radius:3px;color:var(--accent)}
+  /* States */
+  .empty-state{text-align:center;padding:3rem 1rem;font-family:var(--mono);font-size:13px;color:var(--text-faint)}
+  .empty-icon{font-size:32px;margin-bottom:12px;opacity:.4}
+  .loading-msg{text-align:center;padding:2rem;font-family:var(--mono);font-size:12px;color:var(--text-faint)}
+  .output-section{display:none}
+  .dl-row{display:flex;gap:8px;margin-top:1.25rem;flex-wrap:wrap}
+  .footer{font-family:var(--mono);font-size:11px;color:var(--text-faint);text-align:center;margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border)}
+  @media(max-width:600px){.metrics{grid-template-columns:1fr 1fr}.metrics .metric:last-child{grid-column:span 2}.header-title{font-size:20px}.mode-tab{padding:8px 11px;font-size:11px}.hist-card-actions{width:100%}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="header">
+  <div>
+    <div class="header-tag">Pavimentação · Controle diário</div>
+    <div class="header-title">Medição <span>Pavimentação</span></div>
+  </div>
+  <div class="header-right">
+    <div class="header-badge">v6.0 · 2025</div>
+    <div class="api-indicator"><div class="api-dot" id="api-dot"></div><span id="api-txt">verificando...</span></div>
+  </div>
+</div>
+
+<div class="mode-tabs">
+  <button class="mode-tab tab-tb active" onclick="setMode('tb')"><span class="tab-dot"></span>Tapa-Buraco</button>
+  <button class="mode-tab tab-qm" onclick="setMode('qm')"><span class="tab-dot"></span>Quebra-Mola</button>
+  <button class="mode-tab tab-hist" onclick="setMode('hist')"><span class="tab-dot"></span>Histórico</button>
+  <button class="mode-tab tab-cfg" onclick="setMode('cfg')"><span class="tab-dot"></span>Config</button>
+</div>
+
+<!-- ══ TAPA-BURACO ══ -->
+<div class="panel panel-tb active" id="panel-tb">
+  <div class="card">
+    <div class="card-title">01 — Texto de produção</div>
+    <label>Cole o texto completo do dia — todas as regiões de uma vez</label>
+    <textarea id="tb-texto" rows="11" placeholder="ANHANDUIZINHO&#10;NSB9C49 - Alexandre&#10;Entrada - 5:02  Saída - 5:32&#10;Tara: 10.40&#10;Peso: 25.60&#10;&#10;SEGREDO&#10;HTQ4C66 - Osmir&#10;Entrada - 5:32  Saida - 6:03&#10;Tara: 9.90&#10;Peso: 25.73"></textarea>
+    <div class="hint">Região em linha própria · pode repetir a mesma região várias vezes</div>
+    <div id="tb-notas-wrap" style="display:none">
+      <div class="divider"></div>
+      <div class="notas-config">
+        <div class="notas-config-group"><label>Ticket inicial</label><input type="number" id="tb-ticket" value="1001" min="1"></div>
+        <div class="notas-config-group"><label>Data (dd/mm/aaaa)</label><input type="text" id="tb-data" placeholder="01/04/2026" style="width:145px"></div>
+        <button class="btn btn-amber" onclick="copiarNotas('tb')">⎘ Copiar para Excel</button>
+        <button class="btn btn-purple" id="tb-btn-salvar" onclick="salvarNotas('tb')">💾 Salvar no histórico</button>
+      </div>
+    </div>
+    <div class="region-selector-wrap" id="tb-regSelector">
+      <div class="divider"></div>
+      <div class="region-selector-label">Selecione a região para calcular</div>
+      <div class="region-chips" id="tb-chips"></div>
+      <div class="region-preview" id="tb-preview"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">02 — Buracos / massa aplicada</div>
+    <label>Arquivo Excel (.xlsx) com colunas Largura e Comprimento</label>
+    <div class="file-drop" id="tb-dropZone" onclick="document.getElementById('tb-fileInput').click()">
+      <div class="file-drop-icon">📂</div><div class="file-drop-text">Clique ou arraste o arquivo Excel aqui</div>
+      <div class="file-drop-sub">.xlsx · colunas: Largura, Comprimento</div>
+    </div>
+    <div class="file-name" id="tb-fileName"></div>
+    <input type="file" id="tb-fileInput" accept=".xlsx" style="display:none">
+    <hr class="sep">
+    <label>Ou insira os buracos manualmente (largura × comprimento, um por linha)</label>
+    <textarea id="tb-manual" rows="5" placeholder="0,60 x 0,80&#10;1,20 x 0,90&#10;0,50 x 0,70"></textarea>
+    <div class="hint">Espessura fixa = 0,03 m · Densidade = 2,4 t/m³ · Perda fixa = 0,25 t/caminhão · Múltiplos de 0,05</div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="processar('tb')">▶ Calcular e ajustar</button>
+    <button class="btn" onclick="limpar('tb')">↺ Limpar</button>
+  </div>
+  <div class="output-section" id="tb-output">
+    <div class="card">
+      <div class="card-title">Resumo — Tapa-Buraco</div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-val" id="tb-mProd">—</div><div class="metric-lbl">Massa produzida (t)</div></div>
+        <div class="metric"><div class="metric-val" id="tb-mAplic">—</div><div class="metric-lbl">Massa aplicada ajustada (t)</div></div>
+        <div class="metric"><div class="metric-val" id="tb-mDiff">—</div><div class="metric-lbl">Diferença final (t)</div></div>
+      </div>
+      <div id="tb-sumario"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Tabela de buracos ajustada</div>
+      <div class="table-wrap"><div id="tb-tabela"></div></div>
+      <div class="dl-row">
+        <button class="btn btn-primary" onclick="exportarCSV('tb')">⬇ Exportar CSV</button>
+        <button class="btn" onclick="copiarTabela('tb')">⎘ Copiar tabela completa</button>
+        <button class="btn btn-green" onclick="copiarAjustados('tb')">⎘ Copiar só ajustados</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ QUEBRA-MOLA ══ -->
+<div class="panel panel-qm" id="panel-qm">
+  <div class="card">
+    <div class="card-title">01 — Texto de produção</div>
+    <label>Cole o texto completo do dia — todas as regiões de uma vez</label>
+    <textarea id="qm-texto" rows="11" placeholder="ANHANDUIZINHO&#10;NSB9C49 - Alexandre&#10;Entrada - 5:02  Saída - 5:32&#10;Tara: 10.40&#10;Peso: 25.60"></textarea>
+    <div class="hint">Região em linha própria · pode repetir a mesma região várias vezes</div>
+    <div id="qm-notas-wrap" style="display:none">
+      <div class="divider"></div>
+      <div class="notas-config">
+        <div class="notas-config-group"><label>Ticket inicial</label><input type="number" id="qm-ticket" value="1001" min="1"></div>
+        <div class="notas-config-group"><label>Data (dd/mm/aaaa)</label><input type="text" id="qm-data" placeholder="01/04/2026" style="width:145px"></div>
+        <button class="btn btn-amber" onclick="copiarNotas('qm')">⎘ Copiar para Excel</button>
+        <button class="btn btn-purple" id="qm-btn-salvar" onclick="salvarNotas('qm')">💾 Salvar no histórico</button>
+      </div>
+    </div>
+    <div class="region-selector-wrap" id="qm-regSelector">
+      <div class="divider"></div>
+      <div class="region-selector-label">Selecione a região para calcular</div>
+      <div class="region-chips" id="qm-chips"></div>
+      <div class="region-preview" id="qm-preview"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">02 — Perda por caminhão</div>
+    <div class="perda-row">
+      <span style="font-family:var(--mono);font-size:12px;color:var(--text-muted)">Perda por caminhão:</span>
+      <input type="number" id="qm-perda" value="0" min="0" step="0.01" placeholder="0,00">
+      <span style="font-family:var(--mono);font-size:12px;color:var(--text-faint)">toneladas / caminhão</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">03 — Quebra-molas / massa aplicada</div>
+    <label>Arquivo Excel (.xlsx) com colunas Largura e Comprimento</label>
+    <div class="file-drop" id="qm-dropZone" onclick="document.getElementById('qm-fileInput').click()">
+      <div class="file-drop-icon">📂</div><div class="file-drop-text">Clique ou arraste o arquivo Excel aqui</div>
+      <div class="file-drop-sub">.xlsx · colunas: Largura, Comprimento</div>
+    </div>
+    <div class="file-name" id="qm-fileName"></div>
+    <input type="file" id="qm-fileInput" accept=".xlsx" style="display:none">
+    <hr class="sep">
+    <label>Ou insira os quebra-molas manualmente (largura × comprimento, um por linha)</label>
+    <textarea id="qm-manual" rows="5" placeholder="2,50 x 0,10&#10;3,00 x 0,12&#10;2,80 x 0,10"></textarea>
+    <div class="hint">Espessura fixa = 0,03 m · Densidade = 2,4 t/m³ · Múltiplos de 0,05</div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="processar('qm')">▶ Calcular e ajustar</button>
+    <button class="btn" onclick="limpar('qm')">↺ Limpar</button>
+  </div>
+  <div class="output-section" id="qm-output">
+    <div class="card">
+      <div class="card-title">Resumo — Quebra-Mola</div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-val" id="qm-mProd">—</div><div class="metric-lbl">Massa produzida (t)</div></div>
+        <div class="metric"><div class="metric-val" id="qm-mAplic">—</div><div class="metric-lbl">Massa aplicada ajustada (t)</div></div>
+        <div class="metric"><div class="metric-val" id="qm-mDiff">—</div><div class="metric-lbl">Diferença final (t)</div></div>
+      </div>
+      <div id="qm-sumario"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Tabela ajustada</div>
+      <div class="table-wrap"><div id="qm-tabela"></div></div>
+      <div class="dl-row">
+        <button class="btn btn-primary" onclick="exportarCSV('qm')">⬇ Exportar CSV</button>
+        <button class="btn" onclick="copiarTabela('qm')">⎘ Copiar tabela completa</button>
+        <button class="btn btn-green" onclick="copiarAjustados('qm')">⎘ Copiar só ajustados</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HISTÓRICO ══ -->
+<div class="panel panel-hist" id="panel-hist">
+  <div class="card">
+    <div class="card-title">Buscar notas salvas</div>
+    <div class="hist-filters">
+      <div class="hist-filter-group"><label>Data inicial</label><input type="date" id="hist-data-ini"></div>
+      <div class="hist-filter-group"><label>Data final</label><input type="date" id="hist-data-fim"></div>
+      <div class="hist-filter-group"><label>Região</label><input type="text" id="hist-regiao" placeholder="ex: ANHANDUIZINHO" style="width:185px"></div>
+      <div class="hist-filter-group"><label>Tipo</label>
+        <select id="hist-tipo"><option value="">Todos</option><option value="tb">Tapa-Buraco</option><option value="qm">Quebra-Mola</option></select>
+      </div>
+      <button class="btn btn-primary" onclick="buscarHistorico()">🔍 Buscar</button>
+      <button class="btn" onclick="limparFiltros()">↺ Limpar</button>
+    </div>
+  </div>
+  <div id="hist-resultados"><div class="loading-msg">Carregando...</div></div>
+</div>
+
+<!-- ══ CONFIG ══ -->
+<div class="panel panel-cfg" id="panel-cfg">
+  <div class="card">
+    <div class="card-title">Conexão com Google Sheets</div>
+    <label>URL do Web App (Google Apps Script)</label>
+    <div class="cfg-url-row">
+      <input type="text" id="cfg-url" placeholder="https://script.google.com/macros/s/.../exec">
+      <button class="btn btn-primary" onclick="salvarCfg()">Salvar</button>
+      <button class="btn" onclick="testarApi()">Testar conexão</button>
+    </div>
+    <div class="cfg-status-row">
+      <div class="api-dot" id="cfg-dot"></div>
+      <span id="cfg-txt">—</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Como configurar</div>
+    <div class="cfg-steps">
+      <p><b>1.</b> Acesse <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> e crie uma planilha nova (ex: <b>Medição Pavimentação</b>).</p>
+      <p><b>2.</b> No menu da planilha: <b>Extensões → Apps Script</b>.</p>
+      <p><b>3.</b> Apague o conteúdo do editor e cole o código do arquivo <code>codigo_apps_script.gs</code>.</p>
+      <p><b>4.</b> Clique em <b>Implantar → Nova implantação</b> · Tipo: <b>App da Web</b> · Executar como: <b>Eu</b> · Acesso: <b>Qualquer pessoa</b> · <b>Implantar</b>.</p>
+      <p><b>5.</b> Autorize as permissões solicitadas.</p>
+      <p><b>6.</b> Copie a <b>URL do Web App</b> e cole no campo acima. Clique em <b>Salvar</b> e depois <b>Testar conexão</b>.</p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">Medição de Pavimentação · Uso interno · Esp. 0,03 m · Dens. 2,4 t/m³ · Base no Google Sheets</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// API — URL pré-configurada + localStorage fallback
+// ══════════════════════════════════════════════
+const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbw0YIDDJTby7N6IB-ht_6kLZyiYeE1l5_Evb6Qb1bFRer-Dl1ztAEgl0yu9rCT4a_Gy9w/exec';
+let API_URL = localStorage.getItem('pav_api_url') || DEFAULT_API;
+
+function getApiUrl(){ return document.getElementById('cfg-url').value.trim() || API_URL; }
+
+function setApiIndicator(state, msg){
+  ['api-dot','cfg-dot'].forEach(id=>{
+    const d=document.getElementById(id);if(!d) return;
+    d.className='api-dot'+(state==='ok'?' ok':state==='err'?' err':state==='spin'?' spin':'');
+  });
+  const t1=document.getElementById('api-txt'),t2=document.getElementById('cfg-txt');
+  if(t1) t1.textContent=msg;
+  if(t2) t2.textContent=msg;
+}
+
+async function apiPost(body){
+  const url=getApiUrl();
+  if(!url) throw new Error('URL não configurada');
+  const r=await fetch(url,{method:'POST',body:JSON.stringify(body)});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return r.json();
+}
+
+async function testarApi(){
+  setApiIndicator('spin','testando...');
+  try{
+    const r=await apiPost({action:'buscar',filtros:{dataIni:'',dataFim:'',regiao:'',modo:''}});
+    if(r.ok!==false) setApiIndicator('ok','Google Sheets conectado ✓');
+    else setApiIndicator('err','Erro: '+(r.erro||'?'));
+  }catch(e){ setApiIndicator('err','Falha: '+e.message); }
+}
+
+function salvarCfg(){
+  const url=document.getElementById('cfg-url').value.trim();
+  if(!url){alert('Cole a URL do Web App.');return;}
+  API_URL=url;
+  localStorage.setItem('pav_api_url',url);
+  setApiIndicator('ok','URL salva!');
+}
+
+// Init
+window.addEventListener('load',()=>{
+  document.getElementById('cfg-url').value=API_URL;
+  setApiIndicator('spin','verificando...');
+  fetchUltimoTicket();
+});
+
+async function fetchUltimoTicket(){
+  try{
+    const r=await apiPost({action:'ultimoTicket'});
+    if(r.ok){
+      setApiIndicator('ok','Google Sheets conectado ✓');
+      const prox=r.proximoTicket||1001;
+      window._proximoTicket=prox;
+      ['tb','qm'].forEach(m=>{
+        document.getElementById(m+'-ticket').value=prox;
+      });
+    }else{
+      setApiIndicator('err','API com erro');
+    }
+  }catch(e){
+    setApiIndicator('err','sem conexão');
+  }
+}
+
+// ══════════════════════════════════════════════
+// STATE / UTILS
+// ══════════════════════════════════════════════
+const state={
+  tb:{file:null,dados:[],regioes:{},regiaoAtiva:null,registros:[]},
+  qm:{file:null,dados:[],regioes:{},regiaoAtiva:null,registros:[]}
+};
+const fmt2=n=>n.toFixed(2).replace('.',',');
+const fmt3=n=>n.toFixed(3).replace('.',',');
+const fmt4=n=>n.toFixed(4).replace('.',',');
+const pFloat=s=>parseFloat(String(s).replace(',','.'));
+const round05=v=>Math.round(v/0.05)*0.05;
+const fmtHora=h=>{const[hh,mm]=h.split(':');return hh.padStart(2,'0')+':'+mm;};
+
+function setMode(m){
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  const tabs=document.querySelectorAll('.mode-tab');
+  const idx=['tb','qm','hist','cfg'].indexOf(m);
+  if(idx>=0) tabs[idx].classList.add('active');
+  document.getElementById('panel-'+m).classList.add('active');
+  if(m==='hist') buscarHistorico();
+  if(m==='tb'||m==='qm') fetchUltimoTicket();
+}
+
+// ══════════════════════════════════════════════
+// FILE HANDLERS
+// ══════════════════════════════════════════════
+['tb','qm'].forEach(mode=>{
+  document.getElementById(mode+'-fileInput').addEventListener('change',e=>{
+    state[mode].file=e.target.files[0];
+    document.getElementById(mode+'-fileName').textContent=state[mode].file?'✓ '+state[mode].file.name:'';
+  });
+  const dz=document.getElementById(mode+'-dropZone');
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='#1a1814';});
+  dz.addEventListener('dragleave',()=>dz.style.borderColor='');
+  dz.addEventListener('drop',e=>{
+    e.preventDefault();dz.style.borderColor='';
+    state[mode].file=e.dataTransfer.files[0];
+    document.getElementById(mode+'-fileName').textContent=state[mode].file?'✓ '+state[mode].file.name:'';
+  });
+});
+
+// ══════════════════════════════════════════════
+// PARSE
+// ══════════════════════════════════════════════
+const SKIP=/^(tara|peso|entrada|saída|saida|operador|data|ticket|t)$/i;
+const PLATE_RE=/\b([A-Z]{3}\d[A-Z0-9]\d{2}|[A-Z]{3}\d{4})\b/i;
+
+function isRegiao(line){
+  if(!line||line.length<2) return null;
+  // *NOME*
+  let m=line.match(/^\*([^*]+)\*$/);if(m) return m[1].trim().toUpperCase();
+  // REGIÃO: NOME
+  m=line.match(/^regi[aã]o[:\s]+(.+)/i);if(m) return m[1].trim().toUpperCase();
+  // Linha que contém placa → não é região
+  if(PLATE_RE.test(line)) return null;
+  // Linha que é só data dd/mm/yyyy → não é região
+  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(line.trim())) return null;
+  // Linha com horário → não é região
+  if(/\d{1,2}:\d{2}/.test(line)) return null;
+  // Linha com "Tara", "Peso", "Entrada", "Saída" → não é região
+  if(SKIP.test(line.trim())) return null;
+  if(/^(tara|peso|entrada|sa[íi]da)\s*[:\-]/i.test(line)) return null;
+  // Linha com apenas números → não é região
+  if(/^\d[\d.,]*$/.test(line.trim())) return null;
+  // Linha suficientemente descritiva (tem letras, sem ser número puro)
+  if(line.trim().length>=3 && /[A-Za-záéíóúãõâêîôûàüÁÉÍÓÚÃÕÂÊÎÔÛÀÜ]/.test(line)){
+    return line.trim().toUpperCase();
+  }
+  return null;
+}
+
+function parseAll(txt){
+  const lines=txt.split('\n').map(l=>l.trim());
+  const registros=[];let reg=null,placa=null,mot=null,ent=null,sai=null,tar=null;
+  let tkAuto=null,dtAuto=null;
+  const cm=txt.match(/(\d{4,})\s+data\s+(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)/i);
+  if(cm){
+    tkAuto=parseInt(cm[1]);
+    const dp=cm[2].split('/');
+    dtAuto=dp.length===2?`${dp[0].padStart(2,'0')}/${dp[1].padStart(2,'0')}/${new Date().getFullYear()}`:`${dp[0].padStart(2,'0')}/${dp[1].padStart(2,'0')}/${dp[2].length===2?'20'+dp[2]:dp[2]}`;
+  }
+  for(const line of lines){
+    if(!line) continue;
+    // Ignora linha de config ticket/data
+    if(/^\d{4,}\s+data\s+\d/i.test(line)) continue;
+    // Ignora linha que é só data dd/mm/yyyy
+    if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(line)) continue;
+
+    // Tara
+    const tm=line.match(/^tara\s*:?\s*([\d.,]+)/i);if(tm){tar=tm[1].replace(',','.');continue;}
+    // Peso → flush record
+    const pm2=line.match(/^peso\s*:?\s*([\d.,]+)/i);
+    if(pm2&&placa){
+      registros.push({placa,motorista:mot||'',entrada:ent||'',saida:sai||'',tara:tar||'',peso:pm2[1].replace(',','.'),regiao:reg||'—'});
+      placa=null;mot=null;ent=null;sai=null;tar=null;continue;
+    }
+    // Entrada / Saída
+    const em=line.match(/^entrada\s*[-–]?\s*(\d{1,2}:\d{2})/i);
+    if(em){ent=fmtHora(em[1]);const si=line.match(/sa[íi]da\s*[-–]?\s*(\d{1,2}:\d{2})/i);if(si)sai=fmtHora(si[1]);continue;}
+    const sm=line.match(/^sa[íi]da\s*[-–]?\s*(\d{1,2}:\d{2})/i);if(sm){sai=fmtHora(sm[1]);continue;}
+
+    // Detecta placa na linha (pode estar antes ou depois do motorista)
+    const plateM=line.match(PLATE_RE);
+    if(plateM){
+      placa=plateM[1].toUpperCase();
+      // Motorista: tudo que não for a placa
+      const semPlaca=line.replace(PLATE_RE,'').replace(/[-–]/g,'').trim();
+      mot=semPlaca?semPlaca.toUpperCase():'';
+      ent=null;sai=null;tar=null;continue;
+    }
+
+    // Tenta detectar região (depois de descartar todos os outros padrões)
+    const r=isRegiao(line);if(r){reg=r;continue;}
+  }
+  return{registros,tkAuto,dtAuto};
+}
+function parseProd(txt){
+  const{registros}=parseAll(txt);const re={};
+  for(const r of registros){
+    if(!re[r.regiao]) re[r.regiao]={n:0,soma:0,pesos:[],motoristas:[],placas:[]};
+    const p=parseFloat(r.peso);re[r.regiao].n++;re[r.regiao].soma+=p;
+    re[r.regiao].pesos.push(p);re[r.regiao].motoristas.push(r.motorista||'—');re[r.regiao].placas.push(r.placa);
+  }
+  return re;
+}
+
+// ══════════════════════════════════════════════
+// LIVE REGION
+// ══════════════════════════════════════════════
+['tb','qm'].forEach(m=>{document.getElementById(m+'-texto').addEventListener('input',()=>detectar(m));});
+document.getElementById('qm-perda').addEventListener('input',()=>{if(state.qm.regiaoAtiva) renderPrev('qm',state.qm.regiaoAtiva);});
+
+function detectar(mode){
+  const txt=document.getElementById(mode+'-texto').value;
+  const{registros,tkAuto,dtAuto}=parseAll(txt);
+  const re=parseProd(txt);const keys=Object.keys(re);
+  state[mode].regioes=re;state[mode].registros=registros;
+  // Data: auto-detect from text only if field is empty
+  if(dtAuto&&!document.getElementById(mode+'-data').value) document.getElementById(mode+'-data').value=dtAuto;
+  // Ticket: prioriza _proximoTicket vindo do Sheets
+  const ticketEl=document.getElementById(mode+'-ticket');
+  if(window._proximoTicket) ticketEl.value=window._proximoTicket;
+  document.getElementById(mode+'-notas-wrap').style.display=registros.length?'block':'none';
+  const wrap=document.getElementById(mode+'-regSelector'),chips=document.getElementById(mode+'-chips');
+  if(!keys.length){wrap.classList.remove('visible');return;}
+  wrap.classList.add('visible');chips.innerHTML='';
+  keys.forEach(reg=>{
+    const btn=document.createElement('button');
+    btn.className='region-chip'+(state[mode].regiaoAtiva===reg?' active':'');
+    btn.innerHTML=reg+`<span class="chip-count">${re[reg].n} cam.</span>`;
+    btn.onclick=()=>selReg(mode,reg);chips.appendChild(btn);
+  });
+  if(keys.length===1&&state[mode].regiaoAtiva!==keys[0]) selReg(mode,keys[0]);
+  else if(state[mode].regiaoAtiva&&re[state[mode].regiaoAtiva]) renderPrev(mode,state[mode].regiaoAtiva);
+}
+function selReg(mode,reg){
+  state[mode].regiaoAtiva=reg;
+  document.querySelectorAll('#'+mode+'-chips .region-chip').forEach(c=>c.classList.toggle('active',c.textContent.startsWith(reg)));
+  renderPrev(mode,reg);
+}
+function renderPrev(mode,reg){
+  const r=state[mode].regioes[reg],el=document.getElementById(mode+'-preview');
+  if(!r){el.classList.remove('visible');return;}
+  const pu=mode==='tb'?0.25:(parseFloat(document.getElementById('qm-perda').value)||0);
+  const perda=pu*r.n,final=r.soma-perda;
+  const eq=r.pesos.map(p=>fmt2(p)).join(' + ')+(r.pesos.length>1?` = <b>${fmt3(r.soma)} t</b>`:'');
+  let trucks='';
+  r.pesos.forEach((p,i)=>{trucks+=`<div class="rp-truck-row"><div class="rp-cell num">${i+1}</div><div class="rp-cell name">${r.placas[i]} · ${r.motoristas[i]}</div><div class="rp-cell peso-val">${fmt2(p)} t</div></div>`;});
+  el.innerHTML=`<div class="rp-header"><span class="rp-tag">${reg}</span><span class="rp-eq">${r.n} cam. &nbsp;·&nbsp; ${eq}</span></div><div>${trucks}</div>
+    <div class="rp-total"><span class="rp-total-label">Σ Peso</span><span class="rp-total-val">${fmt3(r.soma)} t</span><span class="rp-total-sep">−</span><span class="rp-total-label">Perda (${r.n} × ${fmt2(pu)} t)</span><span class="rp-total-val" style="color:var(--amber)">${fmt3(perda)} t</span><span class="rp-total-sep">=</span><span class="rp-total-label">Final</span><span class="rp-total-val" style="font-size:16px">${fmt3(final)} t</span></div>`;
+  el.classList.add('visible');
+}
+
+// ══════════════════════════════════════════════
+// COPIAR / SALVAR NOTAS
+// ══════════════════════════════════════════════
+function buildNotas(registros,ti,data){
+  const R={ticket:[],data:[],placa:[],motorista:[],operador:[],entrada:[],saida:[],tara:[],peso:[],regiao:[]};
+  registros.forEach((r,i)=>{
+    R.ticket.push(ti+i);R.data.push(data);R.placa.push(r.placa);R.motorista.push(r.motorista.toUpperCase());
+    R.operador.push('');R.entrada.push(r.entrada);R.saida.push(r.saida);R.tara.push(r.tara);R.peso.push(r.peso);R.regiao.push(r.regiao.toUpperCase());
+  });
+  return[R.ticket,R.data,R.placa,R.motorista,R.operador,R.entrada,R.saida,R.tara,R.peso,R.regiao].map(row=>row.join('\t')).join('\n');
+}
+function copiarNotas(mode){
+  const regs=state[mode].registros;if(!regs.length){alert('Nenhum registro encontrado.');return;}
+  const ti=parseInt(document.getElementById(mode+'-ticket').value)||1001;
+  const dt=document.getElementById(mode+'-data').value.trim()||'';
+  navigator.clipboard.writeText(buildNotas(regs,ti,dt)).then(()=>alert(`${regs.length} notas copiadas!\nCole direto no Excel.`));
+}
+async function salvarNotas(mode){
+  const regs=state[mode].registros;if(!regs.length){alert('Nenhum registro para salvar.');return;}
+  const ti=parseInt(document.getElementById(mode+'-ticket').value)||1001;
+  const dt=document.getElementById(mode+'-data').value.trim();
+  if(!dt){alert('Preencha a data antes de salvar.');return;}
+  const btn=document.getElementById(mode+'-btn-salvar');
+  btn.disabled=true;btn.textContent='Salvando...';
+  try{
+    const payload={modo:mode,data:dt,ticketInicio:ti,ticketFim:ti+regs.length-1,
+      regioes:[...new Set(regs.map(r=>r.regiao))],totalCaminhoes:regs.length,registros:regs};
+    const res=await apiPost({action:'salvar',payload});
+    if(res.ok){
+      btn.textContent='✓ Salvo!';
+      // Atualiza próximo ticket automaticamente
+      await fetchUltimoTicket();
+      setTimeout(()=>{btn.disabled=false;btn.textContent='💾 Salvar no histórico';},2500);
+      alert(`✓ ${regs.length} notas salvas!\nTickets ${ti}–${ti+regs.length-1}\nPróximo ticket: ${window._proximoTicket||'—'}`);
+    }else throw new Error(res.erro||'Erro desconhecido');
+  }catch(e){
+    btn.disabled=false;btn.textContent='💾 Salvar no histórico';
+    alert('Erro ao salvar:\n'+e.message);
+  }
+}
+
+// ══════════════════════════════════════════════
+// HISTÓRICO
+// ══════════════════════════════════════════════
+let _hist={};
+async function buscarHistorico(){
+  const el=document.getElementById('hist-resultados');
+  el.innerHTML='<div class="loading-msg">Buscando no Google Sheets...</div>';
+  try{
+    const res=await apiPost({action:'buscar',filtros:{
+      dataIni:document.getElementById('hist-data-ini').value,
+      dataFim:document.getElementById('hist-data-fim').value,
+      regiao:document.getElementById('hist-regiao').value.trim(),
+      modo:document.getElementById('hist-tipo').value
+    }});
+    if(!res.ok) throw new Error(res.erro||'Erro');
+    _hist={};res.grupos.forEach(g=>_hist[g.id]=g);
+    renderHist(res.grupos);
+  }catch(e){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">⚠</div>Erro: ${e.message}</div>`;
+  }
+}
+function renderHist(grupos){
+  const el=document.getElementById('hist-resultados');
+  if(!grupos.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div>Nenhuma nota encontrada.</div>';return;}
+  let html=`<div style="font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-bottom:12px">${grupos.length} lote(s) encontrado(s)</div><div class="hist-list">`;
+  grupos.forEach(g=>{
+    const bClass=g.modo==='tb'?'tb':'qm';
+    const mLabel=g.modo==='tb'?'Tapa-Buraco':'Quebra-Mola';
+    const rtags=g.regioes.map(r=>`<span class="hist-region">${r}</span>`).join(' ');
+    html+=`<div class="hist-card" id="hcard-${g.id}">
+      <div class="hist-card-header" onclick="toggleCard('${g.id}')">
+        <div class="hist-card-meta">
+          <span class="hist-date">${g.data}</span>
+          <span class="badge ${bClass}">${mLabel}</span>
+          ${rtags}
+          <span style="font-family:var(--mono);font-size:12px;color:var(--text-muted)">Tickets ${g.ticketInicio}–${g.ticketFim} · ${g.totalCaminhoes} cam.</span>
+        </div>
+        <div class="hist-card-actions" onclick="event.stopPropagation()">
+          <button class="btn btn-amber btn-sm" onclick="recopiar('${g.id}')">⎘ Copiar notas</button>
+          <button class="btn btn-danger btn-sm" onclick="excluir('${g.id}')">✕ Excluir</button>
+        </div>
+      </div>
+      <div class="hist-card-body" id="hbody-${g.id}">
+        <div style="padding:12px 16px;overflow-x:auto">
+          <table class="hist-preview-table">
+            <thead><tr><th>Ticket</th><th>Placa</th><th>Motorista</th><th>Entrada</th><th>Saída</th><th>Tara</th><th>Peso</th><th>Região</th></tr></thead>
+            <tbody>${g.registros.map(r=>`<tr><td><b>${r.ticket}</b></td><td>${r.placa}</td><td>${r.motorista}</td><td>${r.entrada}</td><td>${r.saida}</td><td>${r.tara}</td><td>${r.peso}</td><td>${r.regiao}</td></tr>`).join('')}</tbody>
+          </table>
+          <div style="margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--text-faint)">Salvo em: ${g.dataSalvamento||''}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML=html+'</div>';
+}
+function toggleCard(id){document.getElementById('hbody-'+id)?.classList.toggle('open');}
+function recopiar(id){
+  const g=_hist[id];if(!g) return;
+  const regs=g.registros.map(r=>({placa:r.placa,motorista:r.motorista,entrada:r.entrada,saida:r.saida,tara:r.tara,peso:r.peso,regiao:r.regiao}));
+  navigator.clipboard.writeText(buildNotas(regs,g.ticketInicio,g.data)).then(()=>alert(`✓ ${regs.length} notas copiadas!\nCole direto no Excel.`));
+}
+async function excluir(id){
+  if(!confirm('Excluir este lote do histórico? Ação irreversível.')) return;
+  try{
+    const res=await apiPost({action:'excluir',id});
+    if(res.ok){document.getElementById('hcard-'+id)?.remove();alert('Excluído com sucesso.');}
+    else throw new Error(res.erro||'Erro');
+  }catch(e){alert('Erro ao excluir: '+e.message);}
+}
+function limparFiltros(){
+  ['hist-data-ini','hist-data-fim','hist-regiao'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('hist-tipo').value='';
+  buscarHistorico();
+}
+
+// ══════════════════════════════════════════════
+// BURACOS
+// ══════════════════════════════════════════════
+function parseMnl(txt){
+  return txt.split('\n').map(l=>l.trim()).filter(Boolean).map(line=>{
+    const n=line.match(/[\d.,]+/g);if(!n||n.length<2) return null;
+    return{larg:pFloat(n[0]),comp:pFloat(n[1])};
+  }).filter(Boolean);
+}
+async function parseXLSX(file){
+  return new Promise((res,rej)=>{
+    const rd=new FileReader();
+    rd.onload=e=>{
+      try{
+        const wb=XLSX.read(e.target.result,{type:'array'});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const data=XLSX.utils.sheet_to_json(ws,{defval:''});
+        res(data.map(row=>{
+          const lk=Object.keys(row).find(k=>/larg/i.test(k));const ck=Object.keys(row).find(k=>/comp/i.test(k));
+          if(!lk||!ck) return null;
+          const larg=pFloat(row[lk]),comp=pFloat(row[ck]);
+          return(!isNaN(larg)&&!isNaN(comp)&&larg>0&&comp>0)?{larg,comp}:null;
+        }).filter(Boolean));
+      }catch(err){rej(err);}
+    };
+    rd.readAsArrayBuffer(file);
+  });
+}
+
+// ══════════════════════════════════════════════
+// AJUSTE
+// ══════════════════════════════════════════════
+function ajustar(buracos,massaProd){
+  const E=0.03,D=2.4;
+  const mo=buracos.reduce((s,b)=>s+b.larg*b.comp*E*D,0);
+  if(mo===0) return buracos.map(b=>({...b,larg_aj:b.larg,comp_aj:b.comp,massa:0}));
+  const f=Math.sqrt(massaProd/mo);
+  let aj=buracos.map(b=>({
+    ...b,
+    larg_aj: b.larg===0 ? 0 : Math.max(0.05,round05(b.larg*f)),
+    comp_aj: b.comp===0 ? 0 : Math.max(0.05,round05(b.comp*f))
+  }));
+  let diff=massaProd-aj.reduce((s,b)=>s+b.larg_aj*b.comp_aj*E*D,0);
+  const sorted=aj.map((_,i)=>i).sort((a,b)=>aj[b].larg_aj*aj[b].comp_aj-aj[a].larg_aj*aj[a].comp_aj);
+  let it=0;
+  while(Math.abs(diff)>0.005&&it<1000){
+    const sg=diff>0?1:-1;let ok=false;
+    for(const i of sorted){
+      if(Math.abs(diff)<=0.005) break;
+      const b=aj[i];
+      if(b.larg_aj===0||b.comp_aj===0) continue; // mantém zeros intocados
+      const nl=parseFloat((b.larg_aj+sg*0.05).toFixed(2));
+      if(nl>=0.05){aj[i]={...b,larg_aj:nl};diff-=sg*b.comp_aj*0.05*E*D;ok=true;}
+    }
+    if(!ok) break;it++;
+  }
+  return aj.map(b=>({...b,massa:parseFloat((b.larg_aj*b.comp_aj*E*D).toFixed(4))}));
+}
+
+// ══════════════════════════════════════════════
+// PROCESSAR
+// ══════════════════════════════════════════════
+async function processar(mode){
+  const txt=document.getElementById(mode+'-texto').value.trim();
+  if(!txt){alert('Insira o texto de produção.');return;}
+  const pu=mode==='tb'?0.25:(parseFloat(document.getElementById('qm-perda').value)||0);
+  const re=parseProd(txt);state[mode].regioes=re;
+  const ra=state[mode].regiaoAtiva;
+  if(!ra||!re[ra]){alert('Selecione uma região antes de calcular.');detectar(mode);return;}
+  let buracos=[];
+  if(state[mode].file){try{buracos=await parseXLSX(state[mode].file);}catch(e){alert('Erro Excel: '+e.message);return;}}
+  if(!buracos.length) buracos=parseMnl(document.getElementById(mode+'-manual').value);
+  if(!buracos.length){alert('Insira os buracos via Excel ou manualmente.');return;}
+  const r=re[ra],perda=pu*r.n,mf=r.soma-perda;
+  const res=ajustar(buracos,mf);state[mode].dados=res;
+  const ma=res.reduce((s,b)=>s+b.massa,0),df=Math.abs(mf-ma);
+  document.getElementById(mode+'-mProd').textContent=fmt3(mf)+' t';
+  document.getElementById(mode+'-mAplic').textContent=fmt3(ma)+' t';
+  const de=document.getElementById(mode+'-mDiff');de.textContent=fmt4(df)+' t';
+  de.className='metric-val '+(df<=0.01?'val-ok':df<=0.05?'val-warn':'val-err');
+  document.getElementById(mode+'-sumario').innerHTML=`<div class="region-row"><span class="region-tag">${ra}</span><span class="region-info">${r.n} cam. · Σ Peso: <b>${fmt3(r.soma)} t</b> · Perda: ${fmt3(perda)} t · Final: <b>${fmt3(mf)} t</b></span></div>`;
+  let html=`<table><thead><tr><th>ID</th><th>Larg orig</th><th>Comp orig</th><th>Larg aj</th><th>Comp aj</th><th>Esp</th><th>Massa (t)</th><th>Status</th></tr></thead><tbody>`;
+  res.forEach((b,i)=>{const mod=b.larg_aj!==b.larg||b.comp_aj!==b.comp;html+=`<tr><td>${i+1}</td><td>${fmt2(b.larg)}</td><td>${fmt2(b.comp)}</td><td><b>${fmt2(b.larg_aj)}</b></td><td><b>${fmt2(b.comp_aj)}</b></td><td>0,03</td><td>${fmt4(b.massa)}</td><td><span class="badge ${mod?'mod':''}">${mod?'ajustado':'original'}</span></td></tr>`;});
+  html+='</tbody></table>';
+  document.getElementById(mode+'-tabela').innerHTML=html;
+  document.getElementById(mode+'-output').style.display='block';
+  document.getElementById(mode+'-output').scrollIntoView({behavior:'smooth'});
+}
+
+// ══════════════════════════════════════════════
+// EXPORT / COPY
+// ══════════════════════════════════════════════
+function exportarCSV(mode){
+  const d=state[mode].dados;if(!d.length) return;
+  const rows=[['ID','Larg_orig','Comp_orig','Larg_aj','Comp_aj','Espessura','Massa_t']];
+  d.forEach((b,i)=>rows.push([i+1,fmt2(b.larg),fmt2(b.comp),fmt2(b.larg_aj),fmt2(b.comp_aj),'0,03',fmt4(b.massa)]));
+  const blob=new Blob(['\uFEFF'+rows.map(r=>r.join(';')).join('\n')],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=mode+'_ajustado.csv';a.click();
+}
+function copiarTabela(mode){
+  const d=state[mode].dados;if(!d.length) return;
+  const rows=['ID\tLarg_orig\tComp_orig\tLarg_aj\tComp_aj\tEspessura\tMassa_t'];
+  d.forEach((b,i)=>rows.push(`${i+1}\t${fmt2(b.larg)}\t${fmt2(b.comp)}\t${fmt2(b.larg_aj)}\t${fmt2(b.comp_aj)}\t0,03\t${fmt4(b.massa)}`));
+  navigator.clipboard.writeText(rows.join('\n')).then(()=>alert('Tabela copiada!'));
+}
+function copiarAjustados(mode){
+  const d=state[mode].dados;if(!d.length) return;
+  const aj=d.filter(b=>b.larg_aj!==b.larg||b.comp_aj!==b.comp);
+  if(!aj.length){alert('Nenhum buraco ajustado.');return;}
+  const rows=['Larg_aj\tComp_aj\tEspessura\tMassa_t'];
+  aj.forEach(b=>rows.push(`${fmt2(b.larg_aj)}\t${fmt2(b.comp_aj)}\t0,03\t${fmt4(b.massa)}`));
+  navigator.clipboard.writeText(rows.join('\n')).then(()=>alert(`${aj.length} ajustado(s) copiado(s)!`));
+}
+function limpar(mode){
+  ['texto','manual'].forEach(f=>{const el=document.getElementById(mode+'-'+f);if(el)el.value='';});
+  document.getElementById(mode+'-fileName').textContent='';
+  document.getElementById(mode+'-chips').innerHTML='';
+  document.getElementById(mode+'-preview').classList.remove('visible');
+  document.getElementById(mode+'-regSelector').classList.remove('visible');
+  document.getElementById(mode+'-notas-wrap').style.display='none';
+  document.getElementById(mode+'-output').style.display='none';
+  state[mode].file=null;state[mode].dados=[];state[mode].regioes={};state[mode].regiaoAtiva=null;state[mode].registros=[];
+  if(mode==='qm') document.getElementById('qm-perda').value='0';
+}
+</script>
+</body>
+</html>

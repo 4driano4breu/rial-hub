@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documentos RH</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#dde3ee;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── Toolbar ─────────────────────────────────────────────── */
+.bar{background:#1b3a5c;color:#fff;height:50px;padding:0 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.bar h1{font-size:14px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-btn{padding:7px 15px;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:5px}
+.btn-load{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3)}
+.btn-load:hover{background:rgba(255,255,255,.24)}
+.btn-gen{background:#1b9e6e;color:#fff}
+.btn-gen:hover{background:#168059}
+.btn-gen:disabled{opacity:.4;cursor:not-allowed}
+.bar-sep{width:1px;height:24px;background:rgba(255,255,255,.2)}
+.mode-chip{padding:5px 12px;border:1px solid rgba(255,255,255,.25);border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;color:rgba(255,255,255,.7);background:transparent;font-family:inherit;transition:all .15s}
+.mode-chip.on{background:#fff;color:#1b3a5c;border-color:#fff}
+.mode-chip:not(.on):hover{background:rgba(255,255,255,.15)}
+
+/* ── Layout ──────────────────────────────────────────────── */
+.app{display:flex;flex:1;overflow:hidden}
+.main{flex:1;overflow-y:auto;padding:20px}
+.sb{width:320px;flex-shrink:0;background:#f4f7fb;border-left:1px solid #dde3ec;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── Upload ──────────────────────────────────────────────── */
+.upload-wrap{display:flex;align-items:center;justify-content:center;height:100%}
+.upload-card{background:#fff;border-radius:14px;padding:40px 34px;text-align:center;width:400px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.upload-card h2{font-size:18px;color:#1b3a5c;margin-bottom:8px}
+.upload-card p{font-size:13px;color:#7a8aa4;line-height:1.6;margin-bottom:18px}
+.drop{border:2px dashed #b0bdd4;border-radius:10px;padding:22px;cursor:pointer;background:#f7f9fc;transition:all .2s}
+.drop:hover,.drop.over{border-color:#1b3a5c;background:#eef3fb}
+.drop-label{font-size:13px;font-weight:600;color:#4a5a74;margin-bottom:3px}
+.drop-sub{font-size:11px;color:#9aaabb}
+
+/* ── Doc view ────────────────────────────────────────────── */
+.doc-wrap{background:#fff;border-radius:6px;box-shadow:0 2px 14px rgba(0,0,0,.1);overflow:hidden}
+.doc-head{background:#f4f7fb;border-bottom:1px solid #dde3ec;padding:9px 16px;font-size:12px;color:#6b7a94;display:flex;align-items:center;gap:6px}
+.doc-body{padding:22px 28px;font-family:'Calibri','Georgia',serif;font-size:11pt;line-height:1.9;color:#2a2a2a;max-height:calc(100vh - 145px);overflow-y:auto}
+.doc-body p{margin-bottom:7px;white-space:pre-wrap;word-break:break-word}
+
+/* Field chips in doc */
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px;border-radius:5px;font-family:'Segoe UI',sans-serif;font-size:11px;font-weight:700;cursor:pointer;vertical-align:baseline;border:2px solid transparent;transition:all .15s;user-select:none}
+.chip:hover{filter:brightness(.92)}
+.chip.unassigned{background:#f0f0f0;border-color:#bbb;color:#777;border-style:dashed}
+.chip-num{width:16px;height:16px;border-radius:50%;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.18);color:#fff;flex-shrink:0}
+
+/* ── Sidebar shared ──────────────────────────────────────── */
+.sb-top{padding:12px 14px;border-bottom:1px solid #dde3ec;flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.sb-title{font-size:12px;font-weight:700;color:#1b3a5c;text-transform:uppercase;letter-spacing:.5px}
+.sb-count{font-size:11px;color:#8a9ab5;font-weight:600}
+.sb-body{flex:1;overflow-y:auto;padding:12px 13px 6px}
+.sb-footer{padding:11px 13px;border-top:1px solid #dde3ec;flex-shrink:0;display:flex;flex-direction:column;gap:7px}
+.sb-hint{padding:20px 10px;text-align:center;color:#9aaabb;font-size:12px;line-height:1.7}
+.sb-hint .big{font-size:28px;margin-bottom:6px}
+
+/* Setup: unassigned items */
+.section-label{font-size:10px;font-weight:700;color:#9aaabb;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.unocc-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:#fff;border:1.5px dashed #dde3ec;border-radius:7px;margin-bottom:6px;cursor:pointer;transition:all .15s}
+.unocc-item:hover{border-color:#1b3a5c;background:#eef3fb;border-style:solid}
+.unocc-item .occ-num{font-size:12px;font-weight:900;color:#bbb;flex-shrink:0;width:18px;text-align:center}
+.unocc-item .occ-ctx{font-size:11px;color:#6b7a94;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.unocc-item .occ-go{font-size:11px;color:#1b3a5c;font-weight:700;flex-shrink:0}
+
+/* Named fields in setup */
+.named-row{display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;margin-bottom:6px;border:1.5px solid transparent}
+.named-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.named-label{font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.named-cnt{font-size:10px;opacity:.7;flex-shrink:0}
+.named-edit{background:none;border:none;cursor:pointer;font-size:13px;padding:2px;color:inherit;opacity:.5;flex-shrink:0}
+.named-edit:hover{opacity:1}
+
+/* Fill mode: field inputs */
+.field-group{margin-bottom:14px}
+.fg-header{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.fg-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.fg-name{font-size:12px;font-weight:700;color:#2a3a54;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fg-edit{background:none;border:none;cursor:pointer;font-size:12px;padding:2px 4px;color:#8a9ab5;border-radius:4px;flex-shrink:0}
+.fg-edit:hover{color:#1b3a5c;background:#e4eaf5}
+.fg-badge{font-size:10px;color:#8a9ab5;background:#e8edf5;border-radius:10px;padding:1px 7px;flex-shrink:0}
+.fg-input{width:100%;padding:9px 11px;border:1.5px solid #dde3ec;border-radius:7px;font-size:13px;font-family:inherit;color:#1a1a2e;background:#fff;transition:border-color .15s}
+.fg-input:focus{outline:none;border-color:#1b3a5c;box-shadow:0 0 0 3px rgba(27,58,92,.07)}
+.fg-input.ok{border-color:#1b9e6e;background:#f0faf5}
+
+/* Buttons */
+.gen-btn{width:100%;padding:11px;border:none;border-radius:8px;background:#1b9e6e;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.gen-btn:hover{background:#168059}
+.gen-btn:disabled{opacity:.4;cursor:not-allowed}
+.next-btn{width:100%;padding:8px;border:1.5px solid #1b3a5c;border-radius:8px;background:transparent;color:#1b3a5c;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.next-btn:hover{background:#eef3fb}
+.fill-cnt{text-align:center;font-size:11px;color:#8a9ab5}
+
+/* ── Bulk mode ───────────────────────────────────────────── */
+.bulk-drop-area{border:2px dashed #b0bdd4;border-radius:10px;padding:18px;cursor:pointer;background:#f7f9fc;transition:all .2s;text-align:center;margin-bottom:14px}
+.bulk-drop-area:hover,.bulk-drop-area.over{border-color:#1b3a5c;background:#eef3fb}
+.bulk-drop-area .drop-label{font-size:12px;font-weight:600;color:#4a5a74;margin-bottom:2px}
+.bulk-drop-area .drop-sub{font-size:11px;color:#9aaabb}
+
+.bulk-info{background:#e8f0fe;border:1px solid #c5d8ff;border-radius:8px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:#1b3a5c;line-height:1.6}
+.bulk-info strong{display:block;font-size:13px;margin-bottom:2px}
+
+.map-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.map-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.map-label{font-size:12px;font-weight:700;color:#2a3a54;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.map-select{flex:1;padding:6px 8px;border:1.5px solid #dde3ec;border-radius:6px;font-size:12px;font-family:inherit;color:#1a1a2e;background:#fff;max-width:140px}
+.map-select:focus{outline:none;border-color:#1b3a5c}
+.map-select.matched{border-color:#1b9e6e;background:#f0faf5}
+
+.bulk-preview{background:#fff;border:1px solid #dde3ec;border-radius:8px;overflow:hidden;margin-top:12px}
+.bulk-preview-head{background:#f4f7fb;padding:7px 12px;font-size:11px;font-weight:700;color:#6b7a94;border-bottom:1px solid #dde3ec}
+.bulk-preview-row{display:flex;gap:0;border-bottom:1px solid #f0f0f0;font-size:11px}
+.bulk-preview-row:last-child{border-bottom:none}
+.bulk-preview-row.header{background:#f9fafb;font-weight:700;color:#4a5a74}
+.bulk-cell{padding:5px 10px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#2a2a2a}
+.bulk-cell:not(:last-child){border-right:1px solid #f0f0f0}
+
+.progress-wrap{background:#fff;border-radius:8px;padding:14px;border:1px solid #dde3ec}
+.progress-bar-track{background:#e8edf5;border-radius:10px;height:8px;overflow:hidden;margin:8px 0}
+.progress-bar-fill{background:#1b9e6e;height:100%;border-radius:10px;transition:width .2s}
+.progress-label{font-size:12px;color:#6b7a94;text-align:center}
+
+.filename-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.filename-label{font-size:11px;font-weight:700;color:#5a6a83;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+.filename-select{flex:1;padding:6px 8px;border:1.5px solid #dde3ec;border-radius:6px;font-size:12px;font-family:inherit;color:#1a1a2e;background:#fff}
+.filename-select:focus{outline:none;border-color:#1b3a5c}
+
+/* ── Popover ─────────────────────────────────────────────── */
+.pop-overlay{position:fixed;inset:0;z-index:999;display:none}
+.popover{position:fixed;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.2);padding:18px;width:280px;z-index:1000;border:1px solid #dde3ec;display:none}
+.popover h4{font-size:13px;font-weight:700;color:#1b3a5c;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.popover h4 button{background:none;border:none;cursor:pointer;color:#9aaabb;font-size:16px;line-height:1;padding:0}
+.pop-ctx{font-size:10px;color:#8a9ab5;font-style:italic;margin-bottom:12px;line-height:1.5;word-break:break-word}
+.pop-label{font-size:11px;font-weight:700;color:#5a6a83;margin-bottom:4px;display:block;text-transform:uppercase;letter-spacing:.4px}
+.pop-select{width:100%;padding:8px 10px;border:1.5px solid #dde3ec;border-radius:7px;font-size:13px;font-family:inherit;background:#fff;margin-bottom:10px}
+.pop-select:focus{outline:none;border-color:#1b3a5c}
+.pop-input{width:100%;padding:8px 10px;border:1.5px solid #dde3ec;border-radius:7px;font-size:13px;font-family:inherit;margin-bottom:10px;color:#1a1a2e}
+.pop-input:focus{outline:none;border-color:#1b3a5c}
+.pop-divider{height:1px;background:#eee;margin:10px 0}
+.pop-val{width:100%;padding:8px 10px;border:1.5px solid #dde3ec;border-radius:7px;font-size:13px;font-family:inherit;margin-bottom:12px;color:#1a1a2e}
+.pop-val:focus{outline:none;border-color:#1b9e6e}
+.pop-actions{display:flex;gap:8px}
+.pop-save{flex:1;padding:9px;border:none;border-radius:7px;background:#1b3a5c;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.pop-save:hover{background:#0f2440}
+.pop-cancel{padding:9px 12px;border:1.5px solid #dde3ec;border-radius:7px;background:#fff;color:#6b7a94;font-size:13px;cursor:pointer;font-family:inherit}
+.pop-cancel:hover{background:#f4f7fb}
+.pop-new-wrap{margin-bottom:10px}
+
+.hidden{display:none!important}
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-6px);background:#1b9e6e;color:#fff;padding:12px 22px;border-radius:9px;font-size:13px;font-weight:600;box-shadow:0 4px 18px rgba(0,0,0,.25);opacity:0;transition:all .25s;pointer-events:none;z-index:9999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<div class="bar">
+  <span style="font-size:17px">📄</span>
+  <h1 id="barTitle">Documentos RH — Preenchimento Rápido</h1>
+  <div class="bar-sep"></div>
+  <button class="mode-chip on" id="modeSetup" onclick="setMode('setup')">⚙ Configurar</button>
+  <button class="mode-chip" id="modeFill" onclick="setMode('fill')">✏️ Preencher</button>
+  <button class="mode-chip" id="modeBulk" onclick="setMode('bulk')">📊 Importar Excel</button>
+  <div class="bar-sep"></div>
+  <button class="bar-btn btn-load" onclick="document.getElementById('fileInput').click()">📂 Modelo</button>
+  <button class="bar-btn btn-gen" id="btnGen" disabled onclick="generate()">⬇ Gerar</button>
+</div>
+<input type="file" id="fileInput" accept=".docx" style="display:none">
+<input type="file" id="xlsxInput" accept=".xlsx,.xls,.csv" style="display:none">
+
+<div class="app">
+  <main class="main" id="mainArea">
+    <div class="upload-wrap" id="uploadWrap">
+      <div class="upload-card">
+        <div style="font-size:36px;margin-bottom:8px">📋</div>
+        <h2>Carregar Modelo .docx</h2>
+        <p>Carregue o arquivo com os campos marcados em qualquer cor de destaque (cinza, amarelo, etc.) no Word.<br>Cada campo é detectado individualmente.</p>
+        <div class="drop" id="dropZone" onclick="document.getElementById('fileInput').click()">
+          <div class="drop-label">📁 Clique ou arraste o .docx</div>
+          <div class="drop-sub">Word Document (.docx)</div>
+        </div>
+      </div>
+    </div>
+    <div class="doc-wrap hidden" id="docWrap">
+      <div class="doc-head">
+        <span>📄</span>
+        <span id="docHint">Clique nos campos coloridos para nomear</span>
+      </div>
+      <div class="doc-body" id="docBody"></div>
+    </div>
+  </main>
+
+  <aside class="sb">
+    <div class="sb-top">
+      <span class="sb-title" id="sbTitle">Campos</span>
+      <span class="sb-count" id="sbCount"></span>
+    </div>
+    <div class="sb-body" id="sbBody">
+      <div class="sb-hint" id="sbHint">
+        <div class="big">🔍</div>
+        Carregue um modelo com campos marcados para começar.
+      </div>
+    </div>
+    <div class="sb-footer hidden" id="sbFooter"></div>
+  </aside>
+</div>
+
+<!-- Popover -->
+<div class="pop-overlay" id="popOverlay" onclick="closePopover()"></div>
+<div class="popover" id="popover">
+  <h4>
+    <span id="popTitle">Campo</span>
+    <button onclick="closePopover()">✕</button>
+  </h4>
+  <div class="pop-ctx" id="popCtx"></div>
+
+  <label class="pop-label">Atribuir a</label>
+  <select class="pop-select" id="popSelect" onchange="onPopSelectChange()">
+    <option value="__new__">+ Criar novo campo</option>
+  </select>
+
+  <div id="popNewWrap" class="pop-new-wrap">
+    <label class="pop-label">Nome do campo</label>
+    <input class="pop-input" id="popNewName" placeholder="Ex: CPF, Nome, CTPS nº..." onkeydown="if(event.key==='Enter'){document.getElementById('popVal').focus()}">
+  </div>
+
+  <div class="pop-divider"></div>
+  <label class="pop-label">Conteúdo (opcional)</label>
+  <input class="pop-val" id="popVal" placeholder="Deixe vazio para preencher depois" onkeydown="if(event.key==='Enter')savePopover()">
+
+  <div class="pop-actions">
+    <button class="pop-cancel" onclick="closePopover()">Cancelar</button>
+    <button class="pop-save" onclick="savePopover()">Salvar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Palette ──────────────────────────────────────────────
+const PAL = [
+  {bg:'#dbeafe',bd:'#3b82f6',tx:'#1e3a8a',dot:'#3b82f6'},
+  {bg:'#dcfce7',bd:'#22c55e',tx:'#14532d',dot:'#22c55e'},
+  {bg:'#fef9c3',bd:'#ca8a04',tx:'#713f12',dot:'#ca8a04'},
+  {bg:'#fce7f3',bd:'#ec4899',tx:'#831843',dot:'#ec4899'},
+  {bg:'#ede9fe',bd:'#8b5cf6',tx:'#4c1d95',dot:'#8b5cf6'},
+  {bg:'#ffedd5',bd:'#f97316',tx:'#7c2d12',dot:'#f97316'},
+  {bg:'#e0f2fe',bd:'#0ea5e9',tx:'#0c4a6e',dot:'#0ea5e9'},
+  {bg:'#fdf4ff',bd:'#d946ef',tx:'#701a75',dot:'#d946ef'},
+];
+
+// ─── State ────────────────────────────────────────────────
+let templateBuffer = null;
+let currentFilename = '';
+let mode = 'setup';
+
+let placeholderXml = null;
+let occurrences = [];
+let fieldDefs = {};
+let displayParagraphs = [];
+let colorCounter = 0;
+let activeOccId = null;
+
+// Bulk import state
+let excelRows = [];      // [{colName: value, ...}, ...]
+let excelHeaders = [];   // column names from xlsx
+let columnMapping = {};  // fieldName → excelHeader (or '' = manual)
+let filenameField = '';  // which field to use as filename
+
+// ─── XML utils ────────────────────────────────────────────
+const dX = s => s
+  .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+  .replace(/&quot;/g,'"').replace(/&apos;/g,"'")
+  .replace(/&#x([0-9a-fA-F]+);/g,(_,h)=>String.fromCharCode(parseInt(h,16)))
+  .replace(/&#(\d+);/g,(_,d)=>String.fromCharCode(+d));
+const eX = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const eH = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const mkId = () => 'ph' + Math.random().toString(36).slice(2,9);
+const MARK = (id) => `§§${id}§§`;
+
+// ─── Highlight detection ───────────────────────────────────
+function isHighlighted(rXml) {
+  if (/<w:highlight\s/.test(rXml)) return true;
+  const shd = rXml.match(/<w:shd[^>]+w:fill="([0-9A-Fa-f]{6})"/);
+  if (shd) {
+    const h = shd[1].toUpperCase();
+    if (h === 'FFFFFF' || h === 'AUTO') return false;
+    const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+    return !(r<5 && g<5 && b<5);
+  }
+  return false;
+}
+
+function stripHighlight(rXml) {
+  return rXml
+    .replace(/<w:highlight[^\/]*\/>/g,'')
+    .replace(/<w:highlight[^>]*>[\s\S]*?<\/w:highlight>/g,'')
+    .replace(/<w:shd[^\/]*\/>/g,'')
+    .replace(/<w:shd[^>]*>[\s\S]*?<\/w:shd>/g,'');
+}
+
+// ─── Build placeholder XML ────────────────────────────────
+function buildPlaceholders(xml) {
+  const occs = [];
+  const result = xml.replace(/<w:p[ >][\s\S]*?<\/w:p>/g, pXml => {
+    const parts = [];
+    const runRe = /<w:r[ >][\s\S]*?<\/w:r>/g;
+    let last = 0, m;
+    while ((m = runRe.exec(pXml)) !== null) {
+      if (m.index > last) parts.push({ type:'xml', s: pXml.slice(last, m.index) });
+      const rXml = m[0];
+      const t = [...rXml.matchAll(/<w:t\b[^>]*>([\s\S]*?)<\/w:t>/g)].map(x=>dX(x[1])).join('');
+      parts.push({ type:'run', s: rXml, text: t, hl: isHighlighted(rXml) });
+      last = m.index + m[0].length;
+    }
+    if (last < pXml.length) parts.push({ type:'xml', s: pXml.slice(last) });
+
+    const out = [];
+    let grp = null;
+
+    function flushGroup() {
+      if (!grp) return;
+      const id = mkId();
+      const ph = MARK(id);
+      occs.push({ id, rawText: grp.rawText, fieldName: null, context: grp.ctx });
+      let r = stripHighlight(grp.templateRun);
+      r = r.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/g, '');
+      const ci = r.lastIndexOf('</w:r>');
+      const phTag = `<w:t xml:space="preserve">${eX(ph)}</w:t>`;
+      r = ci >= 0 ? r.slice(0,ci) + phTag + r.slice(ci) : r + phTag;
+      out.push(r);
+      grp = null;
+    }
+
+    for (const p of parts) {
+      if (p.type === 'xml') {
+        flushGroup(); out.push(p.s);
+      } else if (p.hl) {
+        if (!grp) {
+          const soFar = out.join('');
+          const ctx = [...soFar.matchAll(/<w:t\b[^>]*>([\s\S]*?)<\/w:t>/g)].map(x=>dX(x[1])).join('').slice(-80);
+          grp = { templateRun: p.s, rawText: p.text, ctx };
+        } else {
+          grp.rawText += p.text;
+        }
+      } else {
+        flushGroup(); out.push(p.s);
+      }
+    }
+    flushGroup();
+    return out.join('');
+  });
+  return { pXml: result, occs };
+}
+
+// ─── Display paragraphs ───────────────────────────────────
+function buildDisplayParagraphs(pXml) {
+  const paras = [];
+  const paraRe = /<w:p[ >][\s\S]*?<\/w:p>/g;
+  let pm;
+  while ((pm = paraRe.exec(pXml)) !== null) {
+    const pTxt = [...pm[0].matchAll(/<w:t\b[^>]*>([\s\S]*?)<\/w:t>/g)].map(m=>dX(m[1])).join('');
+    if (!pTxt.trim()) continue;
+    const segs = [];
+    const markerRe = /§§(ph[a-z0-9]+)§§/g;
+    let last = 0, mr;
+    while ((mr = markerRe.exec(pTxt)) !== null) {
+      if (mr.index > last) segs.push({ text: pTxt.slice(last, mr.index), isField: false });
+      segs.push({ text: mr[0], isField: true, occId: mr[1] });
+      last = mr.index + mr[0].length;
+    }
+    if (last < pTxt.length) segs.push({ text: pTxt.slice(last), isField: false });
+    if (segs.length) paras.push(segs);
+  }
+  return paras;
+}
+
+// ─── Load docx ────────────────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+dropZone.addEventListener('dragover', e=>{e.preventDefault();dropZone.classList.add('over')});
+dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e=>{e.preventDefault();dropZone.classList.remove('over');handleFile(e.dataTransfer.files[0])});
+fileInput.addEventListener('change', e=>{if(e.target.files[0])handleFile(e.target.files[0]);e.target.value=''});
+document.getElementById('xlsxInput').addEventListener('change', e=>{if(e.target.files[0])handleExcel(e.target.files[0]);e.target.value=''});
+
+async function handleFile(file) {
+  if (!file || !file.name.toLowerCase().endsWith('.docx')) { alert('Selecione um .docx'); return; }
+  currentFilename = file.name;
+  document.getElementById('barTitle').textContent = file.name;
+  templateBuffer = await file.arrayBuffer();
+
+  const zip = await JSZip.loadAsync(templateBuffer);
+  const xml = await zip.file('word/document.xml').async('string');
+  const { pXml, occs } = buildPlaceholders(xml);
+
+  if (!occs.length) {
+    alert('Nenhum campo com destaque detectado.\nMarca os campos no Word com qualquer cor de destaque (Formatar → Realce) e tenta novamente.');
+    return;
+  }
+
+  placeholderXml = pXml;
+
+  const saved = loadConfig();
+  colorCounter = 0;
+  fieldDefs = saved.fieldDefs ? restoreFieldDefs(saved.fieldDefs) : {};
+  occurrences = occs.map((occ, i) => ({
+    ...occ,
+    fieldName: saved.occs?.[i]?.fieldName || null,
+  }));
+
+  displayParagraphs = buildDisplayParagraphs(pXml);
+  excelRows = []; excelHeaders = []; columnMapping = {}; filenameField = '';
+
+  document.getElementById('uploadWrap').classList.add('hidden');
+  document.getElementById('docWrap').classList.remove('hidden');
+  document.getElementById('btnGen').disabled = false;
+  setMode('setup');
+}
+
+function restoreFieldDefs(saved) {
+  const out = {};
+  for (const [name, def] of Object.entries(saved)) {
+    out[name] = { colorIdx: def.colorIdx, value: '' };
+    if (def.colorIdx >= colorCounter) colorCounter = def.colorIdx + 1;
+  }
+  return out;
+}
+
+// ─── Load Excel ───────────────────────────────────────────
+async function handleExcel(file) {
+  try {
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+    if (!data.length) { alert('A planilha está vazia ou sem cabeçalhos na primeira linha.'); return; }
+
+    excelHeaders = Object.keys(data[0]);
+    excelRows = data;
+
+    // Auto-match: if an Excel header exactly matches a field name (case-insensitive)
+    const fieldNames = [...new Set(occurrences.filter(o=>o.fieldName).map(o=>o.fieldName))];
+    columnMapping = {};
+    filenameField = fieldNames[0] || '';
+    fieldNames.forEach(fn => {
+      const match = excelHeaders.find(h => h.trim().toLowerCase() === fn.trim().toLowerCase());
+      columnMapping[fn] = match || '';
+    });
+
+    showToast(`✅ ${data.length} linhas carregadas de "${file.name}"`);
+    renderSidebar();
+  } catch(e) {
+    alert('Erro ao ler Excel: ' + e.message);
+  }
+}
+
+// ─── Mode ─────────────────────────────────────────────────
+function setMode(m) {
+  mode = m;
+  document.getElementById('modeSetup').classList.toggle('on', m==='setup');
+  document.getElementById('modeFill').classList.toggle('on', m==='fill');
+  document.getElementById('modeBulk').classList.toggle('on', m==='bulk');
+
+  const hints = {
+    setup: 'Clique nos campos coloridos para nomear',
+    fill: 'Preencha os campos na barra lateral',
+    bulk: 'Configure o mapeamento das colunas do Excel',
+  };
+  document.getElementById('docHint').textContent = hints[m];
+  document.getElementById('sbTitle').textContent = m==='setup' ? 'Configurar Campos' : m==='fill' ? 'Preencher' : 'Importar em Massa';
+
+  // In bulk mode the generate button triggers bulk generate
+  document.getElementById('btnGen').onclick = (m==='bulk') ? generateBulk : generate;
+  document.getElementById('btnGen').textContent = (m==='bulk') ? '⬇ Gerar Todos' : '⬇ Gerar';
+
+  renderDocBody();
+  renderSidebar();
+  if (m==='fill') setTimeout(()=>{ const f=document.querySelector('.fg-input'); if(f)f.focus(); },100);
+}
+
+// ─── Field helpers ────────────────────────────────────────
+function getOrCreate(name) {
+  if (!fieldDefs[name]) fieldDefs[name] = { colorIdx: colorCounter++ % PAL.length, value: '' };
+  return fieldDefs[name];
+}
+function pal(name) { const fd=fieldDefs[name]; return fd?PAL[fd.colorIdx%PAL.length]:null; }
+
+// ─── Render doc ───────────────────────────────────────────
+function renderDocBody() {
+  const body = document.getElementById('docBody');
+  body.innerHTML = '';
+  let gIdx = 0;
+
+  displayParagraphs.forEach(segs => {
+    const p = document.createElement('p');
+    segs.forEach(seg => {
+      if (!seg.isField) { p.appendChild(document.createTextNode(seg.text)); return; }
+      const occ = occurrences.find(o => o.id === seg.occId);
+      if (!occ) return;
+      const myN = ++gIdx;
+      const chip = document.createElement('span');
+      chip.className = 'chip' + (occ.fieldName ? '' : ' unassigned');
+      chip.dataset.occId = occ.id;
+
+      if (occ.fieldName) {
+        const c = pal(occ.fieldName);
+        if (c) { chip.style.background=c.bg; chip.style.borderColor=c.bd; chip.style.color=c.tx; }
+        const val = fieldDefs[occ.fieldName]?.value || '';
+        chip.innerHTML = `<span class="chip-num" style="background:${c?.dot||'#999'}">${myN}</span>${eH(val||occ.fieldName)}`;
+        chip.title = `${occ.fieldName} — clique para editar`;
+      } else {
+        chip.innerHTML = `<span class="chip-num">${myN}</span>campo ${myN}`;
+        chip.title = 'Sem nome — clique para configurar';
+      }
+
+      chip.addEventListener('click', e => { e.stopPropagation(); openPopover(occ.id, chip); });
+      p.appendChild(chip);
+    });
+    if (p.childNodes.length) body.appendChild(p);
+  });
+}
+
+// ─── Render sidebar ───────────────────────────────────────
+function renderSidebar() {
+  const body = document.getElementById('sbBody');
+  const footer = document.getElementById('sbFooter');
+  footer.classList.remove('hidden');
+
+  const named = occurrences.filter(o=>o.fieldName);
+  const unnamed = occurrences.filter(o=>!o.fieldName);
+  document.getElementById('sbCount').textContent = `${named.length}/${occurrences.length}`;
+
+  if (mode === 'setup') {
+    renderSidebarSetup(body, footer, named, unnamed);
+  } else if (mode === 'fill') {
+    renderSidebarFill(body, footer);
+  } else if (mode === 'bulk') {
+    renderSidebarBulk(body, footer);
+  }
+}
+
+function renderSidebarSetup(body, footer, named, unnamed) {
+  body.innerHTML = '';
+
+  if (unnamed.length) {
+    const sec = document.createElement('div');
+    sec.innerHTML = `<div class="section-label">⚠ Sem nome — ${unnamed.length} campo${unnamed.length>1?'s':''}</div>`;
+    unnamed.forEach(occ => {
+      const n = occurrences.indexOf(occ)+1;
+      const item = document.createElement('div');
+      item.className = 'unocc-item';
+      item.innerHTML = `<span class="occ-num">${n}</span><span class="occ-ctx">${eH(occ.context?occ.context.slice(-45):'campo '+n)}</span><span class="occ-go">Nomear →</span>`;
+      item.onclick = () => { const chip=document.querySelector(`.chip[data-occ-id="${occ.id}"]`); if(chip){chip.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>openPopover(occ.id,chip),300);} };
+      sec.appendChild(item);
+    });
+    body.appendChild(sec);
+  }
+
+  if (named.length) {
+    const uniqueNames = [...new Set(named.map(o=>o.fieldName))];
+    const sec2 = document.createElement('div');
+    sec2.innerHTML = `<div class="section-label" style="margin-top:${unnamed.length?'12px':'0'}">✓ Configurados</div>`;
+    uniqueNames.forEach(name => {
+      const cnt = named.filter(o=>o.fieldName===name).length;
+      const c = pal(name)||PAL[0];
+      const row = document.createElement('div');
+      row.className = 'named-row';
+      row.style.cssText = `background:${c.bg};border-color:${c.bd};color:${c.tx}`;
+      row.innerHTML = `
+        <span class="named-dot" style="background:${c.dot}"></span>
+        <span class="named-label">${eH(name)}</span>
+        <span class="named-cnt">${cnt}x</span>
+        <button class="named-edit" title="Renomear campo" onclick="renameSidebarField('${eH(name)}')">✏️</button>`;
+      sec2.appendChild(row);
+    });
+    body.appendChild(sec2);
+  }
+
+  if (!occurrences.length) body.innerHTML = '<div class="sb-hint"><div class="big">📭</div>Nenhum campo detectado.</div>';
+
+  footer.innerHTML = named.length
+    ? `<button class="gen-btn" onclick="setMode('fill')">✏️ Preencher individualmente →</button>
+       <button class="next-btn" onclick="setMode('bulk')">📊 Importar Excel em massa →</button>`
+    : `<div style="font-size:12px;color:#8a9ab5;text-align:center;padding:4px">Configure ao menos um campo</div>`;
+}
+
+function renderSidebarFill(body, footer) {
+  const uniqueNames = [...new Set(occurrences.filter(o=>o.fieldName).map(o=>o.fieldName))];
+
+  if (!uniqueNames.length) {
+    body.innerHTML = '<div class="sb-hint"><div class="big">⚙️</div>Nenhum campo configurado.<br>Volte ao modo <strong>Configurar</strong>.</div>';
+    footer.innerHTML = `<button class="gen-btn" style="background:#1b3a5c" onclick="setMode('setup')">← Configurar Campos</button>`;
+    return;
+  }
+
+  body.innerHTML = uniqueNames.map(name => {
+    const c = pal(name)||PAL[0];
+    const cnt = occurrences.filter(o=>o.fieldName===name).length;
+    const val = fieldDefs[name]?.value||'';
+    return `<div class="field-group">
+      <div class="fg-header">
+        <span class="fg-dot" style="background:${c.dot}"></span>
+        <span class="fg-name">${eH(name)}</span>
+        <span class="fg-badge">${cnt}x</span>
+        <button class="fg-edit" title="Renomear" onclick="renameSidebarField('${eH(name)}')">✏️</button>
+      </div>
+      <input class="fg-input${val?' ok':''}" id="inp_${CSS.escape(name)}"
+        value="${eH(val)}"
+        placeholder="Digite ${eH(name.toLowerCase())}..."
+        oninput="onFill(this,'${eH(name)}')"
+        onkeydown="fillEnter(event,'${eH(name)}','${eH(uniqueNames.join('|'))}')">
+    </div>`;
+  }).join('');
+
+  footer.innerHTML = `
+    <button class="gen-btn" onclick="generate()">⬇️ Gerar Documento</button>
+    <button class="next-btn" onclick="clearFill()">→ Próximo colaborador</button>
+    <div class="fill-cnt" id="fillCnt">${countFilled(uniqueNames)} / ${uniqueNames.length} preenchidos</div>`;
+}
+
+function renderSidebarBulk(body, footer) {
+  const fieldNames = [...new Set(occurrences.filter(o=>o.fieldName).map(o=>o.fieldName))];
+
+  if (!fieldNames.length) {
+    body.innerHTML = '<div class="sb-hint"><div class="big">⚙️</div>Nenhum campo configurado.<br>Volte ao modo <strong>Configurar</strong> primeiro.</div>';
+    footer.innerHTML = `<button class="gen-btn" style="background:#1b3a5c" onclick="setMode('setup')">← Configurar Campos</button>`;
+    return;
+  }
+
+  body.innerHTML = '';
+
+  // Excel upload area
+  const dropArea = document.createElement('div');
+  dropArea.className = 'bulk-drop-area';
+  dropArea.id = 'bulkDrop';
+  dropArea.innerHTML = excelRows.length
+    ? `<div style="font-size:22px;margin-bottom:4px">✅</div><div class="drop-label">${excelRows.length} linhas carregadas</div><div class="drop-sub">Clique para trocar o arquivo</div>`
+    : `<div style="font-size:22px;margin-bottom:4px">📊</div><div class="drop-label">Clique para carregar planilha Excel</div><div class="drop-sub">.xlsx / .xls / .csv — 1ª linha = cabeçalhos</div>`;
+  dropArea.onclick = () => document.getElementById('xlsxInput').click();
+  dropArea.addEventListener('dragover', e=>{e.preventDefault();dropArea.classList.add('over')});
+  dropArea.addEventListener('dragleave', ()=>dropArea.classList.remove('over'));
+  dropArea.addEventListener('drop', e=>{e.preventDefault();dropArea.classList.remove('over');handleExcel(e.dataTransfer.files[0])});
+  body.appendChild(dropArea);
+
+  if (!excelRows.length) {
+    // Show a template hint
+    const hint = document.createElement('div');
+    hint.className = 'bulk-info';
+    hint.innerHTML = `<strong>💡 Formato esperado da planilha</strong>
+      A primeira linha deve ter os nomes dos campos como cabeçalho.<br>
+      Campos configurados: <strong>${fieldNames.map(n=>`"${n}"`).join(', ')}</strong>`;
+    body.appendChild(hint);
+
+    // Download template button
+    const dlBtn = document.createElement('button');
+    dlBtn.className = 'next-btn';
+    dlBtn.style.marginTop = '8px';
+    dlBtn.textContent = '⬇ Baixar planilha modelo (.xlsx)';
+    dlBtn.onclick = downloadExcelTemplate;
+    body.appendChild(dlBtn);
+    footer.innerHTML = '';
+    return;
+  }
+
+  // Info box
+  const info = document.createElement('div');
+  info.className = 'bulk-info';
+  info.innerHTML = `<strong>📋 ${excelRows.length} registros prontos para gerar</strong>
+    ${excelHeaders.length} colunas detectadas na planilha.`;
+  body.appendChild(info);
+
+  // Filename field selector
+  const fnRow = document.createElement('div');
+  fnRow.innerHTML = `
+    <div class="section-label" style="margin-bottom:6px">Nome dos arquivos gerados</div>
+    <div class="filename-row">
+      <span class="filename-label">Usar campo</span>
+      <select class="filename-select" id="filenameSelect" onchange="filenameField=this.value">
+        <option value="">Numeração (doc_1, doc_2...)</option>
+        ${fieldNames.map(fn=>`<option value="${eH(fn)}"${filenameField===fn?' selected':''}>${eH(fn)}</option>`).join('')}
+      </select>
+    </div>`;
+  body.appendChild(fnRow);
+
+  // Mapping section
+  const mapSec = document.createElement('div');
+  mapSec.innerHTML = `<div class="section-label" style="margin:10px 0 8px">Mapeamento: campo → coluna Excel</div>`;
+  fieldNames.forEach(fn => {
+    const c = pal(fn)||PAL[0];
+    const row = document.createElement('div');
+    row.className = 'map-row';
+    const currentVal = columnMapping[fn] || '';
+    const isMatched = currentVal !== '';
+    row.innerHTML = `
+      <span class="map-dot" style="background:${c.dot}"></span>
+      <span class="map-label" title="${eH(fn)}">${eH(fn)}</span>
+      <select class="map-select${isMatched?' matched':''}" data-field="${eH(fn)}" onchange="onMapChange(this)">
+        <option value="">— ignorar —</option>
+        ${excelHeaders.map(h=>`<option value="${eH(h)}"${currentVal===h?' selected':''}>${eH(h)}</option>`).join('')}
+      </select>`;
+    mapSec.appendChild(row);
+  });
+  body.appendChild(mapSec);
+
+  // Preview table (first 3 rows)
+  const previewRows = excelRows.slice(0, 3);
+  const mappedCols = fieldNames.filter(fn => columnMapping[fn]);
+  if (mappedCols.length) {
+    const preview = document.createElement('div');
+    preview.className = 'bulk-preview';
+    preview.innerHTML = `<div class="bulk-preview-head">Pré-visualização (${Math.min(3,excelRows.length)} de ${excelRows.length})</div>`;
+    const headerRow = document.createElement('div');
+    headerRow.className = 'bulk-preview-row header';
+    mappedCols.slice(0,3).forEach(fn => {
+      const cell = document.createElement('div');
+      cell.className = 'bulk-cell';
+      cell.textContent = fn;
+      headerRow.appendChild(cell);
+    });
+    preview.appendChild(headerRow);
+    previewRows.forEach(row => {
+      const tr = document.createElement('div');
+      tr.className = 'bulk-preview-row';
+      mappedCols.slice(0,3).forEach(fn => {
+        const cell = document.createElement('div');
+        cell.className = 'bulk-cell';
+        cell.textContent = row[columnMapping[fn]] || '';
+        tr.appendChild(cell);
+      });
+      preview.appendChild(tr);
+    });
+    body.appendChild(preview);
+  }
+
+  const mappedCount = fieldNames.filter(fn=>columnMapping[fn]).length;
+  footer.innerHTML = `
+    <button class="gen-btn" id="bulkGenBtn" onclick="generateBulk()" ${mappedCount===0?'disabled':''}>
+      ⬇️ Gerar ${excelRows.length} documento${excelRows.length>1?'s':''} (.zip)
+    </button>
+    <div class="fill-cnt">${mappedCount} de ${fieldNames.length} campos mapeados</div>`;
+}
+
+function onMapChange(sel) {
+  const fn = sel.dataset.field;
+  columnMapping[fn] = sel.value;
+  sel.classList.toggle('matched', sel.value !== '');
+  renderSidebar();
+}
+
+// ─── Download Excel template ───────────────────────────────
+function downloadExcelTemplate() {
+  const fieldNames = [...new Set(occurrences.filter(o=>o.fieldName).map(o=>o.fieldName))];
+  const ws = XLSX.utils.aoa_to_sheet([fieldNames, fieldNames.map(()=>'')]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Dados');
+  XLSX.writeFile(wb, currentFilename.replace('.docx','') + '_modelo.xlsx');
+  showToast('📥 Planilha modelo baixada!');
+}
+
+// ─── Fill mode helpers ────────────────────────────────────
+function onFill(el, name) {
+  getOrCreate(name).value = el.value;
+  el.classList.toggle('ok', el.value.trim().length>0);
+  renderDocBody();
+  const names = [...new Set(occurrences.filter(o=>o.fieldName).map(o=>o.fieldName))];
+  const cnt = document.getElementById('fillCnt');
+  if (cnt) cnt.textContent = `${countFilled(names)} / ${names.length} preenchidos`;
+}
+
+function fillEnter(e, curName, allNamesStr) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const names = allNamesStr.split('|');
+  const idx = names.indexOf(curName);
+  if (idx < names.length-1) {
+    const next = document.getElementById('inp_'+CSS.escape(names[idx+1]));
+    if (next) next.focus();
+  } else { generate(); }
+}
+
+function countFilled(names) { return names.filter(n=>fieldDefs[n]?.value?.trim()).length; }
+
+function clearFill() {
+  Object.keys(fieldDefs).forEach(n=>{ if(fieldDefs[n]) fieldDefs[n].value=''; });
+  renderSidebar(); renderDocBody();
+}
+
+// ─── Rename field ─────────────────────────────────────────
+function renameSidebarField(oldName) {
+  const newName = prompt(`Renomear campo "${oldName}" para:`, oldName);
+  if (!newName || newName.trim()==='' || newName===oldName) return;
+  const n = newName.trim();
+  occurrences.forEach(o=>{ if(o.fieldName===oldName) o.fieldName=n; });
+  if (fieldDefs[oldName]) { fieldDefs[n]=fieldDefs[oldName]; delete fieldDefs[oldName]; }
+  if (columnMapping[oldName] !== undefined) { columnMapping[n]=columnMapping[oldName]; delete columnMapping[oldName]; }
+  if (filenameField===oldName) filenameField=n;
+  saveConfig();
+  renderDocBody(); renderSidebar();
+}
+
+// ─── Popover ──────────────────────────────────────────────
+function openPopover(occId, anchor) {
+  activeOccId = occId;
+  const occ = occurrences.find(o=>o.id===occId);
+  if (!occ) return;
+
+  const pop = document.getElementById('popover');
+  const uniqueNames = [...new Set(occurrences.filter(o=>o.fieldName).map(o=>o.fieldName))];
+  const sel = document.getElementById('popSelect');
+  sel.innerHTML = '<option value="__new__">+ Criar novo campo</option>'
+    + uniqueNames.map(n=>`<option value="${eH(n)}"${occ.fieldName===n?' selected':''}>${eH(n)}</option>`).join('');
+  if (occ.fieldName && uniqueNames.includes(occ.fieldName)) sel.value = occ.fieldName;
+  else sel.value = '__new__';
+
+  const guessed = occ.fieldName || guessLabel(occ.context) || '';
+  document.getElementById('popNewName').value = guessed;
+  document.getElementById('popVal').value = occ.fieldName ? (fieldDefs[occ.fieldName]?.value||'') : '';
+  document.getElementById('popCtx').textContent = occ.context ? '…'+occ.context.slice(-55)+' →' : '(início do documento)';
+  document.getElementById('popTitle').textContent = 'Campo '+(occurrences.indexOf(occ)+1);
+
+  onPopSelectChange();
+
+  const rect = anchor.getBoundingClientRect();
+  let left = rect.left, top = rect.bottom+8;
+  if (left+285>window.innerWidth) left = window.innerWidth-290;
+  if (top+320>window.innerHeight) top = rect.top-330;
+  pop.style.left = Math.max(8,left)+'px';
+  pop.style.top = Math.max(8,top)+'px';
+  pop.style.display = 'block';
+  document.getElementById('popOverlay').style.display = 'block';
+
+  setTimeout(()=>{
+    const el = sel.value==='__new__' ? document.getElementById('popNewName') : document.getElementById('popVal');
+    el.focus(); if(el===document.getElementById('popNewName')) el.select();
+  },60);
+}
+
+function onPopSelectChange() {
+  const v = document.getElementById('popSelect').value;
+  document.getElementById('popNewWrap').style.display = v==='__new__' ? 'block':'none';
+  if (v!=='__new__') document.getElementById('popVal').value = fieldDefs[v]?.value||'';
+}
+
+function closePopover() {
+  document.getElementById('popover').style.display='none';
+  document.getElementById('popOverlay').style.display='none';
+  activeOccId=null;
+}
+
+function savePopover() {
+  const occ = occurrences.find(o=>o.id===activeOccId);
+  if (!occ) return;
+  const sel = document.getElementById('popSelect').value;
+  const newName = document.getElementById('popNewName').value.trim();
+  const val = document.getElementById('popVal').value.trim();
+
+  let name;
+  if (sel==='__new__') {
+    if (!newName) { document.getElementById('popNewName').focus(); document.getElementById('popNewName').style.borderColor='#ef4444'; return; }
+    name = newName;
+  } else { name = sel; }
+
+  occ.fieldName = name;
+  getOrCreate(name);
+  if (val) fieldDefs[name].value = val;
+
+  saveConfig();
+  closePopover();
+  renderDocBody();
+  renderSidebar();
+}
+
+// ─── Guess label ──────────────────────────────────────────
+const HINTS=[
+  [['colaborador','empregado','funcionário','nome do','contratad'],'Nome Colaborador'],
+  [['cpf','c.p.f','cadastro de pessoa'],'CPF'],
+  [['ctps','carteira de trabalho'],'CTPS Nº'],
+  [['série','serie','ctps'],'CTPS Série'],
+  [['rg ','r.g.','identidade','registro geral'],'RG'],
+  [['órgão','orgao','emissor','expedidor'],'Órgão Emissor'],
+  [['cargo','função','exercendo','exercer'],'Cargo'],
+  [['cnpj'],'CNPJ'],
+  [['empresa','empregadora','razão social','razao social'],'Empresa'],
+  [['admiss','contratação'],'Data Admissão'],
+  [['local','cidade','município'],'Local'],
+  [['data','dia'],'Data'],
+  [['salário','salario','remuner'],'Salário'],
+  [['endereço','endereco','rua','avenida'],'Endereço'],
+];
+function guessLabel(ctx) {
+  const t=(ctx||'').slice(-100).toLowerCase();
+  for(const[kws,lb] of HINTS) for(const k of kws) if(t.includes(k)) return lb;
+  return '';
+}
+
+// ─── Persistence ──────────────────────────────────────────
+function saveConfig() {
+  try {
+    localStorage.setItem('rh2_'+currentFilename, JSON.stringify({
+      occs: occurrences.map(o=>({fieldName:o.fieldName})),
+      fieldDefs: Object.fromEntries(Object.entries(fieldDefs).map(([k,v])=>([k,{colorIdx:v.colorIdx}]))),
+    }));
+  } catch(e){}
+}
+function loadConfig() {
+  try { const s=localStorage.getItem('rh2_'+currentFilename); return s?JSON.parse(s):{}; } catch(e){return{}}
+}
+
+// ─── Generate single ──────────────────────────────────────
+async function generate() {
+  if (!placeholderXml || !templateBuffer) return;
+
+  const namedOccs = occurrences.filter(o=>o.fieldName && fieldDefs[o.fieldName]?.value);
+  if (!namedOccs.length) { alert('Preencha pelo menos um campo na barra lateral.'); return; }
+
+  try {
+    let xml = placeholderXml;
+    occurrences.forEach(occ => {
+      const ph = MARK(occ.id);
+      const val = occ.fieldName ? (fieldDefs[occ.fieldName]?.value || occ.rawText) : occ.rawText;
+      xml = xml.split(eX(ph)).join(eX(val));
+      xml = xml.split(ph).join(eX(val));
+    });
+
+    const zip = await JSZip.loadAsync(templateBuffer);
+    zip.file('word/document.xml', xml);
+    const blob = await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'),{href:url,download:currentFilename.replace('.docx','')+'_preenchido.docx'});
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1000);
+    showToast('✅ Documento gerado com sucesso!');
+  } catch(e) { alert('Erro ao gerar: '+e.message); console.error(e); }
+}
+
+// ─── Generate bulk ────────────────────────────────────────
+async function generateBulk() {
+  if (!placeholderXml || !templateBuffer || !excelRows.length) return;
+
+  const fieldNames = [...new Set(occurrences.filter(o=>o.fieldName).map(o=>o.fieldName))];
+  const mapped = fieldNames.filter(fn => columnMapping[fn]);
+  if (!mapped.length) { alert('Mapeie ao menos uma coluna do Excel antes de gerar.'); return; }
+
+  const btn = document.getElementById('bulkGenBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Gerando...'; }
+
+  try {
+    const outZip = new JSZip();
+    const baseName = currentFilename.replace('.docx','');
+
+    for (let i = 0; i < excelRows.length; i++) {
+      const row = excelRows[i];
+
+      let xml = placeholderXml;
+      occurrences.forEach(occ => {
+        const ph = MARK(occ.id);
+        let val = occ.rawText; // default: keep original
+        if (occ.fieldName) {
+          const col = columnMapping[occ.fieldName];
+          if (col && row[col] !== undefined && row[col] !== '') {
+            val = String(row[col]);
+          } else if (fieldDefs[occ.fieldName]?.value) {
+            val = fieldDefs[occ.fieldName].value; // fallback to manual value
+          }
+        }
+        xml = xml.split(eX(ph)).join(eX(val));
+        xml = xml.split(ph).join(eX(val));
+      });
+
+      const docZip = await JSZip.loadAsync(templateBuffer);
+      docZip.file('word/document.xml', xml);
+      const docBlob = await docZip.generateAsync({type:'uint8array',compression:'DEFLATE',compressionOptions:{level:6}});
+
+      // Build filename
+      let fname;
+      if (filenameField && columnMapping[filenameField] && row[columnMapping[filenameField]]) {
+        const rawName = String(row[columnMapping[filenameField]]).replace(/[\\/:*?"<>|]/g,'_').trim();
+        fname = `${baseName}_${rawName}.docx`;
+      } else {
+        fname = `${baseName}_${String(i+1).padStart(3,'0')}.docx`;
+      }
+      outZip.file(fname, docBlob);
+
+      // Update progress
+      if (btn) btn.textContent = `⏳ ${i+1} / ${excelRows.length}...`;
+      // Yield to UI thread every 10 docs
+      if (i % 10 === 9) await new Promise(r => setTimeout(r, 0));
+    }
+
+    const zipBlob = await outZip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+    const url = URL.createObjectURL(zipBlob);
+    const a = Object.assign(document.createElement('a'),{href:url,download:`${baseName}_lote_${excelRows.length}docs.zip`});
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1000);
+    showToast(`✅ ${excelRows.length} documentos gerados e compactados!`);
+  } catch(e) {
+    alert('Erro ao gerar em lote: '+e.message);
+    console.error(e);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = `⬇️ Gerar ${excelRows.length} documentos (.zip)`; }
+  }
+}
+
+// ─── Toast ────────────────────────────────────────────────
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.remove('show');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),3000);
+  }));
+}
+</script>
+</body>
+</html>

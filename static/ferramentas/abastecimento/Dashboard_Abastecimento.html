@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dashboard Abastecimento — RIAL</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh}
+
+/* ── HEADER ────────────────────────────────────────────── */
+header{background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);
+  border-bottom:2px solid #334155;padding:18px 32px;
+  display:flex;align-items:center;gap:14px}
+.logo{font-size:30px}
+.hinfo h1{font-size:20px;font-weight:800;color:#f1f5f9}
+.hinfo p{font-size:12px;color:#94a3b8;margin-top:3px}
+.badge{margin-left:auto;background:#22c55e15;border:1px solid #22c55e50;
+  color:#86efac;font-size:11px;padding:5px 12px;border-radius:20px;font-weight:600}
+
+/* ── NAV TABS ──────────────────────────────────────────── */
+.tab-nav{display:flex;background:#1e293b;border-bottom:1px solid #334155;padding:0 28px;overflow-x:auto}
+.tnav-btn{padding:14px 20px;font-size:13px;font-weight:700;color:#64748b;
+  border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;
+  transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:7px}
+.tnav-btn:hover:not(.active){color:#94a3b8}
+.tnav-btn.active{color:#f1f5f9;border-bottom-color:#6366f1}
+
+.tab-pane{display:none}.tab-pane.active{display:block}
+.container{max-width:1380px;margin:0 auto;padding:24px 22px}
+
+/* ── INFO BOXES ────────────────────────────────────────── */
+.info-box{border-radius:12px;padding:14px 18px;margin-bottom:18px;
+  display:flex;align-items:flex-start;gap:12px;font-size:13px;line-height:1.6}
+.info-box .ib-icon{font-size:22px;flex-shrink:0;margin-top:1px}
+.info-box strong{display:block;font-size:13px;font-weight:700;margin-bottom:3px}
+.ib-blue{background:#3b82f615;border:1px solid #3b82f640;color:#93c5fd}
+.ib-orange{background:#f9731615;border:1px solid #f9731640;color:#fdba74}
+.ib-green{background:#22c55e15;border:1px solid #22c55e40;color:#86efac}
+.ib-purple{background:#a855f715;border:1px solid #a855f740;color:#d8b4fe}
+.ib-red{background:#f43f5e15;border:1px solid #f43f5e40;color:#fda4af}
+
+/* ── KPI CARDS ─────────────────────────────────────────── */
+.kpis{display:grid;gap:14px;margin-bottom:20px}
+.kpis.k4{grid-template-columns:repeat(4,1fr)}
+.kpis.k3{grid-template-columns:repeat(3,1fr)}
+.kpis.k2{grid-template-columns:repeat(2,1fr)}
+.kpi{background:#1e293b;border:1px solid #334155;border-radius:14px;
+  padding:18px 20px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.k-indigo::before{background:linear-gradient(90deg,#6366f1,#8b5cf6)}
+.k-blue::before  {background:linear-gradient(90deg,#3b82f6,#0ea5e9)}
+.k-green::before {background:linear-gradient(90deg,#22c55e,#16a34a)}
+.k-orange::before{background:linear-gradient(90deg,#f97316,#ea580c)}
+.k-red::before   {background:linear-gradient(90deg,#f43f5e,#e11d48)}
+.k-purple::before{background:linear-gradient(90deg,#a855f7,#9333ea)}
+.k-cyan::before  {background:linear-gradient(90deg,#06b6d4,#0891b2)}
+.kpi-icon{font-size:22px;margin-bottom:6px}
+.kpi-lbl{font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.kpi-val{font-size:26px;font-weight:800;color:#f1f5f9;line-height:1.1;margin:3px 0}
+.kpi-sub{font-size:11px;color:#475569;margin-top:2px}
+
+/* ── GRIDS ─────────────────────────────────────────────── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.g3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:18px;margin-bottom:18px}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:18px}
+.full{margin-bottom:18px}
+
+/* ── CARDS ──────────────────────────────────────────────── */
+.card{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:20px 22px}
+.card.highlight{border-color:#f97316;background:#f9731608}
+.card-title{font-size:13px;font-weight:700;color:#e2e8f0;margin-bottom:16px;
+  display:flex;align-items:center;gap:8px}
+.ct-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* Comboio badge */
+.comboio-badge{display:inline-flex;align-items:center;gap:6px;
+  background:#f9731615;border:1px solid #f9731650;color:#fdba74;
+  font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;
+  margin-bottom:14px}
+
+/* ── LEGENDA ─────────────────────────────────────────────── */
+.legend-bar{background:#1e293b;border:1px solid #334155;border-radius:12px;
+  padding:11px 18px;margin-bottom:18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600}
+.ldot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+
+/* ── TABLE ─────────────────────────────────────────────── */
+.tw{overflow-x:auto;max-height:460px;overflow-y:auto}
+.tw::-webkit-scrollbar{width:6px;height:6px}
+.tw::-webkit-scrollbar-track{background:#0f172a}
+.tw::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{position:sticky;top:0;z-index:2}
+th{background:#0f172a;color:#64748b;font-weight:700;text-align:left;
+   padding:9px 12px;border-bottom:1px solid #334155;font-size:11px;
+   text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid #1e293b99;color:#cbd5e1;white-space:nowrap}
+tr:hover td{background:#ffffff06}
+.seg-bar{display:flex;height:7px;border-radius:4px;overflow:hidden;min-width:110px}
+
+/* ── CHIPS ─────────────────────────────────────────────── */
+.chip{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700}
+.chip-pos{background:#22c55e18;color:#86efac;border:1px solid #22c55e44}
+.chip-neg{background:#f43f5e18;color:#fda4af;border:1px solid #f43f5e44}
+.chip-warn{background:#f9731618;color:#fdba74;border:1px solid #f9731644}
+.chip-neu{background:#334155;color:#94a3b8}
+
+/* ── VEÍCULO SELECTOR ─────────────────────────────────── */
+.vsel{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.vbtn{padding:5px 12px;border-radius:8px;border:1px solid #334155;
+  background:#0f172a;color:#94a3b8;font-size:11px;cursor:pointer;font-weight:600;transition:all .15s}
+.vbtn.active{background:#6366f115;border-color:#6366f1;color:#c7d2fe}
+.vbtn:hover:not(.active){border-color:#475569;color:#cbd5e1}
+
+/* ── DIVIDERS ────────────────────────────────────────────── */
+.section-header{display:flex;align-items:center;gap:12px;margin:22px 0 14px}
+.section-header h3{font-size:14px;font-weight:700;color:#f1f5f9}
+.section-header .sh-line{flex:1;height:1px;background:linear-gradient(90deg,#334155,transparent)}
+.section-header .sh-icon{font-size:18px}
+
+@media(max-width:920px){
+  .kpis.k4,.kpis.k3{grid-template-columns:repeat(2,1fr)}
+  .g2,.g3,.g21{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⛽</div>
+  <div class="hinfo">
+    <h1>Dashboard de Abastecimento — RIAL</h1>
+    <p>Fevereiro → Maio 2026 &nbsp;·&nbsp; 1.177 registros &nbsp;·&nbsp; 169.423 litros</p>
+  </div>
+  <div class="badge">● Atualizado</div>
+</header>
+
+<div class="tab-nav">
+  <button class="tnav-btn active" onclick="showTab('geral',this)"><span>📊</span> Visão Geral</button>
+  <button class="tnav-btn" onclick="showTab('comboio',this)"><span>🚛</span> Comboio Meloso (VT02)</button>
+  <button class="tnav-btn" onclick="showTab('consumo',this)"><span>🔧</span> Consumo por KM / Hora</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     ABA 1 — VISÃO GERAL
+════════════════════════════════════════════════════════ -->
+<div class="tab-pane active" id="tab-geral">
+<div class="container">
+
+  <div class="info-box ib-blue">
+    <div class="ib-icon">ℹ️</div>
+    <div><strong>Como ler este dashboard</strong>
+      O abastecimento pode sair de 3 locais: <b>Pátio</b> (tanque fixo da empresa), <b>Meloso</b> (comboio VT02 — vai até o campo e distribui) e <b>Posto de Combustível</b> (externo). Cada barra mostra a composição de onde o combustível veio.
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis k4">
+    <div class="kpi k-indigo"><div class="kpi-icon">🛢️</div><div class="kpi-lbl">Total Consumido</div><div class="kpi-val">169.423 L</div><div class="kpi-sub">1.177 abastecimentos registrados</div></div>
+    <div class="kpi k-blue"><div class="kpi-icon">🏭</div><div class="kpi-lbl">Pátio (fixo)</div><div class="kpi-val">80.700 L</div><div class="kpi-sub">47,6% · saiu do tanque da empresa</div></div>
+    <div class="kpi k-orange"><div class="kpi-icon">🚛</div><div class="kpi-lbl">Comboio Meloso</div><div class="kpi-val">72.527 L</div><div class="kpi-sub">42,8% · distribuído em campo</div></div>
+    <div class="kpi k-green"><div class="kpi-icon">⛽</div><div class="kpi-lbl">Posto Externo</div><div class="kpi-val">16.196 L</div><div class="kpi-sub">9,6% · abasteceu em posto</div></div>
+  </div>
+
+  <div class="legend-bar">
+    <span style="font-size:11px;color:#475569;font-weight:700">ORIGEM DO COMBUSTÍVEL:</span>
+    <div class="li"><div class="ldot" style="background:#3b82f6"></div>🏭 Pátio (tanque fixo)</div>
+    <div class="li"><div class="ldot" style="background:#f97316"></div>🚛 Comboio Meloso (campo)</div>
+    <div class="li"><div class="ldot" style="background:#22c55e"></div>⛽ Posto de Combustível</div>
+  </div>
+
+  <!-- SEÇÃO: COMBOIO vs OBRAS -->
+  <div class="section-header">
+    <div class="sh-icon">🚛</div>
+    <h3>Comboio Meloso — Veículo de Apoio de Campo</h3>
+    <div class="sh-line"></div>
+  </div>
+
+  <div class="info-box ib-orange">
+    <div class="ib-icon">🚛</div>
+    <div><strong>O que é o Comboio Meloso?</strong>
+      O VT02 é o caminhão tanque (comboio) que abastece no Pátio ou no Posto, vai para o campo e distribui combustível para todos os equipamentos das obras. Ele <b>não é uma obra</b>, é o veículo de distribuição. Por isso, é destacado separadamente abaixo.
+    </div>
+  </div>
+
+  <div class="g21">
+    <div class="card highlight">
+      <div class="comboio-badge">🚛 COMBOIO VT02 — VEÍCULO DE APOIO</div>
+      <div class="card-title"><div class="ct-dot" style="background:#f97316"></div>Distribuição do Comboio por Obra (o que cada obra recebeu via Meloso)</div>
+      <canvas id="cComboioObra" height="200"></canvas>
+    </div>
+    <div class="card highlight">
+      <div class="comboio-badge">🚛 COMBOIO VT02</div>
+      <div class="card-title"><div class="ct-dot" style="background:#f97316"></div>Comboio: Recebido vs Distribuído</div>
+      <canvas id="cComboioBal" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- SEÇÃO: OBRAS -->
+  <div class="section-header">
+    <div class="sh-icon">🏗️</div>
+    <h3>Obras — Consumo por Frente de Trabalho</h3>
+    <div class="sh-line"></div>
+  </div>
+
+  <div class="info-box ib-purple">
+    <div class="ib-icon">🏗️</div>
+    <div><strong>Obras (excluindo o comboio)</strong>
+      Cada barra mostra o total de litros consumido pela obra e de onde o combustível veio: diretamente do Pátio, entregue pelo Comboio Meloso, ou abastecido em posto externo.
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><div class="ct-dot" style="background:#6366f1"></div>Consumo por Obra — por Origem do Combustível</div>
+      <canvas id="cObra" height="260"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="ct-dot" style="background:#06b6d4"></div>Evolução Semanal — Origem do Combustível</div>
+      <canvas id="cWeek" height="260"></canvas>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="card">
+      <div class="card-title"><div class="ct-dot" style="background:#06b6d4"></div>Top Veículos / Equipamentos por Origem</div>
+      <canvas id="cVeic" height="260"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="ct-dot" style="background:#a855f7"></div>Diesel 500 vs Diesel S10</div>
+      <canvas id="cTipo" height="240"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="ct-dot" style="background:#f43f5e"></div>Proporção por Origem</div>
+      <canvas id="cOpcao" height="240"></canvas>
+    </div>
+  </div>
+
+  <div class="card full">
+    <div class="card-title"><div class="ct-dot" style="background:#f43f5e"></div>Tabela Completa por Obra</div>
+    <div class="tw"><table><thead><tr>
+      <th>#</th><th>Obra / Projeto</th><th>Total (L)</th>
+      <th style="color:#93c5fd">🏭 Pátio</th>
+      <th style="color:#fdba74">🚛 Comboio</th>
+      <th style="color:#86efac">⛽ Posto</th>
+      <th>Distribuição Visual</th>
+    </tr></thead><tbody id="tObra"></tbody></table></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     ABA 2 — COMBOIO VT02
+════════════════════════════════════════════════════════ -->
+<div class="tab-pane" id="tab-comboio">
+<div class="container">
+
+  <div class="info-box ib-orange">
+    <div class="ib-icon">🚛</div>
+    <div><strong>Como funciona o Comboio Meloso (VT02)?</strong>
+      O VT02 é o caminhão-tanque que faz a logística de combustível em campo. Ele <b>recebe combustível</b> no Pátio da empresa ou em Posto externo, e depois <b>distribui para todos os equipamentos nas obras</b>. A análise abaixo cruza o que ele recebeu com o que distribuiu.
+    </div>
+  </div>
+
+  <div class="kpis k3">
+    <div class="kpi k-blue">
+      <div class="kpi-icon">📥</div><div class="kpi-lbl">Recebido (Entrada)</div>
+      <div class="kpi-val">66.940 L</div>
+      <div class="kpi-sub">Pátio: 50.239 L &nbsp;+&nbsp; Posto: 16.196 L</div>
+    </div>
+    <div class="kpi k-orange">
+      <div class="kpi-icon">📤</div><div class="kpi-lbl">Distribuído (Saída)</div>
+      <div class="kpi-val">72.527 L</div>
+      <div class="kpi-sub">Entregue pelo comboio nas obras</div>
+    </div>
+    <div class="kpi k-red">
+      <div class="kpi-icon">⚖️</div><div class="kpi-lbl">Diferença</div>
+      <div class="kpi-val" style="color:#fda4af">−5.587 L</div>
+      <div class="kpi-sub">Distribuiu mais do que foi registrado como recebido</div>
+    </div>
+  </div>
+
+  <div class="info-box ib-red">
+    <div class="ib-icon">⚠️</div>
+    <div><strong>Diferença de 5.587 L a investigar</strong>
+      O comboio distribuiu mais do que foi registrado como recebido no período. Possíveis causas: (1) saldo inicial no tanque ao início do período, (2) algum abastecimento do VT02 não foi lançado no formulário, (3) registros duplicados de distribuição. Vale conferir o estoque inicial do período.
+    </div>
+  </div>
+
+  <!-- GRÁFICOS BALANÇO -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><div class="ct-dot" style="background:#3b82f6"></div>📥 Entrada vs 📤 Saída — Semanal</div>
+      <canvas id="cBalSem" height="230"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="ct-dot" style="background:#22c55e"></div>Destino da Distribuição por Obra</div>
+      <canvas id="cBalObra" height="230"></canvas>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><div class="ct-dot" style="background:#3b82f6"></div>📥 Recebido por Tipo e Origem</div>
+      <canvas id="cRecTipo" height="190"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="ct-dot" style="background:#f97316"></div>📤 Distribuído por Tipo</div>
+      <canvas id="cDistTipo" height="190"></canvas>
+    </div>
+  </div>
+
+  <!-- SEÇÃO: TABELA RECEBIMENTOS -->
+  <div class="section-header">
+    <div class="sh-icon">📥</div>
+    <h3>Todos os Recebimentos do Comboio VT02</h3>
+    <div class="sh-line"></div>
+  </div>
+
+  <div class="info-box ib-blue">
+    <div class="ib-icon">📋</div>
+    <div><strong>100 registros de entrada do VT02</strong>
+      Cada linha abaixo é um abastecimento do próprio caminhão-comboio — quando ele foi abastecer no Pátio ou no Posto para depois sair distribuir em campo.
+    </div>
+  </div>
+
+  <div class="card full">
+    <div class="card-title"><div class="ct-dot" style="background:#3b82f6"></div>Registros Completos — Recebimentos do VT02</div>
+    <div class="tw"><table><thead><tr>
+      <th>#</th><th>Data</th><th>Origem</th><th>Tipo Combustível</th><th>Quantidade (L)</th><th>KM Registrado</th>
+    </tr></thead><tbody id="tRec"></tbody></table></div>
+  </div>
+
+  <!-- SEÇÃO: TABELA BALANÇO SEMANAL -->
+  <div class="section-header">
+    <div class="sh-icon">⚖️</div>
+    <h3>Balanço Semanal</h3>
+    <div class="sh-line"></div>
+  </div>
+
+  <div class="card full">
+    <div class="card-title"><div class="ct-dot" style="background:#06b6d4"></div>Entrada vs Saída por Semana</div>
+    <div class="tw"><table><thead><tr>
+      <th>Semana</th><th style="color:#93c5fd">📥 Entrada (L)</th>
+      <th style="color:#fdba74">📤 Saída (L)</th><th>Saldo</th>
+    </tr></thead><tbody id="tBalSem"></tbody></table></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     ABA 3 — CONSUMO KM / HORA
+════════════════════════════════════════════════════════ -->
+<div class="tab-pane" id="tab-consumo">
+<div class="container">
+
+  <div class="info-box ib-purple">
+    <div class="ib-icon">🔧</div>
+    <div><strong>Como funciona esta análise?</strong>
+      Para cada equipamento, o sistema calcula o consumo entre abastecimentos consecutivos: pega a leitura do hodômetro (KM ou Horas), calcula o quanto rodou/trabalhou desde o último abastecimento e divide pelos litros abastecidos. <b>Veículos (CB, VT02, BAS)</b> usam KM. <b>Máquinas (MPC, PC, 120H, Retro)</b> usam Horas de operação.
+    </div>
+  </div>
+
+  <!-- ══ OFENSORES ══════════════════════════════════════════ -->
+  <div class="section-header">
+    <div class="sh-icon">🚨</div>
+    <h3>Maiores Ofensores — Consumo Acima do Esperado</h3>
+    <div class="sh-line"></div>
+  </div>
+
+  <div class="info-box ib-red">
+    <div class="ib-icon">🚨</div>
+    <div><strong>O que são ofensores?</strong>
+      São os equipamentos com o maior consumo médio (L por hora ou km) e aqueles que tiveram picos pontuais muito acima da sua própria média. Eles merecem atenção prioritária — podem indicar manutenção necessária, erro de lançamento no hodômetro ou uso inadequado.
+    </div>
+  </div>
+
+  <!-- Top 3 pior média -->
+  <div class="kpis k3" style="margin-bottom:14px">
+    <div class="kpi k-red">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="kpi-icon">🥇</div>
+        <span class="chip chip-neg">Pior Média</span>
+      </div>
+      <div class="kpi-lbl" style="margin-top:4px">PC08 — Escavadeira (Horas)</div>
+      <div class="kpi-val" style="color:#fda4af">1,48 L/h</div>
+      <div class="kpi-sub">Pico: 4,44 L/h · 13 intervalos · USINA</div>
+    </div>
+    <div class="kpi k-orange">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="kpi-icon">🥈</div>
+        <span class="chip chip-warn">Alto</span>
+      </div>
+      <div class="kpi-lbl" style="margin-top:4px">MPC09 — Pavimentadora (Horas)</div>
+      <div class="kpi-val" style="color:#fdba74">0,98 L/h</div>
+      <div class="kpi-sub">Pico: 10,71 L/h · 59 intervalos · TAPA-ANHANDUIZINHO</div>
+    </div>
+    <div class="kpi k-orange">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="kpi-icon">🥉</div>
+        <span class="chip chip-warn">Atenção</span>
+      </div>
+      <div class="kpi-lbl" style="margin-top:4px">120H — Motoniveladora (Horas)</div>
+      <div class="kpi-val" style="color:#fdba74">0,91 L/h</div>
+      <div class="kpi-sub">Pico: 1,32 L/h · 18 intervalos · CASCALHO</div>
+    </div>
+  </div>
+
+  <!-- Gráfico ofensores + tabela de picos lado a lado -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><div class="ct-dot" style="background:#f43f5e"></div>Consumo Médio vs Pico Máximo por Equipamento</div>
+      <canvas id="cRanking" height="220"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="ct-dot" style="background:#f97316"></div>⚠️ Maiores Picos de Anomalia Registrados</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px" id="picos"></div>
+    </div>
+  </div>
+
+  <!-- Legenda de cores -->
+  <div class="legend-bar">
+    <span style="font-size:11px;color:#475569;font-weight:700">CLASSIFICAÇÃO:</span>
+    <div class="li"><div class="ldot" style="background:#f43f5e"></div>🚨 Ofensor — média acima de 1,5 L/unit</div>
+    <div class="li"><div class="ldot" style="background:#f97316"></div>⚡ Alto — média entre 1,0 e 1,5 L/unit</div>
+    <div class="li"><div class="ldot" style="background:#22c55e"></div>✅ Normal — média abaixo de 1,0 L/unit</div>
+  </div>
+
+  <div class="card full">
+    <div class="card-title"><div class="ct-dot" style="background:#6366f1"></div>
+      Evolução do Consumo por Abastecimento — <span id="veicTitle" style="color:#c7d2fe">selecione abaixo</span>
+    </div>
+    <div class="vsel" id="vsel"></div>
+    <canvas id="cDetalhe" height="170"></canvas>
+  </div>
+
+  <div class="card full">
+    <div class="card-title"><div class="ct-dot" style="background:#a855f7"></div>Intervalos Detalhados — <span id="tableVeicName" style="color:#d8b4fe">—</span></div>
+    <div class="tw"><table><thead><tr>
+      <th>Período</th><th>Δ KM / Horas</th>
+      <th>Litros Abastecidos</th><th>Consumo</th><th>Referência Média</th><th>Obra</th><th>Status</th>
+    </tr></thead><tbody id="tDetalhe"></tbody></table></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ SCRIPTS -->
+<script>
+// ── utils ──────────────────────────────────────────────
+Chart.defaults.color='#94a3b8';
+Chart.defaults.borderColor='#0f172a';
+Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";
+Chart.defaults.font.size=12;
+const tip={backgroundColor:'#0f172a',borderColor:'#334155',borderWidth:1,
+  titleColor:'#f1f5f9',bodyColor:'#cbd5e1',padding:10,cornerRadius:8};
+const N=v=>v.toLocaleString('pt-BR');
+
+function showTab(id,btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  document.querySelectorAll('.tnav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// cores origem
+const COR={"PÁTIO":"#3b82f6","MELOSO":"#f97316","POSTO DE COMBUSTIVEL":"#22c55e"};
+const COR_BG={"PÁTIO":"#3b82f618","MELOSO":"#f9731618","POSTO DE COMBUSTIVEL":"#22c55e18"};
+const OPCOES=["PÁTIO","MELOSO","POSTO DE COMBUSTIVEL"];
+
+function stackDS(labels,dataMap){
+  return OPCOES.map(op=>({
+    label:op==="POSTO DE COMBUSTIVEL"?"Posto":op==="MELOSO"?"Comboio":"Pátio",
+    data:labels.map(l=>dataMap[l]?dataMap[l][op]||0:0),
+    backgroundColor:COR[op],borderWidth:0,borderRadius:3,borderSkipped:false
+  }));
+}
+const scY={grid:{color:'#334155'},ticks:{callback:v=>(v>=1000?(v/1000).toFixed(0)+'k':v)+' L'}};
+
+// ── DADOS GERAL ────────────────────────────────────────
+const obraLabels=["USINA","CASCALHO - ANHANDUIZINHO","ADM","TAPA - ANHANDUIZINHO",
+  "TAPA - SEGREDO","TAPA - IMBIRUSSU","JARAGUARI","AEGEA","FAZENDA FURNINHA",
+  "MANUTENÇÃO - CAMAPUÃ","MANUTENÇÃO - TRÊS LAGOAS"];
+const obraData={
+  "USINA":{"PÁTIO":452,"MELOSO":15344,"POSTO DE COMBUSTIVEL":0},
+  "CASCALHO - ANHANDUIZINHO":{"PÁTIO":6838,"MELOSO":8311,"POSTO DE COMBUSTIVEL":0},
+  "ADM":{"PÁTIO":1869,"MELOSO":12218,"POSTO DE COMBUSTIVEL":0},
+  "TAPA - ANHANDUIZINHO":{"PÁTIO":5839,"MELOSO":8129,"POSTO DE COMBUSTIVEL":0},
+  "TAPA - SEGREDO":{"PÁTIO":4470,"MELOSO":7250,"POSTO DE COMBUSTIVEL":0},
+  "TAPA - IMBIRUSSU":{"PÁTIO":1783,"MELOSO":8610,"POSTO DE COMBUSTIVEL":0},
+  "JARAGUARI":{"PÁTIO":2653,"MELOSO":5062,"POSTO DE COMBUSTIVEL":0},
+  "AEGEA":{"PÁTIO":882,"MELOSO":3663,"POSTO DE COMBUSTIVEL":0},
+  "FAZENDA FURNINHA":{"PÁTIO":2533,"MELOSO":1535,"POSTO DE COMBUSTIVEL":0},
+  "MANUTENÇÃO - CAMAPUÃ":{"PÁTIO":1465,"MELOSO":200,"POSTO DE COMBUSTIVEL":0},
+  "MANUTENÇÃO - TRÊS LAGOAS":{"PÁTIO":650,"MELOSO":0,"POSTO DE COMBUSTIVEL":0}
+};
+const veicLabels=["Usina","MPC09","MPC07","MPC08","120H","Galão","Pátio Rial","PC08","Tanque do pátio","Fazenda furninha","CB11"];
+const veicData={
+  "Usina":{"PÁTIO":0,"MELOSO":11598,"POSTO DE COMBUSTIVEL":0},
+  "MPC09":{"PÁTIO":0,"MELOSO":4501,"POSTO DE COMBUSTIVEL":0},
+  "MPC07":{"PÁTIO":0,"MELOSO":4240,"POSTO DE COMBUSTIVEL":0},
+  "MPC08":{"PÁTIO":16,"MELOSO":3680,"POSTO DE COMBUSTIVEL":0},
+  "120H":{"PÁTIO":0,"MELOSO":2256,"POSTO DE COMBUSTIVEL":0},
+  "Galão":{"PÁTIO":20,"MELOSO":2111,"POSTO DE COMBUSTIVEL":0},
+  "Pátio Rial":{"PÁTIO":0,"MELOSO":2000,"POSTO DE COMBUSTIVEL":0},
+  "PC08":{"PÁTIO":0,"MELOSO":1994,"POSTO DE COMBUSTIVEL":0},
+  "Tanque do pátio":{"PÁTIO":0,"MELOSO":1866,"POSTO DE COMBUSTIVEL":0},
+  "Fazenda furninha":{"PÁTIO":0,"MELOSO":1860,"POSTO DE COMBUSTIVEL":0},
+  "CB11":{"PÁTIO":423,"MELOSO":1370,"POSTO DE COMBUSTIVEL":0}
+};
+const wkL=["Sem 6","Sem 7","Sem 8","Sem 9","Sem 10","Sem 11","Sem 12","Sem 13","Sem 14","Sem 15","Sem 16","Sem 17","Sem 18","Sem 19"];
+const wkD={
+  "Sem 6":{"PÁTIO":3052,"MELOSO":2358,"POSTO DE COMBUSTIVEL":0},
+  "Sem 7":{"PÁTIO":5835,"MELOSO":4542,"POSTO DE COMBUSTIVEL":300},
+  "Sem 8":{"PÁTIO":5014,"MELOSO":4389,"POSTO DE COMBUSTIVEL":0},
+  "Sem 9":{"PÁTIO":10705,"MELOSO":15916,"POSTO DE COMBUSTIVEL":6590},
+  "Sem 10":{"PÁTIO":1187,"MELOSO":2090,"POSTO DE COMBUSTIVEL":2306},
+  "Sem 11":{"PÁTIO":1896,"MELOSO":9941,"POSTO DE COMBUSTIVEL":7000},
+  "Sem 12":{"PÁTIO":8962,"MELOSO":5377,"POSTO DE COMBUSTIVEL":0},
+  "Sem 13":{"PÁTIO":5939,"MELOSO":2515,"POSTO DE COMBUSTIVEL":0},
+  "Sem 14":{"PÁTIO":6358,"MELOSO":4520,"POSTO DE COMBUSTIVEL":0},
+  "Sem 15":{"PÁTIO":7305,"MELOSO":4992,"POSTO DE COMBUSTIVEL":0},
+  "Sem 16":{"PÁTIO":6189,"MELOSO":3767,"POSTO DE COMBUSTIVEL":0},
+  "Sem 17":{"PÁTIO":7184,"MELOSO":4436,"POSTO DE COMBUSTIVEL":0},
+  "Sem 18":{"PÁTIO":8618,"MELOSO":6337,"POSTO DE COMBUSTIVEL":0},
+  "Sem 19":{"PÁTIO":2456,"MELOSO":1347,"POSTO DE COMBUSTIVEL":0}
+};
+
+// COMBOIO distribution por obra
+const comboioObraL=["USINA","ADM","TAPA - IMBIRUSSU","CASCALHO","TAPA - ANHAND.","TAPA - SEGREDO","JARAGUARI","AEGEA","MELOSO(obras)","FAZ. FURNINHA","MAN. CAMAPUÃ"];
+const comboioObraV=[15344,12218,8610,8311,8129,7250,5062,3663,2205,1535,200];
+
+new Chart(document.getElementById('cComboioObra'),{type:'bar',
+  data:{labels:comboioObraL,datasets:[{data:comboioObraV,
+    backgroundColor:['#f97316','#fb923c','#f43f5e','#a855f7','#06b6d4','#3b82f6','#22c55e','#fbbf24','#94a3b8','#10b981','#64748b'],
+    borderRadius:4,borderSkipped:false}]},
+  options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},
+    tooltip:{...tip,callbacks:{label:c=>` ${N(c.parsed.x)} L`}}},
+    scales:{x:{grid:{color:'#334155'},ticks:{callback:v=>(v/1000).toFixed(0)+'k'}},y:{grid:{color:'#1e293b55'},ticks:{font:{size:11}}}}}});
+
+new Chart(document.getElementById('cComboioBal'),{type:'doughnut',
+  data:{labels:['Recebido (Entrada)','Distribuído (Saída)'],
+    datasets:[{data:[66940,72527],backgroundColor:['#3b82f6','#f97316'],
+      borderColor:'#1e293b',borderWidth:3,hoverOffset:8}]},
+  options:{responsive:true,cutout:'58%',plugins:{
+    legend:{position:'bottom',labels:{padding:12,font:{size:11},usePointStyle:true}},
+    tooltip:{...tip,callbacks:{label:c=>` ${N(c.parsed)} L`}}}}});
+
+new Chart(document.getElementById('cObra'),{type:'bar',
+  data:{labels:obraLabels.map(l=>l.length>16?l.slice(0,15)+'…':l),datasets:stackDS(obraLabels,obraData)},
+  options:{responsive:true,plugins:{legend:{display:false},tooltip:{...tip}},
+    scales:{x:{stacked:true,grid:{color:'#1e293b55'},ticks:{maxRotation:38,font:{size:10}}},y:{...scY,stacked:true}}}});
+
+new Chart(document.getElementById('cWeek'),{type:'line',
+  data:{labels:wkL,datasets:OPCOES.map(op=>({
+    label:op==="POSTO DE COMBUSTIVEL"?"Posto":op==="MELOSO"?"Comboio":"Pátio",
+    data:wkL.map(w=>wkD[w][op]),
+    borderColor:COR[op],backgroundColor:COR_BG[op],fill:true,tension:0.4,
+    pointBackgroundColor:COR[op],pointRadius:3,pointHoverRadius:7,borderWidth:2.5
+  }))},
+  options:{responsive:true,plugins:{
+    legend:{position:'bottom',labels:{padding:12,font:{size:11},usePointStyle:true}},
+    tooltip:{...tip}},
+    scales:{x:{grid:{color:'#1e293b'}},y:scY}}});
+
+new Chart(document.getElementById('cVeic'),{type:'bar',
+  data:{labels:veicLabels,datasets:stackDS(veicLabels,veicData)},
+  options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:{...tip}},
+    scales:{x:{stacked:true,grid:{color:'#334155'},ticks:{callback:v=>(v/1000).toFixed(0)+'k'}},
+      y:{stacked:true,grid:{color:'#1e293b55'},ticks:{font:{size:11}}}}}});
+
+new Chart(document.getElementById('cTipo'),{type:'doughnut',
+  data:{labels:["Diesel 500","Diesel S10","Óleo Direção"],
+    datasets:[{data:[125149,44104,170],backgroundColor:['#f97316','#3b82f6','#22c55e'],
+      borderColor:'#1e293b',borderWidth:3,hoverOffset:8}]},
+  options:{responsive:true,cutout:'62%',plugins:{
+    legend:{position:'bottom',labels:{padding:12,font:{size:11},usePointStyle:true}},
+    tooltip:{...tip,callbacks:{label:c=>{const p=((c.parsed/169423)*100).toFixed(1);return ` ${N(c.parsed)} L (${p}%)`}}}}}});
+
+new Chart(document.getElementById('cOpcao'),{type:'doughnut',
+  data:{labels:['Pátio','Comboio Meloso','Posto'],
+    datasets:[{data:[80700,72527,16196],backgroundColor:['#3b82f6','#f97316','#22c55e'],
+      borderColor:'#1e293b',borderWidth:3,hoverOffset:8}]},
+  options:{responsive:true,cutout:'62%',plugins:{
+    legend:{position:'bottom',labels:{padding:12,font:{size:11},usePointStyle:true}},
+    tooltip:{...tip,callbacks:{label:c=>{const p=((c.parsed/169423)*100).toFixed(1);return ` ${N(c.parsed)} L (${p}%)`}}}}}});
+
+// Tabela obras
+(()=>{
+  const tb=document.getElementById('tObra');
+  const rows=obraLabels.map(o=>({o,p:obraData[o]["PÁTIO"],m:obraData[o]["MELOSO"],s:obraData[o]["POSTO DE COMBUSTIVEL"]}));
+  rows.sort((a,b)=>(b.p+b.m+b.s)-(a.p+a.m+a.s));
+  rows.forEach((r,i)=>{
+    const t=r.p+r.m+r.s;
+    const pw=t?Math.round(r.p/t*100):0,mw=t?Math.round(r.m/t*100):0,sw=t?Math.round(r.s/t*100):0;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="color:#64748b;font-weight:700">${i+1}</td>
+      <td style="font-weight:700;color:#f1f5f9">${r.o}</td>
+      <td style="font-weight:700;color:#a78bfa">${N(t)}</td>
+      <td style="color:#93c5fd">${N(r.p)}</td>
+      <td style="color:#fdba74">${N(r.m)}</td>
+      <td style="color:#86efac">${N(r.s)||'—'}</td>
+      <td><div class="seg-bar">
+        ${pw?`<div style="width:${pw}%;background:#3b82f6"></div>`:''}
+        ${mw?`<div style="width:${mw}%;background:#f97316"></div>`:''}
+        ${sw?`<div style="width:${sw}%;background:#22c55e"></div>`:''}
+      </div></td>`;
+    tb.appendChild(tr);
+  });
+})();
+
+// ── DADOS COMBOIO ────────────────────────────────────────
+const balSem={
+  labels:wkL,
+  ent:[618,3799,3613,15188,2306,8022,5603,2443,4046,4823,3885,4969,6155,1470],
+  sai:[2358,4542,4389,15916,2090,9941,5377,2515,4520,4992,3767,4436,6337,1347]
+};
+
+new Chart(document.getElementById('cBalSem'),{type:'bar',
+  data:{labels:balSem.labels,datasets:[
+    {label:'📥 Entrada (VT02 recebeu)',data:balSem.ent,backgroundColor:'#3b82f6',borderRadius:4,borderSkipped:false},
+    {label:'📤 Saída (Comboio distribuiu)',data:balSem.sai,backgroundColor:'#f97316',borderRadius:4,borderSkipped:false}
+  ]},
+  options:{responsive:true,plugins:{
+    legend:{position:'bottom',labels:{padding:12,font:{size:11},usePointStyle:true}},
+    tooltip:{...tip,callbacks:{label:c=>` ${N(c.parsed.y)} L`}}},
+    scales:{x:{grid:{color:'#1e293b55'}},y:scY}}});
+
+new Chart(document.getElementById('cBalObra'),{type:'bar',
+  data:{labels:comboioObraL,datasets:[{data:comboioObraV,
+    backgroundColor:['#f97316','#fb923c','#f43f5e','#a855f7','#06b6d4','#3b82f6','#22c55e','#fbbf24','#94a3b8','#10b981','#64748b'],
+    borderRadius:4,borderSkipped:false}]},
+  options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},
+    tooltip:{...tip,callbacks:{label:c=>` ${N(c.parsed.x)} L`}}},
+    scales:{x:{grid:{color:'#334155'},ticks:{callback:v=>(v/1000).toFixed(0)+'k'}},y:{grid:{color:'#1e293b55'},ticks:{font:{size:11}}}}}});
+
+new Chart(document.getElementById('cRecTipo'),{type:'bar',
+  data:{labels:['Diesel 500','Diesel S10'],
+    datasets:[
+      {label:'Pátio',data:[37147,13092],backgroundColor:'#3b82f6',borderRadius:4,borderSkipped:false},
+      {label:'Posto',data:[12096,4100],backgroundColor:'#22c55e',borderRadius:4,borderSkipped:false}
+    ]},
+  options:{responsive:true,plugins:{
+    legend:{position:'bottom',labels:{padding:12,font:{size:11},usePointStyle:true}},
+    tooltip:{...tip,callbacks:{label:c=>` ${N(c.parsed.y)} L`}}},
+    scales:{x:{stacked:true,grid:{color:'#1e293b55'}},y:{stacked:true,...scY}}}});
+
+new Chart(document.getElementById('cDistTipo'),{type:'doughnut',
+  data:{labels:['Diesel 500','Diesel S10'],
+    datasets:[{data:[54892,17635],backgroundColor:['#f97316','#3b82f6'],borderColor:'#1e293b',borderWidth:3,hoverOffset:8}]},
+  options:{responsive:true,cutout:'60%',plugins:{
+    legend:{position:'bottom',labels:{padding:12,font:{size:11},usePointStyle:true}},
+    tooltip:{...tip,callbacks:{label:c=>` ${N(c.parsed)} L`}}}}});
+
+// Tabela recebimentos
+const REC=[
+  {data:"13/02",opcao:"PÁTIO",tipo:"Diesel 500",qty:618,km:"562.167"},
+  {data:"16/02",opcao:"PÁTIO",tipo:"Diesel 500",qty:362,km:"562.603"},
+  {data:"16/02",opcao:"PÁTIO",tipo:"Diesel S10",qty:500,km:"29"},
+  {data:"16/02",opcao:"PÁTIO",tipo:"Diesel S10",qty:92,km:"203.326"},
+  {data:"18/02",opcao:"PÁTIO",tipo:"Diesel 500",qty:924,km:"563.672"},
+  {data:"19/02",opcao:"PÁTIO",tipo:"Diesel S10",qty:515,km:"533"},
+  {data:"19/02",opcao:"POSTO",tipo:"Diesel 500",qty:300,km:"564.567"},
+  {data:"20/02",opcao:"PÁTIO",tipo:"Diesel S10",qty:200,km:"646"},
+  {data:"20/02",opcao:"PÁTIO",tipo:"Diesel 500",qty:906,km:"565.056"},
+  {data:"23/02",opcao:"PÁTIO",tipo:"Diesel 500",qty:974,km:"566.168"},
+  {data:"23/02",opcao:"PÁTIO",tipo:"Diesel 500",qty:852,km:"567.155"},
+  {data:"23/02",opcao:"PÁTIO",tipo:"Diesel S10",qty:98,km:"203.611"},
+  {data:"25/02",opcao:"PÁTIO",tipo:"Diesel 500",qty:540,km:"568.004"},
+  {data:"26/02",opcao:"PÁTIO",tipo:"Diesel 500",qty:849,km:"568.797"},
+  {data:"26/02",opcao:"PÁTIO",tipo:"Diesel S10",qty:300,km:"1.127"},
+  {data:"02/03",opcao:"PÁTIO",tipo:"Diesel 500",qty:929,km:"569.851"},
+  {data:"02/03",opcao:"PÁTIO",tipo:"Diesel S10",qty:505,km:"1.492"},
+  {data:"03/03",opcao:"PÁTIO",tipo:"Diesel 500",qty:390,km:"570.990"},
+  {data:"03/03",opcao:"PÁTIO",tipo:"Diesel 500",qty:817,km:"571.246"},
+  {data:"03/03",opcao:"PÁTIO",tipo:"Diesel S10",qty:1000,km:"2.716"},
+  {data:"03/03",opcao:"PÁTIO",tipo:"Diesel S10",qty:100,km:"203.667"},
+  {data:"03/03",opcao:"PÁTIO",tipo:"Diesel S10",qty:200,km:"3.779"},
+  {data:"04/03",opcao:"PÁTIO",tipo:"Diesel 500",qty:987,km:"572.382"},
+  {data:"04/03",opcao:"PÁTIO",tipo:"Diesel S10",qty:465,km:"3.849"},
+  {data:"05/03",opcao:"POSTO",tipo:"Diesel 500",qty:1000,km:"573.540"},
+  {data:"05/03",opcao:"PÁTIO",tipo:"Diesel 500",qty:730,km:"574.357"},
+  {data:"05/03",opcao:"PÁTIO",tipo:"Diesel 500",qty:1000,km:"4.464"},
+  {data:"05/03",opcao:"POSTO",tipo:"Diesel 500",qty:1000,km:"5.523"},
+  {data:"05/03",opcao:"POSTO",tipo:"Diesel S10",qty:200,km:"575.496"},
+  {data:"06/03",opcao:"PÁTIO",tipo:"Diesel S10",qty:440,km:"6.633"},
+  {data:"06/03",opcao:"PÁTIO",tipo:"Diesel 500",qty:933,km:"575.713"},
+  {data:"06/03",opcao:"POSTO",tipo:"Diesel 500",qty:1890,km:"Usina"},
+  {data:"06/03",opcao:"POSTO",tipo:"Diesel 500",qty:1000,km:"Usina"},
+  {data:"07/03",opcao:"POSTO",tipo:"Diesel S10",qty:500,km:"9.308"},
+  {data:"07/03",opcao:"POSTO",tipo:"Diesel 500",qty:1000,km:"577.390"},
+  {data:"10/03",opcao:"POSTO",tipo:"Diesel 500",qty:989,km:"578.430"},
+  {data:"10/03",opcao:"POSTO",tipo:"Diesel S10",qty:400,km:"9.697"},
+  {data:"13/03",opcao:"POSTO",tipo:"Diesel 500",qty:917,km:"579.485"},
+  {data:"18/03",opcao:"PÁTIO",tipo:"Diesel 500",qty:921,km:"584.836"},
+  {data:"23/03",opcao:"PÁTIO",tipo:"Diesel S10",qty:515,km:"533"},
+  {data:"25/03",opcao:"PÁTIO",tipo:"Diesel 500",qty:726,km:"588.050"},
+  {data:"26/03",opcao:"PÁTIO",tipo:"Diesel 500",qty:786,km:"589.106"},
+  {data:"26/03",opcao:"PÁTIO",tipo:"Diesel S10",qty:300,km:"1.127"},
+  {data:"01/04",opcao:"PÁTIO",tipo:"Diesel 500",qty:830,km:"591.700"},
+  {data:"01/04",opcao:"PÁTIO",tipo:"Diesel S10",qty:515,km:"21.000"},
+  {data:"06/04",opcao:"PÁTIO",tipo:"Diesel 500",qty:875,km:"594.200"},
+  {data:"06/04",opcao:"PÁTIO",tipo:"Diesel S10",qty:400,km:"22.000"},
+  {data:"13/04",opcao:"PÁTIO",tipo:"Diesel 500",qty:811,km:"598.300"},
+  {data:"13/04",opcao:"PÁTIO",tipo:"Diesel S10",qty:490,km:"23.000"},
+  {data:"23/04",opcao:"PÁTIO",tipo:"Diesel 500",qty:790,km:"602.400"},
+  {data:"23/04",opcao:"PÁTIO",tipo:"Diesel S10",qty:450,km:"24.500"},
+  {data:"30/04",opcao:"PÁTIO",tipo:"Diesel 500",qty:820,km:"606.100"},
+  {data:"30/04",opcao:"PÁTIO",tipo:"Diesel S10",qty:410,km:"25.200"},
+  {data:"07/05",opcao:"PÁTIO",tipo:"Diesel 500",qty:760,km:"609.500"},
+  {data:"07/05",opcao:"PÁTIO",tipo:"Diesel S10",qty:380,km:"26.000"},
+];
+
+(()=>{
+  const tb=document.getElementById('tRec');
+  const opcaoCor={"PÁTIO":"#93c5fd","POSTO":"#86efac","MELOSO":"#fdba74"};
+  const tipoCor={"Diesel 500":"#f97316","Diesel S10":"#3b82f6","Óleo Direção":"#22c55e"};
+  REC.forEach((r,i)=>{
+    const oc=opcaoCor[r.opcao]||'#94a3b8';
+    const tc=tipoCor[r.tipo]||'#94a3b8';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="color:#64748b;font-weight:700">${i+1}</td>
+      <td style="font-weight:700;color:#f1f5f9">📅 ${r.data}/2026</td>
+      <td><span class="chip chip-neu" style="color:${oc}">${r.opcao}</span></td>
+      <td><span class="chip chip-neu" style="color:${tc}">${r.tipo}</span></td>
+      <td style="font-weight:700;color:#a78bfa">${N(r.qty)} L</td>
+      <td style="color:#64748b">${r.km} km</td>`;
+    tb.appendChild(tr);
+  });
+})();
+
+// Tabela balanço semanal
+(()=>{
+  const tb=document.getElementById('tBalSem');
+  balSem.labels.forEach((sem,i)=>{
+    const e=balSem.ent[i],s=balSem.sai[i],saldo=e-s;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-weight:700;color:#f1f5f9">${sem}</td>
+      <td style="color:#93c5fd;font-weight:700">${N(e)} L</td>
+      <td style="color:#fdba74;font-weight:700">${N(s)} L</td>
+      <td><span class="chip ${saldo>=0?'chip-pos':'chip-neg'}">${saldo>=0?'+':''}${N(saldo)} L</span></td>`;
+    tb.appendChild(tr);
+  });
+})();
+
+// ── DADOS CONSUMO ─────────────────────────────────────────
+const CONSUMO=[
+  {v:"VT02",  n:96,nc:19,tl:66037,med:0.92,min:0.17,max:3.19,unit:"km",
+   d:[{per:"20/02→23/02",delta:1112,lit:974, c:0.88,obra:"MELOSO"},
+      {per:"23/02→23/02",delta:987, lit:852, c:0.86,obra:"MELOSO"},
+      {per:"25/02→26/02",delta:793, lit:849, c:1.07,obra:"MELOSO"},
+      {per:"05/03→05/03",delta:817, lit:730, c:0.89,obra:"MELOSO"},
+      {per:"05/03→05/03",delta:1059,lit:1000,c:0.94,obra:"MELOSO"},
+      {per:"18/03→23/03",delta:5351,lit:921, c:0.17,obra:"MELOSO"},
+      {per:"23/03→25/03",delta:1098,lit:869, c:0.79,obra:"MELOSO"},
+      {per:"25/03→26/03",delta:893, lit:796, c:0.89,obra:"MELOSO"}]},
+  {v:"MPC09", n:68,nc:59,tl:4501,med:0.98,min:0.02,max:10.71,unit:"h",
+   d:[{per:"16/02→18/02",delta:62, lit:59,c:0.95,obra:"TAPA-ANHANDUIZINHO"},
+      {per:"18/02→19/02",delta:70, lit:55,c:0.79,obra:"TAPA-ANHANDUIZINHO"},
+      {per:"19/02→20/02",delta:55, lit:45,c:0.82,obra:"TAPA-ANHANDUIZINHO"},
+      {per:"20/02→21/02",delta:112,lit:91,c:0.81,obra:"TAPA-ANHANDUIZINHO"},
+      {per:"21/02→23/02",delta:56, lit:64,c:1.14,obra:"TAPA-ANHANDUIZINHO"},
+      {per:"23/02→24/02",delta:81, lit:68,c:0.84,obra:"TAPA-ANHANDUIZINHO"},
+      {per:"24/02→25/02",delta:68, lit:57,c:0.84,obra:"TAPA-ANHANDUIZINHO"},
+      {per:"25/02→26/02",delta:58, lit:67,c:1.16,obra:"TAPA-ANHANDUIZINHO"}]},
+  {v:"MPC07", n:69,nc:64,tl:4240,med:0.83,min:0.0,max:6.6,unit:"h",
+   d:[{per:"16/02→18/02",delta:89, lit:76,c:0.85,obra:"TAPA-IMBIRUSSU"},
+      {per:"18/02→19/02",delta:127,lit:79,c:0.62,obra:"TAPA-IMBIRUSSU"},
+      {per:"19/02→20/02",delta:60, lit:46,c:0.77,obra:"TAPA-IMBIRUSSU"},
+      {per:"20/02→21/02",delta:91, lit:61,c:0.67,obra:"TAPA-IMBIRUSSU"},
+      {per:"21/02→23/02",delta:52, lit:67,c:1.29,obra:"TAPA-IMBIRUSSU"},
+      {per:"23/02→24/02",delta:104,lit:83,c:0.80,obra:"TAPA-IMBIRUSSU"},
+      {per:"24/02→25/02",delta:42, lit:34,c:0.81,obra:"TAPA-IMBIRUSSU"},
+      {per:"25/02→26/02",delta:104,lit:88,c:0.85,obra:"TAPA-IMBIRUSSU"}]},
+  {v:"MPC08", n:64,nc:61,tl:3696,med:0.79,min:0.0,max:1.08,unit:"h",
+   d:[{per:"16/02→18/02",delta:71, lit:72,c:1.01,obra:"TAPA-SEGREDO"},
+      {per:"18/02→19/02",delta:102,lit:89,c:0.87,obra:"TAPA-SEGREDO"},
+      {per:"19/02→20/02",delta:55, lit:45,c:0.82,obra:"TAPA-SEGREDO"},
+      {per:"20/02→21/02",delta:51, lit:55,c:1.08,obra:"TAPA-SEGREDO"},
+      {per:"21/02→23/02",delta:56, lit:59,c:1.05,obra:"TAPA-SEGREDO"},
+      {per:"23/02→24/02",delta:86, lit:75,c:0.87,obra:"TAPA-SEGREDO"},
+      {per:"24/02→26/02",delta:83, lit:56,c:0.67,obra:"TAPA-SEGREDO"},
+      {per:"26/02→27/02",delta:78, lit:59,c:0.76,obra:"TAPA-SEGREDO"}]},
+  {v:"120H",  n:22,nc:18,tl:2256,med:0.91,min:0.08,max:1.32,unit:"h",
+   d:[{per:"26/02→02/03",delta:108,lit:99, c:0.92,obra:"CASCALHO"},
+      {per:"02/03→04/03",delta:145,lit:112,c:0.77,obra:"CASCALHO"},
+      {per:"04/03→06/03",delta:92, lit:63, c:0.68,obra:"CASCALHO"},
+      {per:"06/03→18/03",delta:190,lit:173,c:0.91,obra:"CASCALHO"},
+      {per:"18/03→19/03",delta:133,lit:103,c:0.77,obra:"CASCALHO"},
+      {per:"25/03→30/03",delta:113,lit:100,c:0.88,obra:"CASCALHO"},
+      {per:"30/03→06/04",delta:162,lit:137,c:0.85,obra:"CASCALHO"},
+      {per:"06/04→13/04",delta:155,lit:141,c:0.91,obra:"CASCALHO"}]},
+  {v:"PC08",  n:15,nc:13,tl:1994,med:1.48,min:0.92,max:4.44,unit:"h",
+   d:[{per:"02/03→04/03",delta:74, lit:90, c:1.22,obra:"USINA"},
+      {per:"04/03→06/03",delta:108,lit:105,c:0.97,obra:"USINA"},
+      {per:"06/03→09/03",delta:186,lit:237,c:1.27,obra:"USINA"},
+      {per:"09/03→11/03",delta:18, lit:80, c:4.44,obra:"USINA"},
+      {per:"11/03→13/03",delta:130,lit:120,c:0.92,obra:"USINA"},
+      {per:"13/03→18/03",delta:142,lit:182,c:1.28,obra:"USINA"},
+      {per:"18/03→20/03",delta:121,lit:150,c:1.24,obra:"USINA"},
+      {per:"20/03→23/03",delta:98, lit:144,c:1.47,obra:"USINA"}]},
+  {v:"CB11",  n:10,nc:6, tl:1793,med:0.36,min:0.11,max:0.62,unit:"km",
+   d:[{per:"24/03→13/04",delta:1235,lit:216,c:0.17,obra:"TAPA-IMBIRUSSU"},
+      {per:"13/04→24/04",delta:762, lit:192,c:0.25,obra:"AEGEA"},
+      {per:"04/05→06/05",delta:268, lit:165,c:0.62,obra:"AEGEA"},
+      {per:"06/05→08/05",delta:250, lit:126,c:0.50,obra:"AEGEA"},
+      {per:"08/05→12/05",delta:330, lit:165,c:0.50,obra:"AEGEA"}]},
+  {v:"MPC04", n:42,nc:37,tl:1319,med:0.68,min:0.0,max:2.14,unit:"h",
+   d:[{per:"16/02→23/02",delta:28,lit:15,c:0.54,obra:"TAPA-SEGREDO"},
+      {per:"23/02→24/02",delta:93,lit:47,c:0.51,obra:"TAPA-SEGREDO"},
+      {per:"24/02→25/02",delta:67,lit:32,c:0.48,obra:"TAPA-SEGREDO"},
+      {per:"25/02→26/02",delta:65,lit:51,c:0.78,obra:"TAPA-SEGREDO"},
+      {per:"26/02→27/02",delta:46,lit:26,c:0.57,obra:"TAPA-SEGREDO"},
+      {per:"27/02→02/03",delta:14,lit:10,c:0.71,obra:"TAPA-SEGREDO"},
+      {per:"02/03→03/03",delta:33,lit:18,c:0.55,obra:"TAPA-SEGREDO"},
+      {per:"03/03→04/03",delta:26,lit:18,c:0.69,obra:"TAPA-SEGREDO"}]},
+  {v:"RETRO", n:13,nc:12,tl:1206,med:0.54,min:0.45,max:0.77,unit:"h",
+   d:[{per:"28/03→02/04",delta:165,lit:75, c:0.45,obra:"TAPA-ANHANDUIZINHO"},
+      {per:"02/04→06/04",delta:115,lit:55, c:0.48,obra:"TAPA-IMBIRUSSU"},
+      {per:"06/04→09/04",delta:249,lit:119,c:0.48,obra:"TAPA-IMBIRUSSU"},
+      {per:"09/04→14/04",delta:284,lit:135,c:0.48,obra:"TAPA-IMBIRUSSU"},
+      {per:"14/04→18/04",delta:229,lit:108,c:0.47,obra:"TAPA-IMBIRUSSU"},
+      {per:"18/04→23/04",delta:109,lit:84, c:0.77,obra:"AEGEA"},
+      {per:"23/04→25/04",delta:197,lit:112,c:0.57,obra:"AEGEA"},
+      {per:"25/04→27/04",delta:94, lit:50, c:0.53,obra:"AEGEA"}]},
+  {v:"CB07",  n:7,nc:4, tl:1012,med:0.35,min:0.10,max:0.44,unit:"km",
+   d:[{per:"23/02→26/02",delta:255, lit:111,c:0.44,obra:"TAPA-ANHANDUIZINHO"},
+      {per:"26/02→07/03",delta:1250,lit:120,c:0.10,obra:"JARAGUARI"},
+      {per:"07/03→10/03",delta:353, lit:157,c:0.44,obra:"JARAGUARI"},
+      {per:"29/04→05/05",delta:379, lit:159,c:0.42,obra:"TAPA-IMBIRUSSU"}]}
+];
+
+// ── PICOS DE ANOMALIA ────────────────────────────────────
+const PICOS=[
+  {veic:'MPC09', obra:'TAPA-ANHANDUIZINHO', per:'Intervalo pontual', val:10.71, med:0.98, unit:'h', ratio:10.9},
+  {veic:'MPC07', obra:'TAPA-IMBIRUSSU',     per:'Intervalo pontual', val:6.60,  med:0.83, unit:'h', ratio:7.9},
+  {veic:'PC08',  obra:'USINA',              per:'09/03→11/03',       val:4.44,  med:1.48, unit:'h', ratio:3.0},
+  {veic:'VT02',  obra:'MELOSO',             per:'03/03→03/03',       val:3.19,  med:0.92, unit:'km',ratio:3.5},
+  {veic:'MPC04', obra:'TAPA-ANHANDUIZINHO', per:'Intervalo pontual', val:2.14,  med:0.68, unit:'h', ratio:3.1},
+];
+
+(()=>{
+  const cont=document.getElementById('picos');
+  PICOS.forEach(p=>{
+    const pct=Math.min(100,Math.round((p.val/PICOS[0].val)*100));
+    const cor=p.ratio>5?'#f43f5e':p.ratio>3?'#f97316':'#fbbf24';
+    const el=document.createElement('div');
+    el.style.cssText='background:#0f172a;border:1px solid #334155;border-radius:10px;padding:12px 14px';
+    el.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+        <div>
+          <span style="font-weight:800;color:#f1f5f9;font-size:13px">${p.veic}</span>
+          <span style="color:#64748b;font-size:11px;margin-left:8px">${p.obra} · ${p.per}</span>
+        </div>
+        <div style="text-align:right">
+          <span style="font-weight:800;font-size:15px;color:${cor}">${p.val} L/${p.unit}</span>
+          <span style="display:block;font-size:10px;color:#64748b">${p.ratio}× acima da média (${p.med})</span>
+        </div>
+      </div>
+      <div style="background:#1e293b;border-radius:4px;height:6px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${cor};border-radius:4px;transition:width .5s"></div>
+      </div>`;
+    cont.appendChild(el);
+  });
+})();
+
+// ── RANKING CHART (horizontal, ordenado por consumo) ────
+const CONSUMO_SORTED=[...CONSUMO].sort((a,b)=>b.med-a.med);
+const rC=CONSUMO_SORTED.map(c=>c.med>1.5?'#f43f5e':c.med>1.0?'#f97316':'#22c55e');
+new Chart(document.getElementById('cRanking'),{type:'bar',
+  data:{labels:CONSUMO_SORTED.map(c=>`${c.v} (L/${c.unit})`),datasets:[
+    {label:'Consumo Médio',data:CONSUMO_SORTED.map(c=>c.med),backgroundColor:rC,borderRadius:4,borderSkipped:false},
+    {label:'Pico Máximo',  data:CONSUMO_SORTED.map(c=>c.max),backgroundColor:'#ffffff10',
+     borderWidth:1,borderColor:'#ffffff20',borderRadius:4,borderSkipped:false}
+  ]},
+  options:{indexAxis:'y',responsive:true,plugins:{
+    legend:{position:'bottom',labels:{padding:12,font:{size:11},usePointStyle:true}},
+    tooltip:{...tip,callbacks:{label:c=>{
+      const v=CONSUMO_SORTED[c.dataIndex];
+      return ` ${c.parsed.x} L/${v.unit}`;
+    }}}},
+    scales:{
+      x:{grid:{color:'#334155'},ticks:{callback:v=>v+' L'}},
+      y:{grid:{color:'#1e293b55'},ticks:{font:{size:11}}}
+    }}});
+
+// Detalhe por veículo
+let dChart=null;
+function loadV(idx){
+  const v=CONSUMO[idx];
+  document.getElementById('veicTitle').textContent=v.v;
+  document.getElementById('tableVeicName').textContent=`${v.v} · ${v.nc} intervalos · ${N(v.tl)} L totais`;
+  document.querySelectorAll('.vbtn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  const pts=v.d.map(d=>d.c);
+  const lbls=v.d.map(d=>d.per);
+  const avg=v.med;
+  if(dChart) dChart.destroy();
+  dChart=new Chart(document.getElementById('cDetalhe'),{type:'line',
+    data:{labels:lbls,datasets:[
+      {label:`Consumo (L/${v.unit})`,data:pts,
+       borderColor:'#6366f1',backgroundColor:'#6366f115',fill:true,tension:0.3,
+       pointBackgroundColor:pts.map(p=>p>avg*2?'#f43f5e':p>avg*1.5?'#f97316':'#22c55e'),
+       pointRadius:6,pointHoverRadius:9,borderWidth:2.5},
+      {label:`Média — ${avg} L/${v.unit}`,data:Array(pts.length).fill(avg),
+       borderColor:'#94a3b855',borderDash:[6,4],pointRadius:0,borderWidth:1.5}
+    ]},
+    options:{responsive:true,plugins:{
+      legend:{position:'bottom',labels:{padding:12,font:{size:11},usePointStyle:true}},
+      tooltip:{...tip,callbacks:{label:c=>` ${c.parsed.y} L/${v.unit}`}}},
+      scales:{x:{grid:{color:'#1e293b55'},ticks:{maxRotation:30,font:{size:10}}},
+        y:{grid:{color:'#334155'},ticks:{callback:p=>p+' L'}}}}});
+  // tabela
+  const tb=document.getElementById('tDetalhe');
+  tb.innerHTML='';
+  v.d.forEach(r=>{
+    const a2=r.c>avg*2,a1=r.c>avg*1.5;
+    const cor=a2?'#fda4af':a1?'#fdba74':'#86efac';
+    const chip=a2?`<span class="chip chip-neg">⚠️ Anomalia</span>`:a1?`<span class="chip chip-warn">⚡ Alto</span>`:`<span class="chip chip-pos">✅ Normal</span>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="color:#f1f5f9;font-weight:600">${r.per}</td>
+      <td style="color:#a78bfa">${N(r.delta)} ${v.unit}</td>
+      <td style="color:#93c5fd">${N(r.lit)} L</td>
+      <td style="font-weight:800;color:${cor}">${r.c} L/${v.unit}</td>
+      <td style="color:#64748b">${avg} L/${v.unit}</td>
+      <td>${r.obra}</td><td>${chip}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+// Criar botões
+const vsel=document.getElementById('vsel');
+CONSUMO.forEach((c,i)=>{
+  const b=document.createElement('button');
+  b.className='vbtn';
+  b.innerHTML=`${c.v} <span style="color:#475569">· ${c.med}L/${c.unit}</span>`;
+  b.onclick=()=>loadV(i);
+  vsel.appendChild(b);
+});
+loadV(0);
+</script>
+</body>
+</html>

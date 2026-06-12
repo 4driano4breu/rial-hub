@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Flask instance (uploads, saídas geradas)
+instance/
+
+# Variáveis de ambiente — NUNCA commitar
+.env
+.env.local
+.env.production
+
+# Editor / OS
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# Telethon (credenciais)
+*.session
+*.session-journal
+
+# Logs
+*.log
+
+# Pytest
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Distribution
+*.whl
+*.tar.gz

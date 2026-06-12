@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Notas de Medição — RIAL Hub{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <i class="bi bi-file-earmark-word fs-2 text-primary me-3"></i>
+  <div>
+    <h2 class="mb-0 fw-bold">Notas de Medição</h2>
+    <small class="text-muted">Contrato 037/2021 — AGESUL / Construtora Rial</small>
+  </div>
+</div>
+
+<div class="row g-4">
+
+  <!-- Medição Parcial -->
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Medição Parcial</h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">
+          Envie a planilha <strong>.xlsx</strong> de medição. O sistema extrai os dados
+          da aba <em>Cidades</em> e gera as notas em Word por município.
+        </p>
+        <form method="POST" action="{{ url_for('notas.gerar_medicao') }}" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Planilha de Medição (.xlsx)</label>
+            <input type="file" name="xlsx" accept=".xlsx" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-download me-2"></i>Gerar Word
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reajustamento -->
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="bi bi-file-earmark-pdf me-2"></i>Reajustamento</h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">
+          Envie o <strong>.pdf</strong> de reajuste AGESUL (coeficientes FGV) e a
+          planilha <strong>.xlsx</strong> de medição. A distribuição por cidade é proporcional ao valor medido.
+        </p>
+        <form method="POST" action="{{ url_for('notas.gerar_reajuste') }}" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">PDF de Reajuste (.pdf)</label>
+            <input type="file" name="pdf" accept=".pdf" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Planilha de Medição (.xlsx)</label>
+            <input type="file" name="xlsx" accept=".xlsx" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-success w-100">
+            <i class="bi bi-download me-2"></i>Gerar Word
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="alert alert-light border mt-4">
+  <i class="bi bi-info-circle me-2 text-primary"></i>
+  <strong>Alíquotas configuradas:</strong>
+  Pavimentação 10% · Canteiro 35% · Roçada 35% · Terraplenagem 15% · INSS 11%
+  <small class="text-muted d-block mt-1">Para alterar, edite <code>core/config.py</code>.</small>
+</div>
+{% endblock %}

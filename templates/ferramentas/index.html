@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Ferramentas — RIAL Hub{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h2 class="fw-bold"><i class="bi bi-tools text-info me-2"></i>Ferramentas HTML</h2>
+  <small class="text-muted">Aplicações standalone — abre direto no navegador</small>
+</div>
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title"><i class="bi bi-calculator text-primary me-2"></i>Faz Tudo 3000</h5>
+        <p class="card-text text-muted small">Cálculo de medição de pavimentação com múltiplas regiões e exportação.</p>
+        <a href="{{ url_for('ferramentas.medicao') }}" class="btn btn-outline-primary btn-sm" target="_blank">Abrir</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title"><i class="bi bi-file-earmark-person text-secondary me-2"></i>Le Doc</h5>
+        <p class="card-text text-muted small">Preenchimento dinâmico de documentos Word para RH.</p>
+        <a href="{{ url_for('ferramentas.le_doc') }}" class="btn btn-outline-secondary btn-sm" target="_blank">Abrir</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title"><i class="bi bi-fuel-pump text-danger me-2"></i>Abastecimento</h5>
+        <p class="card-text text-muted small">Dashboard de combustível via Google Forms.</p>
+        <a href="{{ url_for('ferramentas.abastecimento') }}" class="btn btn-outline-danger btn-sm" target="_blank">Abrir</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

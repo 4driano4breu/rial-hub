@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}RIAL Hub — Início{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+  <h1 class="display-5 fw-bold">RIAL Hub</h1>
+  <p class="lead text-muted">Central de ferramentas operacionais — Contrato 037/2021 AGESUL</p>
+</div>
+
+<div class="row g-4">
+
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-body d-flex flex-column">
+        <div class="mb-3">
+          <span class="fs-1"><i class="bi bi-file-earmark-word text-primary"></i></span>
+        </div>
+        <h5 class="card-title fw-bold">Notas de Medição</h5>
+        <p class="card-text text-muted flex-grow-1">
+          Gera automaticamente notas de medição parcial e reajustamento em Word
+          a partir de planilhas Excel e PDFs AGESUL.
+        </p>
+        <a href="{{ url_for('notas.index') }}" class="btn btn-primary mt-auto">
+          <i class="bi bi-arrow-right me-1"></i>Acessar
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-body d-flex flex-column">
+        <div class="mb-3">
+          <span class="fs-1"><i class="bi bi-receipt text-success"></i></span>
+        </div>
+        <h5 class="card-title fw-bold">Faturamento</h5>
+        <p class="card-text text-muted flex-grow-1">
+          Processa XMLs de NFS-e e alimenta planilha mensal de faturamento
+          com extração automática de contrato, município e impostos.
+        </p>
+        <a href="{{ url_for('faturamento.index') }}" class="btn btn-success mt-auto">
+          <i class="bi bi-arrow-right me-1"></i>Acessar
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-body d-flex flex-column">
+        <div class="mb-3">
+          <span class="fs-1"><i class="bi bi-bar-chart-fill text-warning"></i></span>
+        </div>
+        <h5 class="card-title fw-bold">Usinagem CBUQ</h5>
+        <p class="card-text text-muted flex-grow-1">
+          Dashboard de controle de toneladas de CAP consumidas por contrato
+          e região, gerado a partir do Google Sheets.
+        </p>
+        <a href="{{ url_for('usinagem.index') }}" class="btn btn-warning mt-auto">
+          <i class="bi bi-arrow-right me-1"></i>Acessar
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-body d-flex flex-column">
+        <div class="mb-3">
+          <span class="fs-1"><i class="bi bi-calculator text-info"></i></span>
+        </div>
+        <h5 class="card-title fw-bold">Faz Tudo 3000</h5>
+        <p class="card-text text-muted flex-grow-1">
+          Ferramenta de cálculo de medição de pavimentação com múltiplas
+          regiões e exportação de dados.
+        </p>
+        <a href="{{ url_for('ferramentas.medicao') }}" class="btn btn-info mt-auto">
+          <i class="bi bi-arrow-right me-1"></i>Acessar
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-body d-flex flex-column">
+        <div class="mb-3">
+          <span class="fs-1"><i class="bi bi-file-earmark-person text-secondary"></i></span>
+        </div>
+        <h5 class="card-title fw-bold">Le Doc (RH)</h5>
+        <p class="card-text text-muted flex-grow-1">
+          Preenchimento dinâmico de documentos Word para RH com
+          substituição de campos e geração em lote.
+        </p>
+        <a href="{{ url_for('ferramentas.le_doc') }}" class="btn btn-secondary mt-auto">
+          <i class="bi bi-arrow-right me-1"></i>Acessar
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-body d-flex flex-column">
+        <div class="mb-3">
+          <span class="fs-1"><i class="bi bi-fuel-pump text-danger"></i></span>
+        </div>
+        <h5 class="card-title fw-bold">Abastecimento</h5>
+        <p class="card-text text-muted flex-grow-1">
+          Dashboard de requisições de combustível coletadas via Google Forms,
+          com gráficos por equipamento e período.
+        </p>
+        <a href="{{ url_for('ferramentas.abastecimento') }}" class="btn btn-danger mt-auto">
+          <i class="bi bi-arrow-right me-1"></i>Acessar
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
