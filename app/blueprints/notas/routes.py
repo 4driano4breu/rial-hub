@@ -45,9 +45,9 @@ def gerar_medicao():
         digitos = re.sub(r"[^\d]", "", info["num_medicao"])
         filename = f"notas_{digitos}_medicao.docx"
 
-        # Monta dados de preview para exibir no template
         preview = _build_preview_medicao(info, cidades)
         docx_b64 = __import__("base64").b64encode(docx_bytes).decode()
+        total_geral = fmt(sum(v["total"] for v in cidades.values()))
 
         return render_template(
             "notas/resultado.html",
@@ -56,13 +56,17 @@ def gerar_medicao():
             filename=filename,
             docx_b64=docx_b64,
             modo="medicao",
+            total_geral=total_geral,
         )
     except Exception as e:
         flash(f"Erro ao processar: {e}", "error")
         return redirect(url_for("notas.index"))
     finally:
         if tmp_path and tmp_path.exists():
-            tmp_path.unlink()
+            try:
+                tmp_path.unlink()
+            except PermissionError:
+                pass
 
 
 @notas_bp.route("/gerar-reajuste", methods=["POST"])
@@ -89,6 +93,7 @@ def gerar_reajuste():
 
         preview = _build_preview_reajuste(info, reajuste)
         docx_b64 = __import__("base64").b64encode(docx_bytes).decode()
+        total_geral = fmt(sum(v["total"] for v in reajuste.values()))
 
         return render_template(
             "notas/resultado.html",
@@ -97,6 +102,7 @@ def gerar_reajuste():
             filename=filename,
             docx_b64=docx_b64,
             modo="reajuste",
+            total_geral=total_geral,
         )
     except Exception as e:
         flash(f"Erro ao processar: {e}", "error")
@@ -104,7 +110,10 @@ def gerar_reajuste():
     finally:
         for p in (tmp_xlsx, tmp_pdf):
             if p and p.exists():
-                p.unlink()
+                try:
+                    p.unlink()
+                except PermissionError:
+                    pass
 
 
 @notas_bp.route("/download", methods=["POST"])

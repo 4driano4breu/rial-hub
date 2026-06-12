@@ -1,6 +1,11 @@
-from flask import send_from_directory, current_app
+from flask import send_from_directory, current_app, render_template
 from pathlib import Path
 from app.blueprints.ferramentas import ferramentas_bp
+
+
+@ferramentas_bp.route("/")
+def index():
+    return render_template("ferramentas/index.html")
 
 
 def _ferramenta(subdir: str, filename: str):

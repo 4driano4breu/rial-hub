@@ -97,6 +97,7 @@ def extrair_dados_xlsx(xlsx_path: str | Path) -> tuple[dict[str, str], dict[str,
     if not cidades:
         raise ValueError("Nenhuma cidade com valor > 0 encontrada.")
 
+    wb.close()
     return {"num_medicao": num_med, "periodo": periodo}, cidades
 
 

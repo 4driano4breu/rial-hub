@@ -83,8 +83,6 @@
 </header>
 
 <div class="main">
-  {% set total_bruto = preview | sum(attribute='total') %}
-
   <div class="kpi-row">
     <div class="kpi" style="--kpi-c:#3b82f6">
       <div class="kpi-label">Cidades</div>
@@ -92,7 +90,7 @@
     </div>
     <div class="kpi" style="--kpi-c:#10b981">
       <div class="kpi-label">Total Bruto</div>
-      <div class="kpi-value">R$ {{ preview | sum(attribute='total') }}</div>
+      <div class="kpi-value">R$ {{ total_geral }}</div>
     </div>
     <div class="kpi" style="--kpi-c:#f59e0b">
       <div class="kpi-label">{{ 'Medição' if modo == 'medicao' else 'Reajuste' }}</div>

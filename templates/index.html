@@ -1,121 +1,162 @@
-{% extends "base.html" %}
-{% block title %}RIAL Hub — Início{% endblock %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RIAL Hub</title>
+<style>
+  :root { --bg:#0f172a; --card:#1e293b; --card2:#263348; --border:#334155; --accent:#3b82f6; --text:#f1f5f9; --muted:#94a3b8; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:"Segoe UI",system-ui,sans-serif; min-height:100vh; }
 
-{% block content %}
-<div class="text-center mb-5">
-  <h1 class="display-5 fw-bold">RIAL Hub</h1>
-  <p class="lead text-muted">Central de ferramentas operacionais — Contrato 037/2021 AGESUL</p>
+  header { background:linear-gradient(135deg,#1e3a5f 0%,#0f172a 100%); border-bottom:1px solid var(--border); padding:28px 36px 24px; }
+  .logo-row { display:flex; align-items:center; gap:16px; margin-bottom:10px; }
+  .logo-box { width:46px; height:46px; background:var(--accent); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+  header h1 { font-size:1.6rem; font-weight:800; letter-spacing:-.4px; }
+  header p { color:var(--muted); font-size:.875rem; margin-top:2px; }
+  .badge { display:inline-block; background:#3b82f620; border:1px solid #3b82f640; color:#93c5fd; border-radius:6px; padding:3px 10px; font-size:.72rem; font-weight:600; margin-top:10px; }
+
+  .main { padding:32px 36px; max-width:1100px; margin:0 auto; }
+  .section-label { font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600; margin-bottom:14px; }
+
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:32px; }
+  @media(max-width:860px) { .grid { grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:560px) { .grid { grid-template-columns:1fr; } }
+
+  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:border-color .2s,transform .15s; display:flex; flex-direction:column; }
+  .card:hover { border-color:#475569; transform:translateY(-2px); }
+  .card-top { padding:18px 20px 0; display:flex; align-items:flex-start; gap:12px; }
+  .icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .card-title { font-size:.95rem; font-weight:700; margin-bottom:4px; }
+  .card-desc { font-size:.78rem; color:var(--muted); line-height:1.55; }
+  .card-footer { margin-top:auto; padding:14px 20px 18px; }
+  .btn { display:inline-flex; align-items:center; gap:6px; background:var(--accent); color:#fff; text-decoration:none; padding:8px 16px; border-radius:8px; font-size:.8rem; font-weight:600; transition:opacity .15s; border:none; cursor:pointer; }
+  .btn:hover { opacity:.85; }
+  .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--muted); }
+  .btn-ghost:hover { border-color:var(--accent); color:var(--text); opacity:1; }
+
+  .status-pill { display:inline-flex; align-items:center; gap:5px; font-size:.68rem; font-weight:600; padding:3px 8px; border-radius:20px; }
+  .status-ready { background:#10b98120; color:#34d399; border:1px solid #10b98130; }
+  .status-dev { background:#f59e0b20; color:#fbbf24; border:1px solid #f59e0b30; }
+
+  .info-strip { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 18px; display:flex; align-items:center; gap:10px; font-size:.78rem; color:var(--muted); }
+  .info-strip strong { color:var(--text); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-row">
+    <div class="logo-box">🏗</div>
+    <div>
+      <h1>RIAL Hub</h1>
+      <p>Central de ferramentas operacionais — Construtora Rial</p>
+    </div>
+  </div>
+  <span class="badge">Contrato 037/2021 · AGESUL · 3ª RR Três Lagoas/MS</span>
+</header>
+
+<div class="main">
+
+  <div class="section-label">Módulos ativos</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-top">
+        <div class="icon" style="background:#1d4ed820">📋</div>
+        <div>
+          <div class="card-title">Notas de Medição</div>
+          <div style="margin:4px 0"><span class="status-pill status-ready">● Ativo</span></div>
+          <div class="card-desc">Gera notas de medição parcial e reajustamento em Word a partir de planilhas Excel e PDFs AGESUL.</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a href="{{ url_for('notas.index') }}" class="btn">⚡ Abrir módulo</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="icon" style="background:#05966920">💰</div>
+        <div>
+          <div class="card-title">Faturamento NFS-e</div>
+          <div style="margin:4px 0"><span class="status-pill status-dev">◐ Em desenvolvimento</span></div>
+          <div class="card-desc">Processa XMLs de NFS-e e alimenta planilha mensal com extração de contrato, município e impostos.</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a href="{{ url_for('faturamento.index') }}" class="btn btn-ghost">Ver módulo →</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="icon" style="background:#d9770620">⚙</div>
+        <div>
+          <div class="card-title">Usinagem CBUQ</div>
+          <div style="margin:4px 0"><span class="status-pill status-dev">◐ Em desenvolvimento</span></div>
+          <div class="card-desc">Dashboard de controle de toneladas de CAP consumidas por contrato e região via Google Sheets.</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a href="{{ url_for('usinagem.index') }}" class="btn btn-ghost">Ver módulo →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-label">Ferramentas standalone</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-top">
+        <div class="icon" style="background:#7c3aed20">🔢</div>
+        <div>
+          <div class="card-title">Faz Tudo 3000</div>
+          <div style="margin:4px 0"><span class="status-pill status-ready">● Ativo</span></div>
+          <div class="card-desc">Cálculo de medição de pavimentação com múltiplas regiões e exportação de dados.</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a href="{{ url_for('ferramentas.medicao') }}" class="btn" target="_blank">🔗 Abrir ferramenta</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="icon" style="background:#0e749920">📄</div>
+        <div>
+          <div class="card-title">Le Doc (RH)</div>
+          <div style="margin:4px 0"><span class="status-pill status-ready">● Ativo</span></div>
+          <div class="card-desc">Preenchimento dinâmico de documentos Word para RH com substituição de campos.</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a href="{{ url_for('ferramentas.le_doc') }}" class="btn" target="_blank">🔗 Abrir ferramenta</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="icon" style="background:#b9161620">⛽</div>
+        <div>
+          <div class="card-title">Abastecimento</div>
+          <div style="margin:4px 0"><span class="status-pill status-ready">● Ativo</span></div>
+          <div class="card-desc">Dashboard de requisições de combustível via Google Forms com gráficos por equipamento.</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a href="{{ url_for('ferramentas.abastecimento') }}" class="btn" target="_blank">🔗 Abrir ferramenta</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="info-strip">
+    <span>ℹ</span>
+    <span><strong>Alíquotas INSS:</strong> Pavimentação 10% · Canteiro 35% · Roçada 35% · Terraplenagem 15% · INSS 11% — edite em <strong>core/config.py</strong></span>
+  </div>
+
 </div>
-
-<div class="row g-4">
-
-  <div class="col-md-6 col-lg-4">
-    <div class="card h-100 shadow-sm border-0">
-      <div class="card-body d-flex flex-column">
-        <div class="mb-3">
-          <span class="fs-1"><i class="bi bi-file-earmark-word text-primary"></i></span>
-        </div>
-        <h5 class="card-title fw-bold">Notas de Medição</h5>
-        <p class="card-text text-muted flex-grow-1">
-          Gera automaticamente notas de medição parcial e reajustamento em Word
-          a partir de planilhas Excel e PDFs AGESUL.
-        </p>
-        <a href="{{ url_for('notas.index') }}" class="btn btn-primary mt-auto">
-          <i class="bi bi-arrow-right me-1"></i>Acessar
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-6 col-lg-4">
-    <div class="card h-100 shadow-sm border-0">
-      <div class="card-body d-flex flex-column">
-        <div class="mb-3">
-          <span class="fs-1"><i class="bi bi-receipt text-success"></i></span>
-        </div>
-        <h5 class="card-title fw-bold">Faturamento</h5>
-        <p class="card-text text-muted flex-grow-1">
-          Processa XMLs de NFS-e e alimenta planilha mensal de faturamento
-          com extração automática de contrato, município e impostos.
-        </p>
-        <a href="{{ url_for('faturamento.index') }}" class="btn btn-success mt-auto">
-          <i class="bi bi-arrow-right me-1"></i>Acessar
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-6 col-lg-4">
-    <div class="card h-100 shadow-sm border-0">
-      <div class="card-body d-flex flex-column">
-        <div class="mb-3">
-          <span class="fs-1"><i class="bi bi-bar-chart-fill text-warning"></i></span>
-        </div>
-        <h5 class="card-title fw-bold">Usinagem CBUQ</h5>
-        <p class="card-text text-muted flex-grow-1">
-          Dashboard de controle de toneladas de CAP consumidas por contrato
-          e região, gerado a partir do Google Sheets.
-        </p>
-        <a href="{{ url_for('usinagem.index') }}" class="btn btn-warning mt-auto">
-          <i class="bi bi-arrow-right me-1"></i>Acessar
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-6 col-lg-4">
-    <div class="card h-100 shadow-sm border-0">
-      <div class="card-body d-flex flex-column">
-        <div class="mb-3">
-          <span class="fs-1"><i class="bi bi-calculator text-info"></i></span>
-        </div>
-        <h5 class="card-title fw-bold">Faz Tudo 3000</h5>
-        <p class="card-text text-muted flex-grow-1">
-          Ferramenta de cálculo de medição de pavimentação com múltiplas
-          regiões e exportação de dados.
-        </p>
-        <a href="{{ url_for('ferramentas.medicao') }}" class="btn btn-info mt-auto">
-          <i class="bi bi-arrow-right me-1"></i>Acessar
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-6 col-lg-4">
-    <div class="card h-100 shadow-sm border-0">
-      <div class="card-body d-flex flex-column">
-        <div class="mb-3">
-          <span class="fs-1"><i class="bi bi-file-earmark-person text-secondary"></i></span>
-        </div>
-        <h5 class="card-title fw-bold">Le Doc (RH)</h5>
-        <p class="card-text text-muted flex-grow-1">
-          Preenchimento dinâmico de documentos Word para RH com
-          substituição de campos e geração em lote.
-        </p>
-        <a href="{{ url_for('ferramentas.le_doc') }}" class="btn btn-secondary mt-auto">
-          <i class="bi bi-arrow-right me-1"></i>Acessar
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-6 col-lg-4">
-    <div class="card h-100 shadow-sm border-0">
-      <div class="card-body d-flex flex-column">
-        <div class="mb-3">
-          <span class="fs-1"><i class="bi bi-fuel-pump text-danger"></i></span>
-        </div>
-        <h5 class="card-title fw-bold">Abastecimento</h5>
-        <p class="card-text text-muted flex-grow-1">
-          Dashboard de requisições de combustível coletadas via Google Forms,
-          com gráficos por equipamento e período.
-        </p>
-        <a href="{{ url_for('ferramentas.abastecimento') }}" class="btn btn-danger mt-auto">
-          <i class="bi bi-arrow-right me-1"></i>Acessar
-        </a>
-      </div>
-    </div>
-  </div>
-
-</div>
-{% endblock %}
+</body>
+</html>

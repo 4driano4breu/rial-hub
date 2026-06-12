@@ -1,38 +1,72 @@
 {% extends "base.html" %}
 {% block title %}Ferramentas — RIAL Hub{% endblock %}
+{% block nav_cur %}Ferramentas{% endblock %}
+
+{% block head %}
+<style>
+  .module-header { display:flex; align-items:center; gap:14px; margin-bottom:28px; }
+  .module-icon { width:48px; height:48px; background:#7c3aed20; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+  .module-title { font-size:1.3rem; font-weight:700; }
+  .module-sub { color:var(--muted); font-size:.82rem; margin-top:3px; }
+
+  .tool-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
+  @media(max-width:720px) { .tool-grid { grid-template-columns:1fr; } }
+
+  .tool-card { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:border-color .2s; }
+  .tool-card:hover { border-color:#475569; }
+  .tool-top { padding:20px 20px 16px; }
+  .tool-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:19px; margin-bottom:14px; }
+  .tool-name { font-size:.95rem; font-weight:700; margin-bottom:5px; }
+  .tool-desc { font-size:.78rem; color:var(--muted); line-height:1.55; }
+  .tool-footer { padding:14px 20px; border-top:1px solid var(--border); background:var(--card2); }
+  .btn-open { display:inline-flex; align-items:center; gap:7px; background:var(--accent); color:#fff; text-decoration:none; padding:8px 15px; border-radius:8px; font-size:.8rem; font-weight:600; transition:opacity .15s; }
+  .btn-open:hover { opacity:.85; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="mb-4">
-  <h2 class="fw-bold"><i class="bi bi-tools text-info me-2"></i>Ferramentas HTML</h2>
-  <small class="text-muted">Aplicações standalone — abre direto no navegador</small>
+<div class="module-header">
+  <div class="module-icon">🔧</div>
+  <div>
+    <div class="module-title">Ferramentas</div>
+    <div class="module-sub">Aplicações standalone — abrem no próprio navegador, sem dependências de servidor</div>
+  </div>
 </div>
-<div class="row g-3">
-  <div class="col-md-4">
-    <div class="card h-100 border-0 shadow-sm">
-      <div class="card-body">
-        <h5 class="card-title"><i class="bi bi-calculator text-primary me-2"></i>Faz Tudo 3000</h5>
-        <p class="card-text text-muted small">Cálculo de medição de pavimentação com múltiplas regiões e exportação.</p>
-        <a href="{{ url_for('ferramentas.medicao') }}" class="btn btn-outline-primary btn-sm" target="_blank">Abrir</a>
-      </div>
+
+<div class="tool-grid">
+
+  <div class="tool-card">
+    <div class="tool-top">
+      <div class="tool-icon" style="background:#7c3aed20">🔢</div>
+      <div class="tool-name">Faz Tudo 3000</div>
+      <div class="tool-desc">Ferramenta completa de cálculo de medição de pavimentação com múltiplas regiões, memória de cálculo e exportação de dados.</div>
+    </div>
+    <div class="tool-footer">
+      <a href="{{ url_for('ferramentas.medicao') }}" class="btn-open" target="_blank">🔗 Abrir ferramenta</a>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card h-100 border-0 shadow-sm">
-      <div class="card-body">
-        <h5 class="card-title"><i class="bi bi-file-earmark-person text-secondary me-2"></i>Le Doc</h5>
-        <p class="card-text text-muted small">Preenchimento dinâmico de documentos Word para RH.</p>
-        <a href="{{ url_for('ferramentas.le_doc') }}" class="btn btn-outline-secondary btn-sm" target="_blank">Abrir</a>
-      </div>
+
+  <div class="tool-card">
+    <div class="tool-top">
+      <div class="tool-icon" style="background:#0e749920">📄</div>
+      <div class="tool-name">Le Doc (RH)</div>
+      <div class="tool-desc">Preenchimento dinâmico de documentos Word para o setor de RH, com substituição de campos e geração em lote.</div>
+    </div>
+    <div class="tool-footer">
+      <a href="{{ url_for('ferramentas.le_doc') }}" class="btn-open" target="_blank">🔗 Abrir ferramenta</a>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card h-100 border-0 shadow-sm">
-      <div class="card-body">
-        <h5 class="card-title"><i class="bi bi-fuel-pump text-danger me-2"></i>Abastecimento</h5>
-        <p class="card-text text-muted small">Dashboard de combustível via Google Forms.</p>
-        <a href="{{ url_for('ferramentas.abastecimento') }}" class="btn btn-outline-danger btn-sm" target="_blank">Abrir</a>
-      </div>
+
+  <div class="tool-card">
+    <div class="tool-top">
+      <div class="tool-icon" style="background:#b9161620">⛽</div>
+      <div class="tool-name">Abastecimento</div>
+      <div class="tool-desc">Dashboard de requisições de combustível coletadas via Google Forms com gráficos por equipamento e período.</div>
+    </div>
+    <div class="tool-footer">
+      <a href="{{ url_for('ferramentas.abastecimento') }}" class="btn-open" target="_blank">🔗 Abrir ferramenta</a>
     </div>
   </div>
+
 </div>
 {% endblock %}
