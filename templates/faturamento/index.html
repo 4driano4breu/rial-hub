@@ -73,4 +73,7 @@
   <strong>Fluxo:</strong> XML NFS-e → atualiza planilha xlsx. O dashboard HTML é atualizado separadamente.<br>
   Na <strong>primeira importação</strong>, envie também a planilha .xlsx base. Nas importações seguintes, apenas o XML é necessário.
 </div>
+<div style="margin-top:12px;font-size:.75rem;color:var(--muted)">
+  Última atualização: <strong style="color:var(--text)">{{ ultima_atualizacao | default('—') }}</strong>
+</div>
 {% endblock %}

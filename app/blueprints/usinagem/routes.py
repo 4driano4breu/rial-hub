@@ -7,7 +7,9 @@ from app.blueprints.usinagem import usinagem_bp
 
 @usinagem_bp.route("/")
 def index():
-    return render_template("usinagem/index.html")
+    from core.timestamps import ler_timestamps
+    ts = ler_timestamps()
+    return render_template("usinagem/index.html", ultima_atualizacao=ts.get("usinagem", "—"))
 
 
 def _dashboard(filename: str):
@@ -57,6 +59,8 @@ def atualizar():
         _upd.atualizar_guariroba(guariroba)
         _upd.atualizar_geral(todas)
 
+        from core.timestamps import salvar_timestamp
+        salvar_timestamp("usinagem")
         flash(f"Dashboards atualizados: {len(todas)} registros totais (AEGEA: {len(aegea)}, Guariroba: {len(guariroba)}).", "ok")
     except Exception as e:
         flash(f"Erro ao processar CSV: {e}", "error")
