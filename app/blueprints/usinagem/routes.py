@@ -5,16 +5,16 @@ from flask import render_template, request, send_from_directory, current_app, fl
 from app.blueprints.usinagem import usinagem_bp
 
 
+def _dashboard(filename: str):
+    folder = Path(current_app.static_folder) / "ferramentas" / "usinagem"
+    return send_from_directory(folder, filename)
+
+
 @usinagem_bp.route("/")
 def index():
     from core.timestamps import ler_timestamps
     ts = ler_timestamps()
     return render_template("usinagem/index.html", ultima_atualizacao=ts.get("usinagem", "—"))
-
-
-def _dashboard(filename: str):
-    folder = Path(current_app.static_folder) / "ferramentas" / "usinagem"
-    return send_from_directory(folder, filename)
 
 
 @usinagem_bp.route("/geral")
