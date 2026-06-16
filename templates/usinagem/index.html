@@ -5,20 +5,23 @@
 {% block head %}
 <style>
   .module-header { display:flex; align-items:center; gap:14px; margin-bottom:28px; }
-  .module-icon { width:48px; height:48px; background:#d9770620; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+  .module-icon { width:48px; height:48px; background:#1a5c3820; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
   .module-title { font-size:1.3rem; font-weight:700; }
   .module-sub { color:var(--muted); font-size:.82rem; margin-top:3px; }
 
-  .roadmap { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px; }
-  .roadmap-title { font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:600; margin-bottom:18px; }
-  .roadmap-item { display:flex; align-items:flex-start; gap:14px; padding:14px 0; border-bottom:1px solid var(--border); }
-  .roadmap-item:last-child { border-bottom:none; }
-  .step-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:700; flex-shrink:0; margin-top:1px; }
-  .dot-done { background:#10b98120; color:#34d399; border:1px solid #10b98140; }
-  .dot-next { background:#3b82f620; color:#93c5fd; border:1px solid #3b82f640; }
-  .dot-later { background:#33415530; color:var(--muted); border:1px solid var(--border); }
-  .step-label { font-size:.88rem; font-weight:600; margin-bottom:3px; }
-  .step-desc { font-size:.78rem; color:var(--muted); line-height:1.5; }
+  .dash-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  @media(max-width:820px) { .dash-grid { grid-template-columns:1fr; } }
+
+  .dash-card { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:border-color .2s; }
+  .dash-card:hover { border-color:#475569; }
+  .dash-top { padding:20px 20px 16px; }
+  .dash-stripe { height:5px; }
+  .dash-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:19px; margin-bottom:14px; }
+  .dash-name { font-size:.95rem; font-weight:700; margin-bottom:5px; }
+  .dash-desc { font-size:.78rem; color:var(--muted); line-height:1.55; }
+  .dash-footer { padding:14px 20px; border-top:1px solid var(--border); background:var(--card2); }
+  .btn-open { display:inline-flex; align-items:center; gap:7px; color:#fff; text-decoration:none; padding:8px 15px; border-radius:8px; font-size:.8rem; font-weight:600; transition:opacity .15s; }
+  .btn-open:hover { opacity:.85; }
 </style>
 {% endblock %}
 
@@ -27,42 +30,45 @@
   <div class="module-icon">⚙</div>
   <div>
     <div class="module-title">Usinagem CBUQ</div>
-    <div class="module-sub">Controle de CAP consumido por contrato e região — Google Sheets</div>
+    <div class="module-sub">Controle de produção, CAP e medição por contrato — exportação Excel formatada</div>
   </div>
 </div>
 
-<div class="roadmap">
-  <div class="roadmap-title">Roadmap de integração</div>
+<div class="dash-grid">
 
-  <div class="roadmap-item">
-    <div class="step-dot dot-done">✓</div>
-    <div>
-      <div class="step-label">Script base disponível</div>
-      <div class="step-desc">O script <code>atualizar_dashboards.py</code> processa o CSV do Google Sheets de controle CBUQ/CAP.</div>
+  <div class="dash-card">
+    <div class="dash-stripe" style="background:#1a5c38"></div>
+    <div class="dash-top">
+      <div class="dash-icon" style="background:#1a5c3820">🌊</div>
+      <div class="dash-name">Águas Guariroba</div>
+      <div class="dash-desc">Controle de produção CBUQ por subcontrato (TDC · CB Térmico · RIAL), progressão de CAP e exportação de medição por período.</div>
+    </div>
+    <div class="dash-footer">
+      <a href="{{ url_for('usinagem.guariroba') }}" class="btn-open" style="background:#1a5c38" target="_blank">📊 Abrir dashboard</a>
     </div>
   </div>
 
-  <div class="roadmap-item">
-    <div class="step-dot dot-next">2</div>
-    <div>
-      <div class="step-label">Importação via CSV ou link Google Sheets</div>
-      <div class="step-desc">Formulário para upload do CSV exportado ou integração direta via Google Sheets API.</div>
+  <div class="dash-card">
+    <div class="dash-stripe" style="background:#003366"></div>
+    <div class="dash-top">
+      <div class="dash-icon" style="background:#00336620">🏙</div>
+      <div class="dash-name">AEGEA</div>
+      <div class="dash-desc">Controle do contrato principal AEGEA — progressão de meta (588t), CAP consumido e exportação de medição com resumo por motorista.</div>
+    </div>
+    <div class="dash-footer">
+      <a href="{{ url_for('usinagem.aegea') }}" class="btn-open" style="background:#003366" target="_blank">📊 Abrir dashboard</a>
     </div>
   </div>
 
-  <div class="roadmap-item">
-    <div class="step-dot dot-later">3</div>
-    <div>
-      <div class="step-label">Dashboard de toneladas</div>
-      <div class="step-desc">Visualização interativa de toneladas consumidas por contrato, equipamento e período.</div>
+  <div class="dash-card">
+    <div class="dash-stripe" style="background:#2c3e50"></div>
+    <div class="dash-top">
+      <div class="dash-icon" style="background:#2c3e5020">🗺</div>
+      <div class="dash-name">Controle Geral</div>
+      <div class="dash-desc">Visão consolidada de todas as viagens — distribuição interno/externo/contratos, resumo por região e motorista.</div>
     </div>
-  </div>
-
-  <div class="roadmap-item">
-    <div class="step-dot dot-later">4</div>
-    <div>
-      <div class="step-label">Exportação de relatórios</div>
-      <div class="step-desc">Geração de relatórios consolidados em Excel com totais por região e contrato.</div>
+    <div class="dash-footer">
+      <a href="{{ url_for('usinagem.geral') }}" class="btn-open" style="background:#2c3e50" target="_blank">📊 Abrir dashboard</a>
     </div>
   </div>
 
