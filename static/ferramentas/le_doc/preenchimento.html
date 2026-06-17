@@ -1,16 +1,16 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Le Doc — RIAL Hub</title>
+<title>Le Doc â€” OBRIA</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',sans-serif;background:#0f172a;height:100vh;display:flex;flex-direction:column;overflow:hidden;color:#f1f5f9}
 
-/* ── Toolbar ─────────────────────────────────────────────── */
+/* â”€â”€ Toolbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bar{background:#0f172a;color:#f1f5f9;height:50px;padding:0 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;border-bottom:1px solid #334155}
 .bar h1{font-size:14px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar-btn{padding:7px 15px;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:5px}
@@ -24,12 +24,12 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;height:100vh;display:f
 .mode-chip.on{background:#fff;color:#3b82f6;border-color:#fff}
 .mode-chip:not(.on):hover{background:rgba(255,255,255,.15)}
 
-/* ── Layout ──────────────────────────────────────────────── */
+/* â”€â”€ Layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .app{display:flex;flex:1;overflow:hidden}
 .main{flex:1;overflow-y:auto;padding:20px}
 .sb{width:320px;flex-shrink:0;background:#1e293b;border-left:1px solid #334155;display:flex;flex-direction:column;overflow:hidden}
 
-/* ── Upload ──────────────────────────────────────────────── */
+/* â”€â”€ Upload â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .upload-wrap{display:flex;align-items:center;justify-content:center;height:100%}
 .upload-card{background:#1e293b;border-radius:14px;padding:40px 34px;text-align:center;width:400px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
 .upload-card h2{font-size:18px;color:#3b82f6;margin-bottom:8px}
@@ -39,7 +39,7 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;height:100vh;display:f
 .drop-label{font-size:13px;font-weight:600;color:#94a3b8;margin-bottom:3px}
 .drop-sub{font-size:11px;color:#64748b}
 
-/* ── Doc view ────────────────────────────────────────────── */
+/* â”€â”€ Doc view â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .doc-wrap{background:#1e293b;border-radius:6px;box-shadow:0 2px 14px rgba(0,0,0,.1);overflow:hidden}
 .doc-head{background:#1e293b;border-bottom:1px solid #334155;padding:9px 16px;font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:6px}
 .doc-body{padding:22px 28px;font-family:'Calibri','Georgia',serif;font-size:11pt;line-height:1.9;color:#f1f5f9;max-height:calc(100vh - 145px);overflow-y:auto}
@@ -51,7 +51,7 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;height:100vh;display:f
 .chip.unassigned{background:#f0f0f0;border-color:#bbb;color:#777;border-style:dashed}
 .chip-num{width:16px;height:16px;border-radius:50%;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.18);color:#fff;flex-shrink:0}
 
-/* ── Sidebar shared ──────────────────────────────────────── */
+/* â”€â”€ Sidebar shared â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .sb-top{padding:12px 14px;border-bottom:1px solid #334155;flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
 .sb-title{font-size:12px;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:.5px}
 .sb-count{font-size:11px;color:#8a9ab5;font-weight:600}
@@ -96,7 +96,7 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;height:100vh;display:f
 .next-btn:hover{background:#263348}
 .fill-cnt{text-align:center;font-size:11px;color:#8a9ab5}
 
-/* ── Bulk mode ───────────────────────────────────────────── */
+/* â”€â”€ Bulk mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .bulk-drop-area{border:2px dashed #b0bdd4;border-radius:10px;padding:18px;cursor:pointer;background:#0f172a;transition:all .2s;text-align:center;margin-bottom:14px}
 .bulk-drop-area:hover,.bulk-drop-area.over{border-color:#3b82f6;background:#263348}
 .bulk-drop-area .drop-label{font-size:12px;font-weight:600;color:#94a3b8;margin-bottom:2px}
@@ -130,7 +130,7 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;height:100vh;display:f
 .filename-select{flex:1;padding:6px 8px;border:1.5px solid #334155;border-radius:6px;font-size:12px;font-family:inherit;color:#f1f5f9;background:#1e293b}
 .filename-select:focus{outline:none;border-color:#3b82f6}
 
-/* ── Popover ─────────────────────────────────────────────── */
+/* â”€â”€ Popover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .pop-overlay{position:fixed;inset:0;z-index:999;display:none}
 .popover{position:fixed;background:#1e293b;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.2);padding:18px;width:280px;z-index:1000;border:1px solid #334155;display:none}
 .popover h4{font-size:13px;font-weight:700;color:#3b82f6;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
@@ -160,27 +160,27 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;height:100vh;display:f
 
 <nav style="background:#0f172a;border-bottom:1px solid #334155;padding:0 20px;height:54px;display:flex;align-items:center;gap:0;font-family:'Segoe UI',system-ui,sans-serif;position:sticky;top:0;z-index:9999;box-shadow:0 1px 3px #00000040">
   <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none;padding-right:16px;border-right:1px solid #334155;margin-right:16px;flex-shrink:0">
-    <div style="width:28px;height:28px;background:#3b82f6;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🏗</div>
-    <span style="font-size:.83rem;font-weight:700;color:#3b82f6">RIAL Hub</span>
+    <div style="width:28px;height:28px;background:#3b82f6;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">ðŸ—</div>
+    <span style="font-size:.83rem;font-weight:700;color:#3b82f6">OBRIA</span>
   </a>
   <span style="font-size:.75rem;color:#64748b;white-space:nowrap">Ferramentas</span>
-  <span style="color:#475569;margin:0 8px;font-size:.85rem">›</span>
+  <span style="color:#475569;margin:0 8px;font-size:.85rem">â€º</span>
   <span style="font-size:.82rem;font-weight:600;color:#f1f5f9;white-space:nowrap">Le Doc (RH)</span>
-  <span style="font-size:.73rem;color:#64748b;margin-left:12px;padding-left:12px;border-left:1px solid #334155;white-space:nowrap">Preenchimento dinâmico de documentos Word</span>
-  <a href="/ferramentas/" style="margin-left:auto;font-size:.75rem;color:#94a3b8;text-decoration:none;padding:4px 12px;border:1px solid #334155;border-radius:6px;white-space:nowrap;flex-shrink:0">← Ferramentas</a>
+  <span style="font-size:.73rem;color:#64748b;margin-left:12px;padding-left:12px;border-left:1px solid #334155;white-space:nowrap">Preenchimento dinÃ¢mico de documentos Word</span>
+  <a href="/ferramentas/" style="margin-left:auto;font-size:.75rem;color:#94a3b8;text-decoration:none;padding:4px 12px;border:1px solid #334155;border-radius:6px;white-space:nowrap;flex-shrink:0">â† Ferramentas</a>
 </nav>
 
 <!-- Toolbar -->
 <div class="bar">
-  <span style="font-size:17px">📄</span>
-  <h1 id="barTitle">Documentos RH — Preenchimento Rápido</h1>
+  <span style="font-size:17px">ðŸ“„</span>
+  <h1 id="barTitle">Documentos RH â€” Preenchimento RÃ¡pido</h1>
   <div class="bar-sep"></div>
-  <button class="mode-chip on" id="modeSetup" onclick="setMode('setup')">⚙ Configurar</button>
-  <button class="mode-chip" id="modeFill" onclick="setMode('fill')">✏️ Preencher</button>
-  <button class="mode-chip" id="modeBulk" onclick="setMode('bulk')">📊 Importar Excel</button>
+  <button class="mode-chip on" id="modeSetup" onclick="setMode('setup')">âš™ Configurar</button>
+  <button class="mode-chip" id="modeFill" onclick="setMode('fill')">âœï¸ Preencher</button>
+  <button class="mode-chip" id="modeBulk" onclick="setMode('bulk')">ðŸ“Š Importar Excel</button>
   <div class="bar-sep"></div>
-  <button class="bar-btn btn-load" onclick="document.getElementById('fileInput').click()">📂 Modelo</button>
-  <button class="bar-btn btn-gen" id="btnGen" disabled onclick="generate()">⬇ Gerar</button>
+  <button class="bar-btn btn-load" onclick="document.getElementById('fileInput').click()">ðŸ“‚ Modelo</button>
+  <button class="bar-btn btn-gen" id="btnGen" disabled onclick="generate()">â¬‡ Gerar</button>
 </div>
 <input type="file" id="fileInput" accept=".docx" style="display:none">
 <input type="file" id="xlsxInput" accept=".xlsx,.xls,.csv" style="display:none">
@@ -189,18 +189,18 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;height:100vh;display:f
   <main class="main" id="mainArea">
     <div class="upload-wrap" id="uploadWrap">
       <div class="upload-card">
-        <div style="font-size:36px;margin-bottom:8px">📋</div>
+        <div style="font-size:36px;margin-bottom:8px">ðŸ“‹</div>
         <h2>Carregar Modelo .docx</h2>
-        <p>Carregue o arquivo com os campos marcados em qualquer cor de destaque (cinza, amarelo, etc.) no Word.<br>Cada campo é detectado individualmente.</p>
+        <p>Carregue o arquivo com os campos marcados em qualquer cor de destaque (cinza, amarelo, etc.) no Word.<br>Cada campo Ã© detectado individualmente.</p>
         <div class="drop" id="dropZone" onclick="document.getElementById('fileInput').click()">
-          <div class="drop-label">📁 Clique ou arraste o .docx</div>
+          <div class="drop-label">ðŸ“ Clique ou arraste o .docx</div>
           <div class="drop-sub">Word Document (.docx)</div>
         </div>
       </div>
     </div>
     <div class="doc-wrap hidden" id="docWrap">
       <div class="doc-head">
-        <span>📄</span>
+        <span>ðŸ“„</span>
         <span id="docHint">Clique nos campos coloridos para nomear</span>
       </div>
       <div class="doc-body" id="docBody"></div>
@@ -214,8 +214,8 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;height:100vh;display:f
     </div>
     <div class="sb-body" id="sbBody">
       <div class="sb-hint" id="sbHint">
-        <div class="big">🔍</div>
-        Carregue um modelo com campos marcados para começar.
+        <div class="big">ðŸ”</div>
+        Carregue um modelo com campos marcados para comeÃ§ar.
       </div>
     </div>
     <div class="sb-footer hidden" id="sbFooter"></div>
@@ -227,7 +227,7 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;height:100vh;display:f
 <div class="popover" id="popover">
   <h4>
     <span id="popTitle">Campo</span>
-    <button onclick="closePopover()">✕</button>
+    <button onclick="closePopover()">âœ•</button>
   </h4>
   <div class="pop-ctx" id="popCtx"></div>
 
@@ -238,11 +238,11 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;height:100vh;display:f
 
   <div id="popNewWrap" class="pop-new-wrap">
     <label class="pop-label">Nome do campo</label>
-    <input class="pop-input" id="popNewName" placeholder="Ex: CPF, Nome, CTPS nº..." onkeydown="if(event.key==='Enter'){document.getElementById('popVal').focus()}">
+    <input class="pop-input" id="popNewName" placeholder="Ex: CPF, Nome, CTPS nÂº..." onkeydown="if(event.key==='Enter'){document.getElementById('popVal').focus()}">
   </div>
 
   <div class="pop-divider"></div>
-  <label class="pop-label">Conteúdo (opcional)</label>
+  <label class="pop-label">ConteÃºdo (opcional)</label>
   <input class="pop-val" id="popVal" placeholder="Deixe vazio para preencher depois" onkeydown="if(event.key==='Enter')savePopover()">
 
   <div class="pop-actions">
@@ -254,7 +254,7 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;height:100vh;display:f
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── Palette ──────────────────────────────────────────────
+// â”€â”€â”€ Palette â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const PAL = [
   {bg:'#dbeafe',bd:'#3b82f6',tx:'#1e3a8a',dot:'#3b82f6'},
   {bg:'#dcfce7',bd:'#22c55e',tx:'#14532d',dot:'#22c55e'},
@@ -266,7 +266,7 @@ const PAL = [
   {bg:'#fdf4ff',bd:'#d946ef',tx:'#701a75',dot:'#d946ef'},
 ];
 
-// ─── State ────────────────────────────────────────────────
+// â”€â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let templateBuffer = null;
 let currentFilename = '';
 let mode = 'setup';
@@ -281,10 +281,10 @@ let activeOccId = null;
 // Bulk import state
 let excelRows = [];      // [{colName: value, ...}, ...]
 let excelHeaders = [];   // column names from xlsx
-let columnMapping = {};  // fieldName → excelHeader (or '' = manual)
+let columnMapping = {};  // fieldName â†’ excelHeader (or '' = manual)
 let filenameField = '';  // which field to use as filename
 
-// ─── XML utils ────────────────────────────────────────────
+// â”€â”€â”€ XML utils â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const dX = s => s
   .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
   .replace(/&quot;/g,'"').replace(/&apos;/g,"'")
@@ -293,9 +293,9 @@ const dX = s => s
 const eX = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const eH = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const mkId = () => 'ph' + Math.random().toString(36).slice(2,9);
-const MARK = (id) => `§§${id}§§`;
+const MARK = (id) => `Â§Â§${id}Â§Â§`;
 
-// ─── Highlight detection ───────────────────────────────────
+// â”€â”€â”€ Highlight detection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function isHighlighted(rXml) {
   if (/<w:highlight\s/.test(rXml)) return true;
   const shdMatch = rXml.match(/<w:shd\b([^>]*)/);
@@ -322,7 +322,7 @@ function stripHighlight(rXml) {
     .replace(/<w:shd[^>]*>[\s\S]*?<\/w:shd>/g,'');
 }
 
-// ─── Build placeholder XML ────────────────────────────────
+// â”€â”€â”€ Build placeholder XML â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function buildPlaceholders(xml) {
   const occs = [];
   const result = xml.replace(/<w:p[ >][\s\S]*?<\/w:p>/g, pXml => {
@@ -376,7 +376,7 @@ function buildPlaceholders(xml) {
   return { pXml: result, occs };
 }
 
-// ─── Display paragraphs ───────────────────────────────────
+// â”€â”€â”€ Display paragraphs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function buildDisplayParagraphs(pXml) {
   const paras = [];
   const paraRe = /<w:p[ >][\s\S]*?<\/w:p>/g;
@@ -385,7 +385,7 @@ function buildDisplayParagraphs(pXml) {
     const pTxt = [...pm[0].matchAll(/<w:t\b[^>]*>([\s\S]*?)<\/w:t>/g)].map(m=>dX(m[1])).join('');
     if (!pTxt.trim()) continue;
     const segs = [];
-    const markerRe = /§§(ph[a-z0-9]+)§§/g;
+    const markerRe = /Â§Â§(ph[a-z0-9]+)Â§Â§/g;
     let last = 0, mr;
     while ((mr = markerRe.exec(pTxt)) !== null) {
       if (mr.index > last) segs.push({ text: pTxt.slice(last, mr.index), isField: false });
@@ -398,7 +398,7 @@ function buildDisplayParagraphs(pXml) {
   return paras;
 }
 
-// ─── Load docx ────────────────────────────────────────────
+// â”€â”€â”€ Load docx â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 dropZone.addEventListener('dragover', e=>{e.preventDefault();dropZone.classList.add('over')});
@@ -418,7 +418,7 @@ async function handleFile(file) {
   const { pXml, occs } = buildPlaceholders(xml);
 
   if (!occs.length) {
-    alert('Nenhum campo com destaque detectado.\nMarca os campos no Word com qualquer cor de destaque (Formatar → Realce) e tenta novamente.');
+    alert('Nenhum campo com destaque detectado.\nMarca os campos no Word com qualquer cor de destaque (Formatar â†’ Realce) e tenta novamente.');
     return;
   }
 
@@ -450,7 +450,7 @@ function restoreFieldDefs(saved) {
   return out;
 }
 
-// ─── Load Excel ───────────────────────────────────────────
+// â”€â”€â”€ Load Excel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function handleExcel(file) {
   try {
     const buf = await file.arrayBuffer();
@@ -458,7 +458,7 @@ async function handleExcel(file) {
     const ws = wb.Sheets[wb.SheetNames[0]];
     const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
 
-    if (!data.length) { alert('A planilha está vazia ou sem cabeçalhos na primeira linha.'); return; }
+    if (!data.length) { alert('A planilha estÃ¡ vazia ou sem cabeÃ§alhos na primeira linha.'); return; }
 
     excelHeaders = Object.keys(data[0]);
     excelRows = data;
@@ -472,14 +472,14 @@ async function handleExcel(file) {
       columnMapping[fn] = match || '';
     });
 
-    showToast(`✅ ${data.length} linhas carregadas de "${file.name}"`);
+    showToast(`âœ… ${data.length} linhas carregadas de "${file.name}"`);
     renderSidebar();
   } catch(e) {
     alert('Erro ao ler Excel: ' + e.message);
   }
 }
 
-// ─── Mode ─────────────────────────────────────────────────
+// â”€â”€â”€ Mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function setMode(m) {
   mode = m;
   document.getElementById('modeSetup').classList.toggle('on', m==='setup');
@@ -496,21 +496,21 @@ function setMode(m) {
 
   // In bulk mode the generate button triggers bulk generate
   document.getElementById('btnGen').onclick = (m==='bulk') ? generateBulk : generate;
-  document.getElementById('btnGen').textContent = (m==='bulk') ? '⬇ Gerar Todos' : '⬇ Gerar';
+  document.getElementById('btnGen').textContent = (m==='bulk') ? 'â¬‡ Gerar Todos' : 'â¬‡ Gerar';
 
   renderDocBody();
   renderSidebar();
   if (m==='fill') setTimeout(()=>{ const f=document.querySelector('.fg-input'); if(f)f.focus(); },100);
 }
 
-// ─── Field helpers ────────────────────────────────────────
+// â”€â”€â”€ Field helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function getOrCreate(name) {
   if (!fieldDefs[name]) fieldDefs[name] = { colorIdx: colorCounter++ % PAL.length, value: '' };
   return fieldDefs[name];
 }
 function pal(name) { const fd=fieldDefs[name]; return fd?PAL[fd.colorIdx%PAL.length]:null; }
 
-// ─── Render doc ───────────────────────────────────────────
+// â”€â”€â”€ Render doc â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderDocBody() {
   const body = document.getElementById('docBody');
   body.innerHTML = '';
@@ -532,10 +532,10 @@ function renderDocBody() {
         if (c) { chip.style.background=c.bg; chip.style.borderColor=c.bd; chip.style.color=c.tx; }
         const val = fieldDefs[occ.fieldName]?.value || '';
         chip.innerHTML = `<span class="chip-num" style="background:${c?.dot||'#999'}">${myN}</span>${eH(val||occ.fieldName)}`;
-        chip.title = `${occ.fieldName} — clique para editar`;
+        chip.title = `${occ.fieldName} â€” clique para editar`;
       } else {
         chip.innerHTML = `<span class="chip-num">${myN}</span>campo ${myN}`;
-        chip.title = 'Sem nome — clique para configurar';
+        chip.title = 'Sem nome â€” clique para configurar';
       }
 
       chip.addEventListener('click', e => { e.stopPropagation(); openPopover(occ.id, chip); });
@@ -545,7 +545,7 @@ function renderDocBody() {
   });
 }
 
-// ─── Render sidebar ───────────────────────────────────────
+// â”€â”€â”€ Render sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderSidebar() {
   const body = document.getElementById('sbBody');
   const footer = document.getElementById('sbFooter');
@@ -569,12 +569,12 @@ function renderSidebarSetup(body, footer, named, unnamed) {
 
   if (unnamed.length) {
     const sec = document.createElement('div');
-    sec.innerHTML = `<div class="section-label">⚠ Sem nome — ${unnamed.length} campo${unnamed.length>1?'s':''}</div>`;
+    sec.innerHTML = `<div class="section-label">âš  Sem nome â€” ${unnamed.length} campo${unnamed.length>1?'s':''}</div>`;
     unnamed.forEach(occ => {
       const n = occurrences.indexOf(occ)+1;
       const item = document.createElement('div');
       item.className = 'unocc-item';
-      item.innerHTML = `<span class="occ-num">${n}</span><span class="occ-ctx">${eH(occ.context?occ.context.slice(-45):'campo '+n)}</span><span class="occ-go">Nomear →</span>`;
+      item.innerHTML = `<span class="occ-num">${n}</span><span class="occ-ctx">${eH(occ.context?occ.context.slice(-45):'campo '+n)}</span><span class="occ-go">Nomear â†’</span>`;
       item.onclick = () => { const chip=document.querySelector(`.chip[data-occ-id="${occ.id}"]`); if(chip){chip.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>openPopover(occ.id,chip),300);} };
       sec.appendChild(item);
     });
@@ -584,7 +584,7 @@ function renderSidebarSetup(body, footer, named, unnamed) {
   if (named.length) {
     const uniqueNames = [...new Set(named.map(o=>o.fieldName))];
     const sec2 = document.createElement('div');
-    sec2.innerHTML = `<div class="section-label" style="margin-top:${unnamed.length?'12px':'0'}">✓ Configurados</div>`;
+    sec2.innerHTML = `<div class="section-label" style="margin-top:${unnamed.length?'12px':'0'}">âœ“ Configurados</div>`;
     uniqueNames.forEach(name => {
       const cnt = named.filter(o=>o.fieldName===name).length;
       const c = pal(name)||PAL[0];
@@ -595,17 +595,17 @@ function renderSidebarSetup(body, footer, named, unnamed) {
         <span class="named-dot" style="background:${c.dot}"></span>
         <span class="named-label">${eH(name)}</span>
         <span class="named-cnt">${cnt}x</span>
-        <button class="named-edit" title="Renomear campo" onclick="renameSidebarField('${eH(name)}')">✏️</button>`;
+        <button class="named-edit" title="Renomear campo" onclick="renameSidebarField('${eH(name)}')">âœï¸</button>`;
       sec2.appendChild(row);
     });
     body.appendChild(sec2);
   }
 
-  if (!occurrences.length) body.innerHTML = '<div class="sb-hint"><div class="big">📭</div>Nenhum campo detectado.</div>';
+  if (!occurrences.length) body.innerHTML = '<div class="sb-hint"><div class="big">ðŸ“­</div>Nenhum campo detectado.</div>';
 
   footer.innerHTML = named.length
-    ? `<button class="gen-btn" onclick="setMode('fill')">✏️ Preencher individualmente →</button>
-       <button class="next-btn" onclick="setMode('bulk')">📊 Importar Excel em massa →</button>`
+    ? `<button class="gen-btn" onclick="setMode('fill')">âœï¸ Preencher individualmente â†’</button>
+       <button class="next-btn" onclick="setMode('bulk')">ðŸ“Š Importar Excel em massa â†’</button>`
     : `<div style="font-size:12px;color:#8a9ab5;text-align:center;padding:4px">Configure ao menos um campo</div>`;
 }
 
@@ -613,8 +613,8 @@ function renderSidebarFill(body, footer) {
   const uniqueNames = [...new Set(occurrences.filter(o=>o.fieldName).map(o=>o.fieldName))];
 
   if (!uniqueNames.length) {
-    body.innerHTML = '<div class="sb-hint"><div class="big">⚙️</div>Nenhum campo configurado.<br>Volte ao modo <strong>Configurar</strong>.</div>';
-    footer.innerHTML = `<button class="gen-btn" style="background:#1b3a5c" onclick="setMode('setup')">← Configurar Campos</button>`;
+    body.innerHTML = '<div class="sb-hint"><div class="big">âš™ï¸</div>Nenhum campo configurado.<br>Volte ao modo <strong>Configurar</strong>.</div>';
+    footer.innerHTML = `<button class="gen-btn" style="background:#1b3a5c" onclick="setMode('setup')">â† Configurar Campos</button>`;
     return;
   }
 
@@ -627,7 +627,7 @@ function renderSidebarFill(body, footer) {
         <span class="fg-dot" style="background:${c.dot}"></span>
         <span class="fg-name">${eH(name)}</span>
         <span class="fg-badge">${cnt}x</span>
-        <button class="fg-edit" title="Renomear" onclick="renameSidebarField('${eH(name)}')">✏️</button>
+        <button class="fg-edit" title="Renomear" onclick="renameSidebarField('${eH(name)}')">âœï¸</button>
       </div>
       <input class="fg-input${val?' ok':''}" id="inp_${CSS.escape(name)}"
         value="${eH(val)}"
@@ -638,8 +638,8 @@ function renderSidebarFill(body, footer) {
   }).join('');
 
   footer.innerHTML = `
-    <button class="gen-btn" onclick="generate()">⬇️ Gerar Documento</button>
-    <button class="next-btn" onclick="clearFill()">→ Próximo colaborador</button>
+    <button class="gen-btn" onclick="generate()">â¬‡ï¸ Gerar Documento</button>
+    <button class="next-btn" onclick="clearFill()">â†’ PrÃ³ximo colaborador</button>
     <div class="fill-cnt" id="fillCnt">${countFilled(uniqueNames)} / ${uniqueNames.length} preenchidos</div>`;
 }
 
@@ -647,8 +647,8 @@ function renderSidebarBulk(body, footer) {
   const fieldNames = [...new Set(occurrences.filter(o=>o.fieldName).map(o=>o.fieldName))];
 
   if (!fieldNames.length) {
-    body.innerHTML = '<div class="sb-hint"><div class="big">⚙️</div>Nenhum campo configurado.<br>Volte ao modo <strong>Configurar</strong> primeiro.</div>';
-    footer.innerHTML = `<button class="gen-btn" style="background:#1b3a5c" onclick="setMode('setup')">← Configurar Campos</button>`;
+    body.innerHTML = '<div class="sb-hint"><div class="big">âš™ï¸</div>Nenhum campo configurado.<br>Volte ao modo <strong>Configurar</strong> primeiro.</div>';
+    footer.innerHTML = `<button class="gen-btn" style="background:#1b3a5c" onclick="setMode('setup')">â† Configurar Campos</button>`;
     return;
   }
 
@@ -659,8 +659,8 @@ function renderSidebarBulk(body, footer) {
   dropArea.className = 'bulk-drop-area';
   dropArea.id = 'bulkDrop';
   dropArea.innerHTML = excelRows.length
-    ? `<div style="font-size:22px;margin-bottom:4px">✅</div><div class="drop-label">${excelRows.length} linhas carregadas</div><div class="drop-sub">Clique para trocar o arquivo</div>`
-    : `<div style="font-size:22px;margin-bottom:4px">📊</div><div class="drop-label">Clique para carregar planilha Excel</div><div class="drop-sub">.xlsx / .xls / .csv — 1ª linha = cabeçalhos</div>`;
+    ? `<div style="font-size:22px;margin-bottom:4px">âœ…</div><div class="drop-label">${excelRows.length} linhas carregadas</div><div class="drop-sub">Clique para trocar o arquivo</div>`
+    : `<div style="font-size:22px;margin-bottom:4px">ðŸ“Š</div><div class="drop-label">Clique para carregar planilha Excel</div><div class="drop-sub">.xlsx / .xls / .csv â€” 1Âª linha = cabeÃ§alhos</div>`;
   dropArea.onclick = () => document.getElementById('xlsxInput').click();
   dropArea.addEventListener('dragover', e=>{e.preventDefault();dropArea.classList.add('over')});
   dropArea.addEventListener('dragleave', ()=>dropArea.classList.remove('over'));
@@ -671,8 +671,8 @@ function renderSidebarBulk(body, footer) {
     // Show a template hint
     const hint = document.createElement('div');
     hint.className = 'bulk-info';
-    hint.innerHTML = `<strong>💡 Formato esperado da planilha</strong>
-      A primeira linha deve ter os nomes dos campos como cabeçalho.<br>
+    hint.innerHTML = `<strong>ðŸ’¡ Formato esperado da planilha</strong>
+      A primeira linha deve ter os nomes dos campos como cabeÃ§alho.<br>
       Campos configurados: <strong>${fieldNames.map(n=>`"${n}"`).join(', ')}</strong>`;
     body.appendChild(hint);
 
@@ -680,7 +680,7 @@ function renderSidebarBulk(body, footer) {
     const dlBtn = document.createElement('button');
     dlBtn.className = 'next-btn';
     dlBtn.style.marginTop = '8px';
-    dlBtn.textContent = '⬇ Baixar planilha modelo (.xlsx)';
+    dlBtn.textContent = 'â¬‡ Baixar planilha modelo (.xlsx)';
     dlBtn.onclick = downloadExcelTemplate;
     body.appendChild(dlBtn);
     footer.innerHTML = '';
@@ -690,7 +690,7 @@ function renderSidebarBulk(body, footer) {
   // Info box
   const info = document.createElement('div');
   info.className = 'bulk-info';
-  info.innerHTML = `<strong>📋 ${excelRows.length} registros prontos para gerar</strong>
+  info.innerHTML = `<strong>ðŸ“‹ ${excelRows.length} registros prontos para gerar</strong>
     ${excelHeaders.length} colunas detectadas na planilha.`;
   body.appendChild(info);
 
@@ -701,7 +701,7 @@ function renderSidebarBulk(body, footer) {
     <div class="filename-row">
       <span class="filename-label">Usar campo</span>
       <select class="filename-select" id="filenameSelect" onchange="filenameField=this.value">
-        <option value="">Numeração (doc_1, doc_2...)</option>
+        <option value="">NumeraÃ§Ã£o (doc_1, doc_2...)</option>
         ${fieldNames.map(fn=>`<option value="${eH(fn)}"${filenameField===fn?' selected':''}>${eH(fn)}</option>`).join('')}
       </select>
     </div>`;
@@ -709,7 +709,7 @@ function renderSidebarBulk(body, footer) {
 
   // Mapping section
   const mapSec = document.createElement('div');
-  mapSec.innerHTML = `<div class="section-label" style="margin:10px 0 8px">Mapeamento: campo → coluna Excel</div>`;
+  mapSec.innerHTML = `<div class="section-label" style="margin:10px 0 8px">Mapeamento: campo â†’ coluna Excel</div>`;
   fieldNames.forEach(fn => {
     const c = pal(fn)||PAL[0];
     const row = document.createElement('div');
@@ -720,7 +720,7 @@ function renderSidebarBulk(body, footer) {
       <span class="map-dot" style="background:${c.dot}"></span>
       <span class="map-label" title="${eH(fn)}">${eH(fn)}</span>
       <select class="map-select${isMatched?' matched':''}" data-field="${eH(fn)}" onchange="onMapChange(this)">
-        <option value="">— ignorar —</option>
+        <option value="">â€” ignorar â€”</option>
         ${excelHeaders.map(h=>`<option value="${eH(h)}"${currentVal===h?' selected':''}>${eH(h)}</option>`).join('')}
       </select>`;
     mapSec.appendChild(row);
@@ -733,7 +733,7 @@ function renderSidebarBulk(body, footer) {
   if (mappedCols.length) {
     const preview = document.createElement('div');
     preview.className = 'bulk-preview';
-    preview.innerHTML = `<div class="bulk-preview-head">Pré-visualização (${Math.min(3,excelRows.length)} de ${excelRows.length})</div>`;
+    preview.innerHTML = `<div class="bulk-preview-head">PrÃ©-visualizaÃ§Ã£o (${Math.min(3,excelRows.length)} de ${excelRows.length})</div>`;
     const headerRow = document.createElement('div');
     headerRow.className = 'bulk-preview-row header';
     mappedCols.slice(0,3).forEach(fn => {
@@ -760,7 +760,7 @@ function renderSidebarBulk(body, footer) {
   const mappedCount = fieldNames.filter(fn=>columnMapping[fn]).length;
   footer.innerHTML = `
     <button class="gen-btn" id="bulkGenBtn" onclick="generateBulk()" ${mappedCount===0?'disabled':''}>
-      ⬇️ Gerar ${excelRows.length} documento${excelRows.length>1?'s':''} (.zip)
+      â¬‡ï¸ Gerar ${excelRows.length} documento${excelRows.length>1?'s':''} (.zip)
     </button>
     <div class="fill-cnt">${mappedCount} de ${fieldNames.length} campos mapeados</div>`;
 }
@@ -772,17 +772,17 @@ function onMapChange(sel) {
   renderSidebar();
 }
 
-// ─── Download Excel template ───────────────────────────────
+// â”€â”€â”€ Download Excel template â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function downloadExcelTemplate() {
   const fieldNames = [...new Set(occurrences.filter(o=>o.fieldName).map(o=>o.fieldName))];
   const ws = XLSX.utils.aoa_to_sheet([fieldNames, fieldNames.map(()=>'')]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Dados');
   XLSX.writeFile(wb, currentFilename.replace('.docx','') + '_modelo.xlsx');
-  showToast('📥 Planilha modelo baixada!');
+  showToast('ðŸ“¥ Planilha modelo baixada!');
 }
 
-// ─── Fill mode helpers ────────────────────────────────────
+// â”€â”€â”€ Fill mode helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function onFill(el, name) {
   getOrCreate(name).value = el.value;
   el.classList.toggle('ok', el.value.trim().length>0);
@@ -810,7 +810,7 @@ function clearFill() {
   renderSidebar(); renderDocBody();
 }
 
-// ─── Rename field ─────────────────────────────────────────
+// â”€â”€â”€ Rename field â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renameSidebarField(oldName) {
   const newName = prompt(`Renomear campo "${oldName}" para:`, oldName);
   if (!newName || newName.trim()==='' || newName===oldName) return;
@@ -823,7 +823,7 @@ function renameSidebarField(oldName) {
   renderDocBody(); renderSidebar();
 }
 
-// ─── Popover ──────────────────────────────────────────────
+// â”€â”€â”€ Popover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openPopover(occId, anchor) {
   activeOccId = occId;
   const occ = occurrences.find(o=>o.id===occId);
@@ -840,7 +840,7 @@ function openPopover(occId, anchor) {
   const guessed = occ.fieldName || guessLabel(occ.context) || '';
   document.getElementById('popNewName').value = guessed;
   document.getElementById('popVal').value = occ.fieldName ? (fieldDefs[occ.fieldName]?.value||'') : '';
-  document.getElementById('popCtx').textContent = occ.context ? '…'+occ.context.slice(-55)+' →' : '(início do documento)';
+  document.getElementById('popCtx').textContent = occ.context ? 'â€¦'+occ.context.slice(-55)+' â†’' : '(inÃ­cio do documento)';
   document.getElementById('popTitle').textContent = 'Campo '+(occurrences.indexOf(occ)+1);
 
   onPopSelectChange();
@@ -895,22 +895,22 @@ function savePopover() {
   renderSidebar();
 }
 
-// ─── Guess label ──────────────────────────────────────────
+// â”€â”€â”€ Guess label â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const HINTS=[
-  [['colaborador','empregado','funcionário','nome do','contratad'],'Nome Colaborador'],
+  [['colaborador','empregado','funcionÃ¡rio','nome do','contratad'],'Nome Colaborador'],
   [['cpf','c.p.f','cadastro de pessoa'],'CPF'],
-  [['ctps','carteira de trabalho'],'CTPS Nº'],
-  [['série','serie','ctps'],'CTPS Série'],
+  [['ctps','carteira de trabalho'],'CTPS NÂº'],
+  [['sÃ©rie','serie','ctps'],'CTPS SÃ©rie'],
   [['rg ','r.g.','identidade','registro geral'],'RG'],
-  [['órgão','orgao','emissor','expedidor'],'Órgão Emissor'],
-  [['cargo','função','exercendo','exercer'],'Cargo'],
+  [['Ã³rgÃ£o','orgao','emissor','expedidor'],'Ã“rgÃ£o Emissor'],
+  [['cargo','funÃ§Ã£o','exercendo','exercer'],'Cargo'],
   [['cnpj'],'CNPJ'],
-  [['empresa','empregadora','razão social','razao social'],'Empresa'],
-  [['admiss','contratação'],'Data Admissão'],
-  [['local','cidade','município'],'Local'],
+  [['empresa','empregadora','razÃ£o social','razao social'],'Empresa'],
+  [['admiss','contrataÃ§Ã£o'],'Data AdmissÃ£o'],
+  [['local','cidade','municÃ­pio'],'Local'],
   [['data','dia'],'Data'],
-  [['salário','salario','remuner'],'Salário'],
-  [['endereço','endereco','rua','avenida'],'Endereço'],
+  [['salÃ¡rio','salario','remuner'],'SalÃ¡rio'],
+  [['endereÃ§o','endereco','rua','avenida'],'EndereÃ§o'],
 ];
 function guessLabel(ctx) {
   const t=(ctx||'').slice(-100).toLowerCase();
@@ -918,7 +918,7 @@ function guessLabel(ctx) {
   return '';
 }
 
-// ─── Persistence ──────────────────────────────────────────
+// â”€â”€â”€ Persistence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function saveConfig() {
   try {
     localStorage.setItem('rh2_'+currentFilename, JSON.stringify({
@@ -931,7 +931,7 @@ function loadConfig() {
   try { const s=localStorage.getItem('rh2_'+currentFilename); return s?JSON.parse(s):{}; } catch(e){return{}}
 }
 
-// ─── Generate single ──────────────────────────────────────
+// â”€â”€â”€ Generate single â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function generate() {
   if (!placeholderXml || !templateBuffer) return;
 
@@ -954,11 +954,11 @@ async function generate() {
     const a = Object.assign(document.createElement('a'),{href:url,download:currentFilename.replace('.docx','')+'_preenchido.docx'});
     document.body.appendChild(a); a.click();
     setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1000);
-    showToast('✅ Documento gerado com sucesso!');
+    showToast('âœ… Documento gerado com sucesso!');
   } catch(e) { alert('Erro ao gerar: '+e.message); console.error(e); }
 }
 
-// ─── Generate bulk ────────────────────────────────────────
+// â”€â”€â”€ Generate bulk â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function generateBulk() {
   if (!placeholderXml || !templateBuffer || !excelRows.length) return;
 
@@ -967,7 +967,7 @@ async function generateBulk() {
   if (!mapped.length) { alert('Mapeie ao menos uma coluna do Excel antes de gerar.'); return; }
 
   const btn = document.getElementById('bulkGenBtn');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Gerando...'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'â³ Gerando...'; }
 
   try {
     const outZip = new JSZip();
@@ -1007,7 +1007,7 @@ async function generateBulk() {
       outZip.file(fname, docBlob);
 
       // Update progress
-      if (btn) btn.textContent = `⏳ ${i+1} / ${excelRows.length}...`;
+      if (btn) btn.textContent = `â³ ${i+1} / ${excelRows.length}...`;
       // Yield to UI thread every 10 docs
       if (i % 10 === 9) await new Promise(r => setTimeout(r, 0));
     }
@@ -1017,16 +1017,16 @@ async function generateBulk() {
     const a = Object.assign(document.createElement('a'),{href:url,download:`${baseName}_lote_${excelRows.length}docs.zip`});
     document.body.appendChild(a); a.click();
     setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},1000);
-    showToast(`✅ ${excelRows.length} documentos gerados e compactados!`);
+    showToast(`âœ… ${excelRows.length} documentos gerados e compactados!`);
   } catch(e) {
     alert('Erro ao gerar em lote: '+e.message);
     console.error(e);
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = `⬇️ Gerar ${excelRows.length} documentos (.zip)`; }
+    if (btn) { btn.disabled = false; btn.textContent = `â¬‡ï¸ Gerar ${excelRows.length} documentos (.zip)`; }
   }
 }
 
-// ─── Toast ────────────────────────────────────────────────
+// â”€â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function showToast(msg) {
   const t=document.getElementById('toast');
   t.textContent=msg;
@@ -1039,3 +1039,4 @@ function showToast(msg) {
 </script>
 </body>
 </html>
+
