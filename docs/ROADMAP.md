@@ -32,6 +32,7 @@
 | Faturamento | **Gestão de Notas Fiscais** | `/faturamento` |
 | Usinagem | **Gestão de Insumos** | `/insumos` |
 | Viário | **Inspeção Viária** | `/viario` |
+| *(novo)* | **Coleta de Campo** | `/formularios` |
 
 ### Painéis — Módulo Genérico de Dashboards
 
@@ -137,7 +138,9 @@ Modules por org:
 ├── MedicaoRecord (nota, período, cidades, docx_url)
 ├── FaturamentoNota (nr, emissao, contrato, municipio, valores...)
 ├── UsinagemRegistro (ticket, data, placa, motorista, peso, regiao)
-└── VIarioInspecao (rodovia, km_ini, km_fim, fotos_url[], relatorio_url)
+├── VIarioInspecao (rodovia, km_ini, km_fim, fotos_url[], relatorio_url)
+├── FormularioTemplate (slug, nome, campos JSON)        ← Coleta de Campo
+└── FormularioResposta (template_id, dados JSON, lat/lon)
 ```
 
 ---
@@ -387,6 +390,138 @@ org.settings = {
 
 *(Revisar após feedback dos clientes piloto)*
 
+#### 2.6 — Coleta de Campo (PWA Mobile)
+
+**Objetivo:** Substituir o Google Forms por formulários mobile configuráveis onde os dados ficam no OBRIA.
+
+**Motivação:** O Google Forms obriga a ter conta Google, os dados ficam no Google Sheets (fora do controle da empresa), não integra com os Painéis do OBRIA e não funciona offline. A Coleta de Campo resolve todos esses pontos.
+
+**Conceito central:**
+
+```
+Admin (OBRIA web) → define template (campos, tipos, validações)
+                          ↓
+            URL: /f/{org_slug}/{form_slug}
+            QR Code: impresso no caminhão / canteiro
+                          ↓
+Worker (celular) → abre URL → preenche → envia → dado no PostgreSQL
+                          ↓
+Admin (OBRIA web) → vê respostas em tabela → exporta Excel → cruza com Painéis
+```
+
+**Rotas:**
+
+```
+/formularios/                       ← admin: galeria de templates
+/formularios/novo                   ← admin: criar template (drag-and-drop)
+/formularios/{slug}/editar          ← admin: editar campos
+/formularios/{slug}/respostas       ← admin: tabela de respostas + export Excel
+/formularios/{slug}/qrcode          ← admin: gerar QR code para impressão
+/f/{org_slug}/{form_slug}           ← mobile: preencher (público ou autenticado)
+/f/{org_slug}/{form_slug}/obrigado  ← mobile: confirmação de envio
+```
+
+**Tipos de campo suportados:**
+
+| Tipo | Input HTML | Observação |
+|------|-----------|------------|
+| `text` | `<input type="text">` | Texto livre |
+| `number` | `<input type="number">` | Com validação min/max |
+| `select` | `<select>` | Opções definidas pelo admin |
+| `multiselect` | `<select multiple>` | Múltipla seleção |
+| `date` | `<input type="date">` | Picker nativo mobile |
+| `time` | `<input type="time">` | Picker nativo mobile |
+| `photo` | `<input type="file" capture="camera">` | Câmera do celular, salva no R2 |
+| `gps` | `navigator.geolocation` | Auto-preenche lat/lon |
+| `boolean` | `<input type="checkbox">` | Sim/Não |
+
+**Definição de um campo (JSON dentro de `campos`):**
+
+```python
+{
+    "id": "placa",           # identificador único, vira chave no JSON de resposta
+    "tipo": "text",
+    "label": "Placa do Veículo",
+    "placeholder": "ABC-1234",
+    "ajuda": "Placa do caminhão que abasteceu",
+    "obrigatorio": True,
+    "opcoes": [],            # somente para select/multiselect
+    "validacao": {}          # {"min": 0, "max": 999} para number
+}
+```
+
+**Modelos no banco:**
+
+```python
+class FormularioTemplate(db.Model):
+    id            = db.Column(db.Integer, primary_key=True)
+    org_id        = db.Column(db.Integer, db.ForeignKey("organization.id"), nullable=False)
+    slug          = db.Column(db.String(80), nullable=False)
+    nome          = db.Column(db.String(120), nullable=False)
+    descricao     = db.Column(db.String(255))
+    campos        = db.Column(db.JSON, nullable=False)  # lista de CampoDefinicao
+    aceita_anonimo = db.Column(db.Boolean, default=True)  # True = sem login
+    ativo         = db.Column(db.Boolean, default=True)
+    criado_em     = db.Column(db.DateTime, default=datetime.utcnow)
+
+class FormularioResposta(db.Model):
+    id            = db.Column(db.Integer, primary_key=True)
+    org_id        = db.Column(db.Integer, db.ForeignKey("organization.id"), nullable=False)
+    template_id   = db.Column(db.Integer, db.ForeignKey("formulario_template.id"), nullable=False)
+    dados         = db.Column(db.JSON, nullable=False)  # {campo_id: valor, ...}
+    enviado_por   = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    latitude      = db.Column(db.Float, nullable=True)
+    longitude     = db.Column(db.Float, nullable=True)
+    dispositivo   = db.Column(db.String(200))  # user-agent
+    criado_em     = db.Column(db.DateTime, default=datetime.utcnow)
+```
+
+**PWA — Suporte Offline (diferencial vs Google Forms):**
+
+```
+Service Worker (sw.js):
+├── Cache da página do formulário (instala ao abrir)
+├── IndexedDB: armazena respostas enviadas com sinal ruim
+├── Background Sync: enfileira POST /f/.../responder
+└── Ao reconectar: drena fila automaticamente
+
+Resultado: formulário funciona no canteiro sem internet.
+          Os dados chegam assim que o sinal volta.
+```
+
+Arquivos a criar:
+- `static/formularios/sw.js` — Service Worker
+- `static/formularios/manifest.json` — "Adicionar à tela inicial"
+- `templates/formularios/form_mobile.html` — UI mobile-first (sem extends base.html, standalone)
+
+**UI Mobile — princípios de design:**
+
+- Fundo escuro (`#0f172a`), sem barra de navegação do OBRIA
+- Campos com `padding: 14px`, `font-size: 16px` (evita zoom automático no iOS)
+- Botão "Enviar" fixo no bottom: `position: fixed; bottom: 0`
+- Indicador de modo offline: banner laranja no topo quando sem conexão
+- Após envio: tela de confirmação com "Registrar outro" em 1 clique
+
+**Exemplo de uso (RIAL — substituir planilha de abastecimento):**
+
+Template "Abastecimento Diário" com campos:
+```
+data (date, obrigatório)
+placa (text, obrigatório)
+motorista (select: lista de motoristas, obrigatório)
+km_atual (number, obrigatório)
+litros (number, min:0, max:500)
+posto (text)
+observacao (text, opcional)
+foto_hodometro (photo, opcional)
+```
+
+QR code colado no painel do caminhão → motorista escaneia → preenche em 30 segundos.
+
+**Integração com Painéis:**
+
+Admin pode criar um Painel com `modulo_fonte: 'formularios'` + `filtros: {"template_slug": "abastecimento-diario"}` para visualizar as respostas como dashboard com KPIs, gráficos e exportação Excel — usando a mesma infraestrutura de Painéis.
+
 ---
 
 ### FASE 3 — Módulo Viário
@@ -446,8 +581,8 @@ Usuário faz upload de fotos (batch) via browser
 ## Cronograma Resumido
 
 ```
-Jun 2026   Jul 2026    Ago 2026    Set 2026    Out 2026    Nov 2026
-│          │           │           │           │           │
+Jun 2026   Jul 2026    Ago 2026    Set 2026    Out 2026    Nov 2026    Dez 2026
+│          │           │           │           │           │           │
 ├─ FASE 0 ─┤
 │ Auth, DB │
 │ R2, CI/CD│
@@ -456,14 +591,16 @@ Jun 2026   Jul 2026    Ago 2026    Set 2026    Out 2026    Nov 2026
 │          │ Usinagem → Sheets    │
 │          │ Faturamento → R2     │
 │          │ Parametrização       │
-│          │                      ├── FASE 2 ──────────────┤
-│          │                      │ Admin panel            │
-│          │                      │ Convites/RBAC          │
-│          │                      │ Onboarding             │
-│          │                      │ Landing page           │
-│          │                      │           ├─ FASE 3 ───┤
-│          │                      │           │ Viário OCR │
-│          │                      │           │ GPS + Mapa │
+│          │ Produção → DB        │
+│          │                      ├── FASE 2 ──────────────────────────┤
+│          │                      │ Admin panel                        │
+│          │                      │ Convites/RBAC                      │
+│          │                      │ Onboarding                         │
+│          │                      │ Landing page                       │
+│          │                      │ Coleta de Campo (PWA)              │
+│          │                      │                    ├─ FASE 3 ──────┤
+│          │                      │                    │ Viário OCR    │
+│          │                      │                    │ GPS + Mapa    │
 ```
 
 ---
@@ -480,6 +617,7 @@ Sheets:      google-api-python-client + google-auth
 Deploy:      Railway (PaaS) + Gunicorn
 CI/CD:       GitHub Actions → auto-deploy em push para main
 Frontend:    Jinja2 + CSS variables (dark theme existente) + Chart.js
+Mobile:      PWA (Service Worker + IndexedDB + Background Sync) — Fase 2.6
 Maps:        Leaflet.js (Fase 3)
 Async:       Railway Jobs / Celery + Redis (Fase 3+)
 ```
