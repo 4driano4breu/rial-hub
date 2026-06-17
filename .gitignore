@@ -15,8 +15,11 @@ venv/
 env/
 ENV/
 
-# Flask instance (uploads, saídas geradas)
+# Flask instance (SQLite local, uploads, saídas geradas)
 instance/
+uploads/
+*.db
+*.sqlite
 
 # Variáveis de ambiente — NUNCA commitar
 .env

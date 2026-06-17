@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, feat/**]
+  pull_request:
+    branches: [develop, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Verify app starts
+        env:
+          SECRET_KEY: ci-test-secret-key
+          FLASK_APP: app
+        run: |
+          flask db upgrade
+          python -c "from app import create_app; app = create_app(); print('App OK')"
+
+      - name: Check for secrets in code
+        run: |
+          grep -rn "SECRET_KEY\s*=\s*['\"][^'\"]" app/ --include="*.py" && echo "ERRO: secret hardcoded" && exit 1 || echo "OK: sem secrets hardcoded"
