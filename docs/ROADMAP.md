@@ -3,8 +3,25 @@
 
 **Versão:** 1.0  
 **Data:** Junho 2026  
-**Status:** Planejamento  
+**Status:** Em Desenvolvimento — Fase 0  
 **Tenant #1:** RIAL Construtora (contrato 037/2021 AGESUL)
+
+---
+
+## Estratégia de Branches (Desenvolvimento Paralelo)
+
+```
+master   ──────────────────────────────────────────────────► produção estável
+              │                     ▲
+              └── develop ──────────┘ (merge ao concluir cada fase)
+                    │
+                    ├── feat/fase-0-auth         (autenticação + DB)
+                    ├── feat/fase-0-railway      (deploy + CI/CD)
+                    ├── feat/fase-1-usinagem     (Google Sheets → DB)
+                    └── ...
+```
+
+**Regra:** `master` nunca quebra — RIAL continua usando o app local enquanto o OBRIA é desenvolvido em `develop`. Merge para `master` só quando a fase completa está testada e rodando no Railway.
 
 ---
 
