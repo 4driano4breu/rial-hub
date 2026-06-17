@@ -2,32 +2,12 @@
 {% block title %}Usuários — OBRIA{% endblock %}
 {% block nav_cur %}Admin / Usuários{% endblock %}
 
-{% block head %}
-<style>
-  .table { width:100%; border-collapse:collapse; font-size:.85rem; }
-  .table th { text-align:left; color:var(--muted); font-weight:500; padding:8px 12px; border-bottom:1px solid var(--border); }
-  .table td { padding:11px 12px; border-bottom:1px solid #1e293b; }
-  .table tr:hover td { background:#ffffff06; }
-  .badge { display:inline-block; padding:2px 8px; border-radius:5px; font-size:.74rem; font-weight:600; }
-  .badge-admin    { background:#3b82f620; color:#60a5fa; }
-  .badge-operacional { background:#10b98120; color:#34d399; }
-  .badge-financeiro  { background:#8b5cf620; color:#a78bfa; }
-  .badge-viewer   { background:#64748b20; color:#94a3b8; }
-  .badge-superadmin { background:#ef444420; color:#f87171; }
-  .badge-ativo    { background:#10b98120; color:#34d399; }
-  .badge-inativo  { background:#ef444420; color:#f87171; }
-  .btn { display:inline-block; padding:8px 16px; border-radius:8px; font-size:.82rem; font-weight:600; text-decoration:none; cursor:pointer; border:none; }
-  .btn-primary { background:var(--accent); color:#fff; }
-  .btn-primary:hover { background:#2563eb; }
-  .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-</style>
-{% endblock %}
 
 {% block content %}
 <h1>Usuários</h1>
 <p class="subtitle">{{ current_user.organization.name }}</p>
 
-<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px">
+<div class="card card-body">
   <div class="section-header">
     <span style="color:var(--muted);font-size:.85rem">{{ usuarios | length }} usuário(s)</span>
     <a href="{{ url_for('admin.usuario_novo') }}" class="btn btn-primary">+ Novo usuário</a>

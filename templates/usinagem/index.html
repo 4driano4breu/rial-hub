@@ -2,38 +2,6 @@
 {% block title %}Usinagem CBUQ — OBRIA{% endblock %}
 {% block nav_cur %}Usinagem CBUQ{% endblock %}
 
-{% block head %}
-<style>
-  .module-header { display:flex; align-items:center; gap:14px; margin-bottom:28px; }
-  .module-icon { width:48px; height:48px; background:#3b82f620; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
-  .module-title { font-size:1.3rem; font-weight:700; }
-  .module-sub { color:var(--muted); font-size:.82rem; margin-top:3px; }
-
-  .section-title { font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:600; margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
-
-  /* Dashboard grid */
-  .dash-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:28px; }
-  @media(max-width:640px){ .dash-grid { grid-template-columns:1fr; } }
-
-  .dash-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:10px; transition:border-color .2s, transform .15s; }
-  .dash-card:hover { border-color:var(--accent); transform:translateY(-2px); }
-  .dash-card-icon { font-size:1.8rem; line-height:1; }
-  .dash-card h3 { font-size:.98rem; font-weight:700; }
-  .dash-card p { font-size:.82rem; color:var(--muted); flex:1; line-height:1.5; }
-
-  .btn { display:inline-block; padding:8px 16px; border-radius:8px; font-size:.82rem; font-weight:600; text-decoration:none; cursor:pointer; border:none; transition:opacity .15s; }
-  .btn:hover { opacity:.85; }
-  .btn-primary { background:var(--accent); color:#fff; }
-  .btn-success { background:#16a34a; color:#fff; }
-
-  /* Upload card */
-  .upload-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:22px; }
-  .upload-card form { display:flex; flex-direction:column; gap:14px; }
-  .field label { display:block; font-size:.82rem; color:var(--muted); margin-bottom:6px; }
-  .field input[type="file"] { background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:8px 10px; color:var(--text); font-size:.82rem; width:100%; cursor:pointer; }
-  .hint { font-size:.78rem; color:var(--muted); background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:8px 12px; }
-</style>
-{% endblock %}
 
 {% block content %}
 <div class="module-header">
@@ -73,12 +41,12 @@
 
 <!-- Status banco -->
 <div class="section-title">Banco de Dados</div>
-<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+<div class="card flex-center gap-md mb-md" style="padding:16px 20px;flex-wrap:wrap">
   <div>
-    <span style="font-size:1.6rem;font-weight:800;color:var(--accent)">{{ total_db }}</span>
-    <span style="color:var(--muted);font-size:.82rem;margin-left:6px">registros no PostgreSQL</span>
+    <span class="stat-num">{{ total_db }}</span>
+    <span class="text-muted text-sm" style="margin-left:6px">registros no PostgreSQL</span>
   </div>
-  <div style="margin-left:auto;font-size:.75rem;color:var(--muted)">
+  <div style="margin-left:auto" class="text-xs text-muted">
     Última atualização: <strong style="color:var(--text)">{{ ultima_atualizacao | default('—') }}</strong>
   </div>
 </div>

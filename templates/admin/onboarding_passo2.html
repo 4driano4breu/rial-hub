@@ -1,25 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Nova Organização — Contrato{% endblock %}
 {% block nav_cur %}Admin / Nova Organização{% endblock %}
-{% block head %}
-<style>
-  .wizard-steps { display:flex; gap:0; margin-bottom:28px; }
-  .wstep { flex:1; padding:10px 14px; font-size:.8rem; font-weight:600; color:var(--muted); border-bottom:2px solid var(--border); }
-  .wstep.active { color:var(--accent); border-bottom-color:var(--accent); }
-  .form-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:28px; max-width:520px; }
-  .field { margin-bottom:14px; }
-  label { display:block; color:var(--muted); font-size:.8rem; margin-bottom:5px; font-weight:500; }
-  input { width:100%; background:#0f172a; border:1px solid var(--border); border-radius:8px;
-    color:var(--text); padding:9px 12px; font-size:.9rem; outline:none; }
-  input:focus { border-color:var(--accent); }
-  .help { color:var(--muted); font-size:.75rem; margin-top:3px; }
-  .section { font-size:.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin:20px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
-  .btn { display:inline-block; padding:10px 20px; border-radius:8px; font-size:.85rem; font-weight:600; cursor:pointer; border:none; }
-  .btn-primary { background:var(--accent); color:#fff; }
-  .btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); }
-  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-</style>
-{% endblock %}
+
 {% block content %}
 <h1>Nova Organização</h1>
 <p class="subtitle">Passo 2 de 3 — Configuração do contrato</p>
@@ -34,8 +16,8 @@
   <form method="POST">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-    <div class="section">Alíquotas de retenção (%)</div>
-    <div class="grid2">
+    <div class="section-title">Alíquotas de retenção (%)</div>
+    <div class="grid-2">
       <div class="field">
         <label>Pavimentação</label>
         <input type="number" name="aliq_pav" step="0.001" value="{{ (defaults.aliquotas.pav * 100) | round(1) }}">
@@ -59,8 +41,8 @@
       </div>
     </div>
 
-    <div class="section">Usinagem CBUQ — CAP (toneladas)</div>
-    <div class="grid2">
+    <div class="section-title">Usinagem CBUQ — CAP (toneladas)</div>
+    <div class="grid-2">
       <div class="field">
         <label>CAP AEGEA (t)</label>
         <input type="number" name="cap_aegea" step="0.01" value="{{ defaults.usinagem.cap_aegea }}">

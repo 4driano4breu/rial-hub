@@ -2,26 +2,6 @@
 {% block title %}{{ titulo }} — OBRIA{% endblock %}
 {% block nav_cur %}Admin / {{ titulo }}{% endblock %}
 
-{% block head %}
-<style>
-  .form-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:28px; max-width:500px; }
-  .field { margin-bottom:18px; }
-  label { display:block; color:var(--muted); font-size:.8rem; margin-bottom:6px; font-weight:500; }
-  input, select { width:100%; background:#0f172a; border:1px solid var(--border); border-radius:8px;
-    color:var(--text); padding:10px 12px; font-size:.9rem; outline:none; }
-  input:focus, select:focus { border-color:var(--accent); }
-  .help { color:var(--muted); font-size:.75rem; margin-top:4px; }
-  .btn { display:inline-block; padding:10px 20px; border-radius:8px; font-size:.85rem; font-weight:600;
-    text-decoration:none; cursor:pointer; border:none; }
-  .btn-primary { background:var(--accent); color:#fff; }
-  .btn-primary:hover { background:#2563eb; }
-  .btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); }
-  .btn-ghost:hover { color:var(--text); }
-  .actions { display:flex; gap:10px; margin-top:24px; }
-  .toggle-row { display:flex; align-items:center; gap:10px; }
-  .toggle-label { color:var(--text); font-size:.85rem; }
-</style>
-{% endblock %}
 
 {% block content %}
 <h1>{{ titulo }}</h1>

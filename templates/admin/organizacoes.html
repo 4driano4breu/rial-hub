@@ -2,28 +2,15 @@
 {% block title %}Organizações — OBRIA{% endblock %}
 {% block nav_cur %}Admin / Organizações{% endblock %}
 
-{% block head %}
-<style>
-  .table { width:100%; border-collapse:collapse; font-size:.85rem; }
-  .table th { text-align:left; color:var(--muted); font-weight:500; padding:8px 12px; border-bottom:1px solid var(--border); }
-  .table td { padding:11px 12px; border-bottom:1px solid #1e293b; }
-  .table tr:hover td { background:#ffffff06; }
-  .badge { display:inline-block; padding:2px 8px; border-radius:5px; font-size:.74rem; font-weight:600; }
-  .badge-ativo   { background:#10b98120; color:#34d399; }
-  .badge-inativo { background:#ef444420; color:#f87171; }
-  .badge-pro     { background:#3b82f620; color:#60a5fa; }
-  .badge-starter { background:#64748b20; color:#94a3b8; }
-</style>
-{% endblock %}
 
 {% block content %}
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+<div class="flex-between mb-sm">
   <h1>Organizações</h1>
-  <a href="{{ url_for('admin.onboarding') }}" class="btn btn-primary" style="display:inline-block;padding:8px 16px;background:#3b82f6;color:#fff;border-radius:8px;font-size:.82rem;font-weight:600;text-decoration:none">+ Nova organização</a>
+  <a href="{{ url_for('admin.onboarding') }}" class="btn btn-primary">+ Nova organização</a>
 </div>
 <p class="subtitle">Visão SUPERADMIN — todas as tenants</p>
 
-<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px">
+<div class="card card-body">
   <table class="table">
     <thead>
       <tr>
