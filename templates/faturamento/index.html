@@ -2,37 +2,6 @@
 {% block title %}Faturamento NFS-e — OBRIA{% endblock %}
 {% block nav_cur %}Faturamento NFS-e{% endblock %}
 
-{% block head %}
-<style>
-  .module-header { display:flex; align-items:center; gap:14px; margin-bottom:28px; }
-  .module-icon { width:48px; height:48px; background:#3b82f620; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
-  .module-title { font-size:1.3rem; font-weight:700; }
-  .module-sub { color:var(--muted); font-size:.82rem; margin-top:3px; }
-
-  .cards-row { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:24px; }
-  @media(max-width:680px){ .cards-row { grid-template-columns:1fr; } }
-
-  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px; }
-  .card-title { font-size:.75rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:600; margin-bottom:16px; }
-  .card-body { font-size:.88rem; color:var(--muted); margin-bottom:18px; line-height:1.6; }
-
-  .btn { display:inline-flex; align-items:center; gap:7px; padding:9px 18px; border-radius:8px; font-size:.86rem; font-weight:600; cursor:pointer; text-decoration:none; border:none; transition:opacity .15s; }
-  .btn-blue { background:var(--accent); color:#fff; }
-  .btn-blue:hover { opacity:.85; }
-  .btn-green { background:#059669; color:#fff; width:100%; justify-content:center; margin-top:6px; }
-  .btn-green:hover { opacity:.85; }
-
-  .form-group { margin-bottom:14px; }
-  .form-label { display:block; font-size:.78rem; font-weight:600; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.04em; }
-  .form-label span.opt { font-weight:400; color:#64748b; text-transform:none; letter-spacing:0; }
-  input[type="file"] { display:block; width:100%; background:var(--card2); border:1px solid var(--border); border-radius:8px; padding:8px 10px; color:var(--text); font-size:.84rem; cursor:pointer; }
-  input[type="file"]:hover { border-color:var(--accent); }
-
-  .info-box { background:var(--card2); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:8px; padding:14px 18px; font-size:.82rem; color:var(--muted); line-height:1.6; }
-  .info-box strong { color:var(--text); }
-</style>
-{% endblock %}
-
 {% block content %}
 <div class="module-header">
   <div class="module-icon">💰</div>
@@ -42,38 +11,40 @@
   </div>
 </div>
 
-<div class="cards-row">
+<div class="grid-2 mb-lg">
+
   <!-- Card 1: Dashboard -->
-  <div class="card">
-    <div class="card-title">Dashboard</div>
-    <div class="card-body">
+  <div class="card card-body">
+    <div class="card-title-sm">Dashboard</div>
+    <p class="text-muted text-sm mb-md" style="line-height:1.6">
       Visualize os dados de faturamento consolidados no dashboard interativo. Os dados são atualizados conforme a planilha for importada.
-    </div>
-    <a class="btn btn-blue" href="/faturamento/dashboard" target="_blank">📊 Abrir Dashboard</a>
+    </p>
+    <a class="btn btn-primary" href="/faturamento/dashboard" target="_blank">📊 Abrir Dashboard</a>
   </div>
 
   <!-- Card 2: Atualizar Planilha -->
-  <div class="card">
-    <div class="card-title">Atualizar Planilha</div>
+  <div class="card card-body">
+    <div class="card-title-sm">Atualizar Planilha</div>
     <form method="POST" action="/faturamento/atualizar" enctype="multipart/form-data">
-      <div class="form-group">
-        <label class="form-label" for="xml">XML de NFS-e</label>
+      <div class="field">
+        <label>XML de NFS-e</label>
         <input type="file" id="xml" name="xml" accept=".xml" required>
       </div>
-      <div class="form-group">
-        <label class="form-label" for="xlsx">Planilha .xlsx <span class="opt">(só na primeira vez)</span></label>
+      <div class="field">
+        <label>Planilha .xlsx <span class="text-xs text-muted">(só na primeira vez)</span></label>
         <input type="file" id="xlsx" name="xlsx" accept=".xlsx">
       </div>
-      <button type="submit" class="btn btn-green">⬆ Importar NFS-e</button>
+      <button type="submit" class="btn btn-success btn-full" style="margin-top:6px">⬆ Importar NFS-e</button>
     </form>
   </div>
+
 </div>
 
-<div class="info-box">
+<div class="info-box info-box-accent mb-sm">
   <strong>Fluxo:</strong> XML NFS-e → atualiza planilha xlsx. O dashboard HTML é atualizado separadamente.<br>
   Na <strong>primeira importação</strong>, envie também a planilha .xlsx base. Nas importações seguintes, apenas o XML é necessário.
 </div>
-<div style="margin-top:12px;font-size:.75rem;color:var(--muted)">
+<div class="text-xs text-muted mt-sm">
   Última atualização: <strong style="color:var(--text)">{{ ultima_atualizacao | default('—') }}</strong>
 </div>
 {% endblock %}

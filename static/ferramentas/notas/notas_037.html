@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Notas de MediÃ§Ã£o â€” OBRIA</title>
+<title>Notas de Medição — OBRIA</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
@@ -200,30 +200,30 @@ input[type=file]{display:none;}
     <span style="font-size:.83rem;font-weight:700;color:#3b82f6">OBRIA</span>
   </a>
   <a href="/ferramentas/" style="font-size:.75rem;color:#64748b;text-decoration:none;white-space:nowrap">Ferramentas</a>
-  <span style="color:#475569;margin:0 8px;font-size:.85rem">â€º</span>
+  <span style="color:#475569;margin:0 8px;font-size:.85rem">€º</span>
   <span id="hLogo" style="font-size:.85rem;margin-right:5px">ðŸ“‹</span>
-  <span style="font-size:.82rem;font-weight:600;color:#f1f5f9;white-space:nowrap">Notas de MediÃ§Ã£o</span>
-  <span id="hSub" style="font-size:.73rem;color:#64748b;margin-left:12px;padding-left:12px;border-left:1px solid #334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0">Carregue o arquivo .xlsx â€” contrato identificado automaticamente</span>
+  <span style="font-size:.82rem;font-weight:600;color:#f1f5f9;white-space:nowrap">Notas de Medição</span>
+  <span id="hSub" style="font-size:.73rem;color:#64748b;margin-left:12px;padding-left:12px;border-left:1px solid #334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0">Carregue o arquivo .xlsx — contrato identificado automaticamente</span>
   <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;padding-left:12px">
     <button id="themeBtn" onclick="toggleTheme()" style="background:transparent;border:1px solid #334155;color:#94a3b8;padding:4px 10px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:inherit">â˜€ï¸ Claro</button>
     <a href="/ferramentas/" style="font-size:.75rem;color:#94a3b8;text-decoration:none;padding:4px 12px;border:1px solid #334155;border-radius:6px;white-space:nowrap">â† Ferramentas</a>
   </div>
 </nav>
 <nav class="mode-nav">
-  <button class="mode-btn p active" onclick="setMode('principal',this)">ðŸ“‹ MediÃ§Ã£o Principal</button>
+  <button class="mode-btn p active" onclick="setMode('principal',this)">ðŸ“‹ Medição Principal</button>
   <button class="mode-btn r" onclick="setMode('reajuste',this)">âš–ï¸ Reajuste</button>
   <button class="mode-btn g" onclick="setMode('contratos',this)">âš™ï¸ Contratos</button>
 </nav>
 
-<!-- â”€â”€ MEDIÃ‡ÃƒO PRINCIPAL â”€â”€ -->
+<!-- â”€â”€ MEDIÇÃƒO PRINCIPAL â”€â”€ -->
 <div id="panel-principal" class="panel active">
 <div class="main">
   <div class="drop-row single">
     <div class="drop-zone" id="pDrop" onclick="document.getElementById('pFile').click()"
          ondragover="ev(event,'pDrop','drag-over',true)" ondragleave="ev(event,'pDrop','drag-over',false)" ondrop="onDrop(event,'p')">
       <div class="drop-icon">ðŸ“‚</div>
-      <div class="drop-title" id="pTitle">Arraste ou clique â€” arquivo de mediÃ§Ã£o (.xlsx)</div>
-      <div class="drop-sub">Ex: 68Âª_Med_TL REV.xlsx</div>
+      <div class="drop-title" id="pTitle">Arraste ou clique — arquivo de medição (.xlsx)</div>
+      <div class="drop-sub">Ex: 68ª_Med_TL REV.xlsx</div>
       <input type="file" id="pFile" accept=".xlsx,.xls" onchange="onFileChange(event,'p')">
     </div>
   </div>
@@ -238,29 +238,29 @@ input[type=file]{display:none;}
     <div class="drop-zone" id="rDropX" onclick="document.getElementById('rFileX').click()"
          ondragover="ev(event,'rDropX','drag-over',true)" ondragleave="ev(event,'rDropX','drag-over',false)" ondrop="onDrop(event,'rX')">
       <div class="drop-icon">ðŸ“Š</div>
-      <div class="drop-title" id="rTitleX">MediÃ§Ã£o (.xlsx)</div>
-      <div class="drop-sub">Aba Cidades â€” valores por cidade e serviÃ§o</div>
+      <div class="drop-title" id="rTitleX">Medição (.xlsx)</div>
+      <div class="drop-sub">Aba Cidades — valores por cidade e serviço</div>
       <input type="file" id="rFileX" accept=".xlsx,.xls" onchange="onFileChange(event,'rX')">
     </div>
     <div class="drop-zone" id="rDropP" onclick="document.getElementById('rFileP').click()"
          ondragover="ev(event,'rDropP','drag-over',true)" ondragleave="ev(event,'rDropP','drag-over',false)" ondrop="onDrop(event,'rP')">
       <div class="drop-icon">ðŸ“„</div>
       <div class="drop-title" id="rTitleP">Boletim de Reajuste (.pdf)</div>
-      <div class="drop-sub">PÃ¡gina 7 â€” tabela FGV de coeficientes</div>
+      <div class="drop-sub">Página 7 — tabela FGV de coeficientes</div>
       <input type="file" id="rFileP" accept=".pdf" onchange="onFileChange(event,'rP')">
     </div>
   </div>
   <div class="coef-panel">
-    <h2>Coeficientes FGV â€” extraÃ­dos do PDF ou ajuste manual</h2>
+    <h2>Coeficientes FGV — extraídos do PDF ou ajuste manual</h2>
     <div class="coef-grid">
-      <div class="coef-item"><label>AdministraÃ§Ã£o Local (%)</label><input class="coef-input" id="cAdm" type="number" step="0.001" value="42.586"><div class="coef-note">ISENTO para INSS</div></div>
+      <div class="coef-item"><label>Administração Local (%)</label><input class="coef-input" id="cAdm" type="number" step="0.001" value="42.586"><div class="coef-note">ISENTO para INSS</div></div>
       <div class="coef-item"><label>Terraplenagem (%)</label><input class="coef-input" id="cTerra" type="number" step="0.001" value="53.714"><div class="coef-note">INSS: 15% Ã— 11%</div></div>
-      <div class="coef-item"><label>Canteiro â€” INCC (%)</label><input class="coef-input" id="cCant" type="number" step="0.001" value="57.735"><div class="coef-note">INSS: 35% Ã— 11%</div></div>
-      <div class="coef-item"><label>ConservaÃ§Ã£o / RoÃ§ada (%)</label><input class="coef-input" id="cRoc" type="number" step="0.001" value="52.030"><div class="coef-note">INSS: 35% Ã— 11%</div></div>
-      <div class="coef-item"><label>PavimentaÃ§Ã£o (%)</label><input class="coef-input" id="cPav" type="number" step="0.001" value="69.492"><div class="coef-note">INSS: 10% Ã— 11%</div></div>
+      <div class="coef-item"><label>Canteiro — INCC (%)</label><input class="coef-input" id="cCant" type="number" step="0.001" value="57.735"><div class="coef-note">INSS: 35% Ã— 11%</div></div>
+      <div class="coef-item"><label>Conservação / Roçada (%)</label><input class="coef-input" id="cRoc" type="number" step="0.001" value="52.030"><div class="coef-note">INSS: 35% Ã— 11%</div></div>
+      <div class="coef-item"><label>Pavimentação (%)</label><input class="coef-input" id="cPav" type="number" step="0.001" value="69.492"><div class="coef-note">INSS: 10% Ã— 11%</div></div>
     </div>
     <div class="verif-row">
-      <label>Total do PDF (Ãºltima pÃ¡g.):</label>
+      <label>Total do PDF (última pág.):</label>
       <input class="verif-input" id="totalPDF" type="text" placeholder="315.154,14" oninput="limparV()">
       <button class="btn-calc" onclick="calcR()">âš–ï¸ Calcular Reajuste</button>
       <span class="verif-badge verif-ok" id="vOK">âœ… Total confere</span>
@@ -299,7 +299,7 @@ input[type=file]{display:none;}
           <div class="ct-form-hdr-left">
             <div>
               <div class="ct-form-title" id="ctFormTitle">Novo Contrato</div>
-              <div class="ct-form-subtitle" id="ctFormSub">Preencha todos os campos obrigatÃ³rios</div>
+              <div class="ct-form-subtitle" id="ctFormSub">Preencha todos os campos obrigatórios</div>
             </div>
           </div>
           <div class="ct-form-actions">
@@ -311,16 +311,16 @@ input[type=file]{display:none;}
         <div class="ct-form-body">
 
           <div class="ct-section">
-            <div class="ct-section-title">IdentificaÃ§Ã£o</div>
+            <div class="ct-section-title">Identificação</div>
             <div class="ct-grid-2">
               <div class="ct-field">
                 <label>ID do Contrato *</label>
                 <input class="ct-input" id="fId" placeholder="037/2021" oninput="syncFormTitle()">
-                <div class="note">Deve aparecer exatamente assim no arquivo Excel para detecÃ§Ã£o automÃ¡tica</div>
+                <div class="note">Deve aparecer exatamente assim no arquivo Excel para detecção automática</div>
               </div>
               <div class="ct-field">
-                <label>Nome / DescriÃ§Ã£o *</label>
-                <input class="ct-input" id="fNome" placeholder="037/2021 â€” 3Âª RR TrÃªs Lagoas">
+                <label>Nome / Descrição *</label>
+                <input class="ct-input" id="fNome" placeholder="037/2021 — 3ª RR Três Lagoas">
               </div>
             </div>
           </div>
@@ -328,34 +328,34 @@ input[type=file]{display:none;}
           <div class="ct-section">
             <div class="ct-section-title">Textos das Notas Fiscais</div>
             <div class="placeholder-note">
-              Use <code>{c}</code> = cidade &nbsp;|&nbsp; <code>{num}</code> = nÂº mediÃ§Ã£o &nbsp;|&nbsp; <code>{per}</code> = perÃ­odo &nbsp;|&nbsp; <code>{tot}</code> = valor total
+              Use <code>{c}</code> = cidade &nbsp;|&nbsp; <code>{num}</code> = nº medição &nbsp;|&nbsp; <code>{per}</code> = período &nbsp;|&nbsp; <code>{tot}</code> = valor total
             </div>
             <div class="ct-field">
-              <label>CabeÃ§alho â€” MediÃ§Ã£o Principal</label>
-              <textarea class="ct-textarea" id="fMedH" rows="4" placeholder="MANUTENÃ‡ÃƒO E CONSERVAÃ‡ÃƒO... MUNICÃPIO DE {c} - MS."></textarea>
+              <label>Cabeçalho — Medição Principal</label>
+              <textarea class="ct-textarea" id="fMedH" rows="4" placeholder="MANUTENÇÃƒO E CONSERVAÇÃƒO... MUNICÃPIO DE {c} - MS."></textarea>
             </div>
             <div class="ct-field">
-              <label>CabeÃ§alho â€” Reajuste</label>
+              <label>Cabeçalho — Reajuste</label>
               <textarea class="ct-textarea" id="fReajH" rows="4" placeholder="REAJUSTAMENTO... MUNICÃPIO DE {c} - MS."></textarea>
             </div>
             <div class="ct-grid-2">
               <div class="ct-field">
-                <label>Linha de mediÃ§Ã£o</label>
-                <input class="ct-input" id="fMedLn" placeholder="{num} MEDIÃ‡ÃƒO PARCIAL, PERÃODO: {per} â€“ R$ {tot}">
+                <label>Linha de medição</label>
+                <input class="ct-input" id="fMedLn" placeholder="{num} MEDIÇÃƒO PARCIAL, PERÃODO: {per} €“ R$ {tot}">
               </div>
               <div class="ct-field">
                 <label>Linha de reajuste</label>
-                <input class="ct-input" id="fReajLn" placeholder="{num} MEDIÃ‡ÃƒO DE REAJUSTAMENTO, PERÃODO: {per}. â€“ R$ {tot}">
+                <input class="ct-input" id="fReajLn" placeholder="{num} MEDIÇÃƒO DE REAJUSTAMENTO, PERÃODO: {per}. €“ R$ {tot}">
               </div>
             </div>
             <div class="ct-grid-2">
               <div class="ct-field">
-                <label>Linha total â€” MediÃ§Ã£o</label>
-                <input class="ct-input" id="fTotalMedP" placeholder="TOTAL DAS MEDIÃ‡Ã•ES: R$ {tot}">
+                <label>Linha total — Medição</label>
+                <input class="ct-input" id="fTotalMedP" placeholder="TOTAL DAS MEDIÇÕES: R$ {tot}">
               </div>
               <div class="ct-field">
-                <label>Linha total â€” Reajuste</label>
-                <input class="ct-input" id="fTotalMedR" placeholder="TOTAL DAS MEDIÃ‡Ã•ES: R$ {tot}">
+                <label>Linha total — Reajuste</label>
+                <input class="ct-input" id="fTotalMedR" placeholder="TOTAL DAS MEDIÇÕES: R$ {tot}">
               </div>
             </div>
           </div>
@@ -363,19 +363,19 @@ input[type=file]{display:none;}
           <div class="ct-section">
             <div class="ct-section-title">Estrutura da Aba "Cidades" (Excel)</div>
             <div class="placeholder-note">
-              Ãndice da coluna: 0 = coluna A, 1 = B, 2 = Câ€¦ Deixe em branco para serviÃ§os nÃ£o utilizados.
+              Ãndice da coluna: 0 = coluna A, 1 = B, 2 = C€¦ Deixe em branco para serviços não utilizados.
             </div>
             <div class="ct-cols-grid">
               <div class="ct-field">
-                <label>Col. MunicÃ­pio *</label>
+                <label>Col. Município *</label>
                 <input class="ct-input" id="fColHdr" type="number" min="0" placeholder="35">
               </div>
               <div class="ct-field">
-                <label>Col. verificaÃ§Ã£o *</label>
+                <label>Col. verificação *</label>
                 <input class="ct-input" id="fColCheck" type="number" min="0" placeholder="36">
               </div>
               <div class="ct-field">
-                <label>NÂº de cidades *</label>
+                <label>Nº de cidades *</label>
                 <input class="ct-input" id="fNCidades" type="number" min="1" placeholder="5">
               </div>
               <div class="ct-field">
@@ -383,18 +383,18 @@ input[type=file]{display:none;}
                 <input class="ct-input" id="fColTotal" type="number" min="0" placeholder="41">
               </div>
               <div class="ct-field">
-                <label>Col. AdministraÃ§Ã£o *</label>
+                <label>Col. Administração *</label>
                 <input class="ct-input" id="fColAdm" type="number" min="0" placeholder="36">
               </div>
             </div>
-            <div style="margin-top:14px;margin-bottom:8px;font-size:.68rem;color:var(--text-2);font-weight:600;">ServiÃ§os (marque os que este contrato usa)</div>
+            <div style="margin-top:14px;margin-bottom:8px;font-size:.68rem;color:var(--text-2);font-weight:600;">Serviços (marque os que este contrato usa)</div>
             <div id="fSvcs"></div>
           </div>
 
           <div class="ct-section">
             <div class="ct-section-title">Mapeamento de Cidades</div>
             <div class="placeholder-note">
-              Chave = nome <strong>exato</strong> como aparece no Excel (maiÃºsculas) â†’ Valor = nome que aparece na nota
+              Chave = nome <strong>exato</strong> como aparece no Excel (maiúsculas) â†’ Valor = nome que aparece na nota
             </div>
             <table class="ct-city-table">
               <thead><tr><th>Nome no Excel</th><th>Nome na nota</th><th></th></tr></thead>
@@ -415,39 +415,39 @@ if(typeof pdfjsLib!='undefined')pdfjsLib.GlobalWorkerOptions.workerSrc='https://
 
 const ALIQ={pav:.10,canteiro:.35,rocada:.35,terra:.15,inss:.11};
 const SVC_ALL=[
-  {k:'pav',   label:'PavimentaÃ§Ã£o',   aliq:.10},
+  {k:'pav',   label:'Pavimentação',   aliq:.10},
   {k:'canteiro',label:'Canteiro',     aliq:.35},
-  {k:'rocada', label:'RoÃ§ada/ConservaÃ§Ã£o', aliq:.35},
+  {k:'rocada', label:'Roçada/Conservação', aliq:.35},
   {k:'terra',  label:'Terraplenagem', aliq:.15},
 ];
-const SVC={pav:"PavimentaÃ§Ã£o",canteiro:"Canteiro",rocada:"RoÃ§ada",terra:"Terraplenagem"};
+const SVC={pav:"Pavimentação",canteiro:"Canteiro",rocada:"Roçada",terra:"Terraplenagem"};
 const CORES=["#3b82f6","#10b981","#f59e0b","#8b5cf6","#ef4444"];
-const INSS_ISO="INSS ISENTO CONFORME ART.130 PARÃGRAFO 1 IN RFB 2110 DE 17/10/2022";
-const FGV_N={adm:["AdministraÃ§Ã£o Local"],terra:["Terraplenagem"],canteiro:["Ãndice Nacional","INCC"],rocada:["ConservaÃ§Ã£o RodoviÃ¡ria"],pav:["PavimentaÃ§Ã£o"]};
+const INSS_ISO="INSS ISENTO CONFORME ART.130 PARÁGRAFO 1 IN RFB 2110 DE 17/10/2022";
+const FGV_N={adm:["Administração Local"],terra:["Terraplenagem"],canteiro:["Ãndice Nacional","INCC"],rocada:["Conservação Rodoviária"],pav:["Pavimentação"]};
 const CID={adm:"cAdm",terra:"cTerra",canteiro:"cCant",rocada:"cRoc",pav:"cPav"};
 
 const DEFAULT_CONTRATOS={
   '037/2021':{
-    nome:'037/2021 â€” 3Âª RR TrÃªs Lagoas',
-    medH:"MANUTENÃ‡ÃƒO E CONSERVAÃ‡ÃƒO DAS RODOVIAS PAVIMENTADAS E NÃƒO PAVIMENTADAS, DA MALHA RODOVIÃRIA DA 3Âª RESIDÃŠNCIA REGIONAL DE TRÃŠS LAGOAS/MS â€“ SETOR B, PROCESSO NÂº 57/101.086/2020 â€“ CONTRATO NÂº 037/2021 â€“ CADASTRO NACIONAL DE OBRAS NÂº 90.006.16075/77, SERVIÃ‡OS REALIZADOS NO MUNICÃPIO DE {c} - MS. ",
-    reajH:"REAJUSTAMENTO MANUTENÃ‡ÃƒO E CONSERVAÃ‡ÃƒO DAS RODOVIAS PAVIMENTADAS E NÃƒO PAVIMENTADAS, DA MALHA RODOVIÃRIA DA 3Âª RESIDÃŠNCIA REGIONAL DE TRÃŠS LAGOAS/MS â€“ SETOR B, PROCESSO NÂº 57/003.871/2021 â€“ CONTRATO NÂº 037/2021 â€“ CADASTRO NACIONAL DE OBRA â€“ CNO NÂº 90.006.16075/77, SERVIÃ‡OS REALIZADOS NO MUNICÃPIO DE {c} - MS. ",
-    medLn:"{num} MEDIÃ‡ÃƒO PARCIAL, PERÃODO: {per} â€“ R$ {tot}",
-    reajLn:"{num} MEDIÃ‡ÃƒO DE REAJUSTAMENTO, PERÃODO: {per}. â€“ R$ {tot}",
-    totalMedP:"TOTAL DAS MEDIÃ‡Ã•ES: R$ {tot}",
-    totalMedR:"TOTAL DAS MEDIÃ‡Ã•ES: R$ {tot}",
+    nome:'037/2021 — 3ª RR Três Lagoas',
+    medH:"MANUTENÇÃƒO E CONSERVAÇÃƒO DAS RODOVIAS PAVIMENTADAS E NÃƒO PAVIMENTADAS, DA MALHA RODOVIÁRIA DA 3ª RESIDÃŠNCIA REGIONAL DE TRÃŠS LAGOAS/MS €“ SETOR B, PROCESSO Nº 57/101.086/2020 €“ CONTRATO Nº 037/2021 €“ CADASTRO NACIONAL DE OBRAS Nº 90.006.16075/77, SERVIÇOS REALIZADOS NO MUNICÃPIO DE {c} - MS. ",
+    reajH:"REAJUSTAMENTO MANUTENÇÃƒO E CONSERVAÇÃƒO DAS RODOVIAS PAVIMENTADAS E NÃƒO PAVIMENTADAS, DA MALHA RODOVIÁRIA DA 3ª RESIDÃŠNCIA REGIONAL DE TRÃŠS LAGOAS/MS €“ SETOR B, PROCESSO Nº 57/003.871/2021 €“ CONTRATO Nº 037/2021 €“ CADASTRO NACIONAL DE OBRA €“ CNO Nº 90.006.16075/77, SERVIÇOS REALIZADOS NO MUNICÃPIO DE {c} - MS. ",
+    medLn:"{num} MEDIÇÃƒO PARCIAL, PERÃODO: {per} €“ R$ {tot}",
+    reajLn:"{num} MEDIÇÃƒO DE REAJUSTAMENTO, PERÃODO: {per}. €“ R$ {tot}",
+    totalMedP:"TOTAL DAS MEDIÇÕES: R$ {tot}",
+    totalMedR:"TOTAL DAS MEDIÇÕES: R$ {tot}",
     svcs:['pav','canteiro','rocada','terra'],
     disp:{"BATAGUASSU":"BATAGUASSU","BRASILANDIA":"BRASILANDIA","RIBAS DO RIO PARDO":"RIBAS DO RIO DO PARDO","SANTA RITA DO PARDO":"SANTA RITA DO PARDO","TRES LAGOAS":"TRES LAGOAS"},
     cols:{hdrCol:35,adm:36,pav:37,canteiro:38,rocada:39,terra:40,total:41,hdrCheck:36},
     nCidades:5,
   },
   '023/2021':{
-    nome:'023/2021 â€” 15Âª RR CamapuÃ£',
-    medH:"MANUTENÃ‡ÃƒO E CONSERVAÃ‡ÃƒO DAS RODOVIAS PAVIMENTADAS E NÃƒO PAVIMENTADAS, DA MALHA RODOVIÃRIA DA 15Âª RESIDÃŠNCIA REGIONAL DE CAMAPUÃƒ - MS, SETOR B, COM EXTENSÃƒO TOTAL DE 417,800 KM, PROCESSO NÂº 57/101.261/2020 â€“ CONTRATO NÂº 023/2021 â€“ CADASTRO NACIONAL DE OBRAS - CNO NÂº 90.005.90015/71, SERVIÃ‡OS REALIZADOS NO MUNICÃPIO DE {c} - MS. ",
-    reajH:"REAJUSTAMENTO DO PROCESSO DE MANUTENÃ‡ÃƒO E CONSERVAÃ‡ÃƒO DAS RODOVIAS PAVIMENTADAS E NÃƒO PAVIMENTADAS, DA MALHA RODOVIÃRIA DA 15Âª RESIDÃŠNCIA REGIONAL DE CAMAPUÃƒ - MS, SETOR B, COM EXTENSÃƒO TOTAL DE 417,800 KM, PROCESSO NO 57/002.240/2022 â€“ CONTRATO NÂº 023/2021 â€“ CADASTRO NACIONAL DE OBRAS CNO NÂº 90.005.90015/71, SERVIÃ‡OS REALIZADOS NO MUNICÃPIO DE {c} - MS. ",
-    medLn:"{num} MEDIÃ‡ÃƒO PARCIAL, PERÃODO: {per} â€“ R$ {tot}",
-    reajLn:"{num} MEDIÃ‡ÃƒO DE REAJUSTE, PERÃODO: {per}. â€“ R$ {tot}",
-    totalMedP:"TOTAL DAS MEDIÃ‡Ã•ES: R$ {tot}",
-    totalMedR:"TOTAL DAS MEDIÃ‡Ã•ES: {tot}",
+    nome:'023/2021 — 15ª RR Camapuã',
+    medH:"MANUTENÇÃƒO E CONSERVAÇÃƒO DAS RODOVIAS PAVIMENTADAS E NÃƒO PAVIMENTADAS, DA MALHA RODOVIÁRIA DA 15ª RESIDÃŠNCIA REGIONAL DE CAMAPUÃƒ - MS, SETOR B, COM EXTENSÃƒO TOTAL DE 417,800 KM, PROCESSO Nº 57/101.261/2020 €“ CONTRATO Nº 023/2021 €“ CADASTRO NACIONAL DE OBRAS - CNO Nº 90.005.90015/71, SERVIÇOS REALIZADOS NO MUNICÃPIO DE {c} - MS. ",
+    reajH:"REAJUSTAMENTO DO PROCESSO DE MANUTENÇÃƒO E CONSERVAÇÃƒO DAS RODOVIAS PAVIMENTADAS E NÃƒO PAVIMENTADAS, DA MALHA RODOVIÁRIA DA 15ª RESIDÃŠNCIA REGIONAL DE CAMAPUÃƒ - MS, SETOR B, COM EXTENSÃƒO TOTAL DE 417,800 KM, PROCESSO NO 57/002.240/2022 €“ CONTRATO Nº 023/2021 €“ CADASTRO NACIONAL DE OBRAS CNO Nº 90.005.90015/71, SERVIÇOS REALIZADOS NO MUNICÃPIO DE {c} - MS. ",
+    medLn:"{num} MEDIÇÃƒO PARCIAL, PERÃODO: {per} €“ R$ {tot}",
+    reajLn:"{num} MEDIÇÃƒO DE REAJUSTE, PERÃODO: {per}. €“ R$ {tot}",
+    totalMedP:"TOTAL DAS MEDIÇÕES: R$ {tot}",
+    totalMedR:"TOTAL DAS MEDIÇÕES: {tot}",
     svcs:['terra'],
     disp:{"BANDEIRANTES":"BANDEIRANTES","CAMAPUÃƒ":"CAMAPUA","RIBAS DO RIO PARDO":"RIBAS DO RIO PARDO"},
     cols:{hdrCol:32,adm:33,pav:null,canteiro:null,rocada:null,terra:36,total:37,hdrCheck:37},
@@ -479,8 +479,8 @@ function setMode(m,btn){
   document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById('panel-'+m).classList.add('active');
   const L=document.getElementById('hLogo'),S=document.getElementById('hSub');
-  if(m==='principal'){document.documentElement.style.setProperty('--accent','var(--acc-p)');L.textContent='ðŸ—ï¸';S.textContent='MediÃ§Ã£o principal â€” textos das notas por cidade';}
-  else if(m==='reajuste'){document.documentElement.style.setProperty('--accent','var(--acc-r)');L.textContent='ðŸ—ï¸';S.textContent='Reajuste de mediÃ§Ã£o â€” coeficientes de reajustamento';}
+  if(m==='principal'){document.documentElement.style.setProperty('--accent','var(--acc-p)');L.textContent='ðŸ—ï¸';S.textContent='Medição principal — textos das notas por cidade';}
+  else if(m==='reajuste'){document.documentElement.style.setProperty('--accent','var(--acc-r)');L.textContent='ðŸ—ï¸';S.textContent='Reajuste de medição — coeficientes de reajustamento';}
   else{document.documentElement.style.setProperty('--accent','var(--acc-g)');L.textContent='âš™ï¸';S.textContent='Gerenciamento de contratos';renderCtList();}
 }
 
@@ -501,23 +501,23 @@ function rXls(file,mode){
 }
 
 function exMed(wb){
-  const wM=wb.Sheets['Med'];if(!wM)throw new Error("Aba 'Med' nÃ£o encontrada.");
+  const wM=wb.Sheets['Med'];if(!wM)throw new Error("Aba 'Med' não encontrada.");
   let per='?';
-  perLoop:for(let r=0;r<=6;r++)for(let c=0;c<=25;c++){const cl=wM[XLSX.utils.encode_cell({r,c})];if(cl&&typeof cl.v==='string'&&(cl.v.startsWith('Periodo')||cl.v.startsWith('PerÃ­odo'))){per=cl.v.replace(/^Per[iÃ­]odo[:\s]*/i,'').trim();break perLoop;}}
+  perLoop:for(let r=0;r<=6;r++)for(let c=0;c<=25;c++){const cl=wM[XLSX.utils.encode_cell({r,c})];if(cl&&typeof cl.v==='string'&&(cl.v.startsWith('Periodo')||cl.v.startsWith('Período'))){per=cl.v.replace(/^Per[ií]odo[:\s]*/i,'').trim();break perLoop;}}
   let num='?';const rng=XLSX.utils.decode_range(wM['!ref']||'A1:Z50');
   outer:for(let r=0;r<=Math.min(rng.e.r,9);r++)for(let c=0;c<=rng.e.c;c++){const cl=wM[XLSX.utils.encode_cell({r,c})];if(cl&&typeof cl.v==='string'&&cl.v.includes('Medi')&&cl.v.includes(':')){num=cl.v.split(':').slice(1).join(':').trim();break outer;}}
   let contrato=null;const ids=Object.keys(CONTRATOS);
   scan:for(let r=0;r<=6;r++)for(let c=0;c<=30;c++){const cl=wM[XLSX.utils.encode_cell({r,c})];if(cl&&typeof cl.v==='string'){for(const id of ids){if(cl.v.includes(id)){contrato=id;break scan;}}}}
   if(!contrato)contrato=ids[0]||'037/2021';
   ST.contrato=contrato;
-  const cfg=CONTRATOS[contrato];if(!cfg)throw new Error("Contrato '"+contrato+"' nÃ£o encontrado. Cadastre-o em âš™ï¸ Contratos.");
-  const wC=wb.Sheets['Cidades'];if(!wC)throw new Error("Aba 'Cidades' nÃ£o encontrada.");
+  const cfg=CONTRATOS[contrato];if(!cfg)throw new Error("Contrato '"+contrato+"' não encontrado. Cadastre-o em âš™ï¸ Contratos.");
+  const wC=wb.Sheets['Cidades'];if(!wC)throw new Error("Aba 'Cidades' não encontrada.");
   const data=XLSX.utils.sheet_to_json(wC,{header:1,defval:null});
   const hc=cfg.cols.hdrCol,hcheck=cfg.cols.hdrCheck;
   let ti=-1;
   for(let i=0;i<data.length;i++){const row=data[i];if(row&&row[hc]&&typeof row[hc]==='string'&&row[hc].includes('Municipio')&&row[hcheck]&&typeof row[hcheck]==='string'&&(row[hcheck].toUpperCase().includes('TOTAL')||row[hcheck].toUpperCase().includes('ADMINISTRA'))){ti=i;break;}}
   if(ti<0){for(let i=0;i<data.length;i++){const row=data[i];if(row&&row[hc]&&typeof row[hc]==='string'&&row[hc].includes('Municipio')){ti=i;break;}}}
-  if(ti<0)throw new Error("Tabela de municÃ­pios nÃ£o encontrada (contrato "+contrato+").");
+  if(ti<0)throw new Error("Tabela de municípios não encontrada (contrato "+contrato+").");
   const co=cfg.cols;const cidades={};
   for(let i=ti+1;i<=ti+cfg.nCidades;i++){
     const row=data[i];if(!row||!row[hc]||typeof row[hc]!=='string')continue;
@@ -535,17 +535,17 @@ async function rPdf(file){
     const buf=await file.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:buf}).promise;
     let txt='';
     for(let i=1;i<=pdf.numPages;i++){const pg=await pdf.getPage(i);const ct=await pg.getTextContent();const lm={};for(const it of ct.items){if(!it.str.trim())continue;const y=Math.round(it.transform[5]/3)*3;if(!lm[y])lm[y]=[];lm[y].push({x:it.transform[4],s:it.str});}const ys=Object.keys(lm).map(Number).sort((a,b)=>b-a);for(const y of ys){txt+=lm[y].sort((a,b)=>a.x-b.x).map(it=>it.s).join(' ')+'\n';}}
-    const coefs=pFGV(txt);if(!Object.keys(coefs).length)throw new Error("Tabela FGV nÃ£o encontrada.");
+    const coefs=pFGV(txt);if(!Object.keys(coefs).length)throw new Error("Tabela FGV não encontrada.");
     for(const[cat,nms]of Object.entries(FGV_N))for(const nm of nms)for(const[k,v]of Object.entries(coefs))if(k.toLowerCase().includes(nm.toLowerCase())){document.getElementById(CID[cat]).value=(v*100).toFixed(3);break;}
     const sr=pSecReaj(txt);const pt=pTotal(txt);
     ST.r.secReaj=sr;ST.r.pdfTotal=pt;ST.r.pdf=true;
     if(pt){const el=document.getElementById('totalPDF');if(!el.value.trim())el.value=f(pt);}
     document.getElementById('rDropP').classList.add('loaded');
-    document.getElementById('rTitleP').textContent='âœ… '+file.name+(Object.keys(sr).length?' â€” coefs + '+Object.keys(sr).length+' seÃ§Ãµes lidas':' â€” coeficientes extraÃ­dos');
+    document.getElementById('rTitleP').textContent='âœ… '+file.name+(Object.keys(sr).length?' — coefs + '+Object.keys(sr).length+' seções lidas':' — coeficientes extraídos');
     if(ST.r.c)calcR();
-  }catch(err){document.getElementById('rTitleP').textContent='âš ï¸ '+file.name+' â€” ajuste manualmente';ST.r.pdf=true;console.error(err);}
+  }catch(err){document.getElementById('rTitleP').textContent='âš ï¸ '+file.name+' — ajuste manualmente';ST.r.pdf=true;console.error(err);}
 }
-function pFGV(txt){const co={};const re=/FGV\s+([\w\s\-Ã£ÃµÃ§Ã¡Ã©Ã­Ã³ÃºÃ¢ÃªÃ®Ã´Ã»ÃƒÃ•Ã‡ÃÃ‰ÃÃ“Ãš]+?)\s+\w+\/\d{4}\s+\w+\/\d{4}\s+[\d,.]+\s+[\d,.]+\s+([\d,]+)%/g;let m;while((m=re.exec(txt))!=null)co[m[1].trim()]=parseFloat(m[2].replace(',','.'))/100;return co;}
+function pFGV(txt){const co={};const re=/FGV\s+([\w\s\-ãõçáéíóúâêÃ®ôÃ»ÃƒÕÇÁÉÃÓÃš]+?)\s+\w+\/\d{4}\s+\w+\/\d{4}\s+[\d,.]+\s+[\d,.]+\s+([\d,]+)%/g;let m;while((m=re.exec(txt))!=null)co[m[1].trim()]=parseFloat(m[2].replace(',','.'))/100;return co;}
 function pSecReaj(txt){const sr={};for(const ln of txt.split('\n')){const mc=ln.match(/\b(0[1-5])\.\d{3}/);if(!mc)continue;const sec=mc[1];const ms=[...ln.matchAll(/\b(\d{1,3}(?:\.\d{3})*,\d{2})\b/g)];if(!ms.length)continue;const v=parseFloat(ms[ms.length-1][1].replace(/\./g,'').replace(',','.'));if(v>0)sr[sec]=(sr[sec]||0)+v;}return sr;}
 function pTotal(txt){const m=txt.match(/VALOR DO REAJUSTE NO PER[IÃ]ODO[:\s]+([0-9.]+,[0-9]+)/i);return m?parseFloat(m[1].replace(/\./g,'').replace(',','.')):null;}
 
@@ -571,8 +571,8 @@ function renP(){
   const{info,c}=ST.p;if(!info||!c)return;
   const cfg=CONTRATOS[info.contrato||ST.contrato]||Object.values(CONTRATOS)[0];
   const ns=Object.keys(c),tB=ns.reduce((a,n)=>a+c[n].total,0),tI=ns.reduce((a,n)=>{const v=c[n];return a+(['pav','canteiro','rocada','terra'].reduce((s,k)=>s+(v[k]>0?v[k]*ALIQ[k]:0),0))*ALIQ.inss;},0);
-  document.getElementById('hSub').textContent='ðŸ“‹ MediÃ§Ã£o â€” Contrato '+cfg.nome;
-  let h=kpi([{l:'Contrato',v:info.contrato,c:'#6366f1',sm:1},{l:'MediÃ§Ã£o',v:info.numMed,c:'#3b82f6'},{l:'PerÃ­odo',v:info.periodo,c:'#64748b',sm:1},{l:'Total Bruto',v:'R$ '+f(tB),c:'#10b981'},{l:'Total INSS',v:'R$ '+f(tI),c:'#f59e0b'}]);
+  document.getElementById('hSub').textContent='ðŸ“‹ Medição — Contrato '+cfg.nome;
+  let h=kpi([{l:'Contrato',v:info.contrato,c:'#6366f1',sm:1},{l:'Medição',v:info.numMed,c:'#3b82f6'},{l:'Período',v:info.periodo,c:'#64748b',sm:1},{l:'Total Bruto',v:'R$ '+f(tB),c:'#10b981'},{l:'Total INSS',v:'R$ '+f(tI),c:'#f59e0b'}]);
   ns.forEach((n,i)=>{h+=card(i,n,c[n],info.numMed,info.periodo,'p');});
   document.getElementById('pOutput').innerHTML=h;
 }
@@ -580,8 +580,8 @@ function renR(reaj,tot){
   if(!RI)return;const ns=Object.keys(reaj);
   const cfg=CONTRATOS[RI.contrato||ST.contrato]||Object.values(CONTRATOS)[0];
   const tI=ns.reduce((a,n)=>{const r=reaj[n];return a+(['pav','canteiro','rocada','terra'].reduce((s,k)=>s+(r[k]>0?r[k]*ALIQ[k]:0),0))*ALIQ.inss;},0);
-  document.getElementById('hSub').textContent='âš–ï¸ Reajuste â€” Contrato '+cfg.nome;
-  let h=kpi([{l:'Contrato',v:RI.contrato,c:'#6366f1',sm:1},{l:'MediÃ§Ã£o',v:RI.numMed,c:'#f59e0b'},{l:'PerÃ­odo',v:RI.periodo,c:'#64748b',sm:1},{l:'Total Reajuste',v:'R$ '+f(tot),c:'#10b981'},{l:'Total INSS',v:'R$ '+f(tI),c:'#f59e0b'}]);
+  document.getElementById('hSub').textContent='âš–ï¸ Reajuste — Contrato '+cfg.nome;
+  let h=kpi([{l:'Contrato',v:RI.contrato,c:'#6366f1',sm:1},{l:'Medição',v:RI.numMed,c:'#f59e0b'},{l:'Período',v:RI.periodo,c:'#64748b',sm:1},{l:'Total Reajuste',v:'R$ '+f(tot),c:'#10b981'},{l:'Total INSS',v:'R$ '+f(tI),c:'#f59e0b'}]);
   ns.forEach((n,i)=>{h+=card(i,n,reaj[n],RI.numMed,RI.periodo,'r',RC[n],RCo);});
   document.getElementById('rOutput').innerHTML=h;
 }
@@ -592,10 +592,10 @@ function card(idx,nome,vals,num,per,mode,mv,co){
   const hdr=(isR?cfg.reajH:cfg.medH).replace('{c}',cd);
   const ml=(isR?cfg.reajLn:cfg.medLn).replace('{num}',num).replace('{per}',per).replace('{tot}',f(vals.total));
   const totalLine=(isR?cfg.totalMedR:cfg.totalMedP).replace('{tot}',f(vals.total));
-  let ln=[hdr,'','BASE DE CÃLCULO:'],bt=0;
+  let ln=[hdr,'','BASE DE CÁLCULO:'],bt=0;
   for(const[k,a]of[['pav',ALIQ.pav],['canteiro',ALIQ.canteiro],['rocada',ALIQ.rocada],['terra',ALIQ.terra]]){if(vals[k]>0){const b=vals[k]*a;bt+=b;ln.push(SVC[k]+': '+f(vals[k])+' x '+Math.round(a*100)+'% = R$ '+f(b));}}
   if(bt>0)ln.push('Valor do INSS: R$ '+f(bt)+' x 11% R$ '+f(bt*ALIQ.inss));
-  if(vals.adm>0)ln.push('AdministraÃ§Ã£o: '+f(vals.adm)+' '+INSS_ISO);
+  if(vals.adm>0)ln.push('Administração: '+f(vals.adm)+' '+INSS_ISO);
   ln.push('',ml,totalLine);
   const tx=ln.join('\n');
   let sr='';bt=0;
@@ -609,14 +609,14 @@ function card(idx,nome,vals,num,per,mode,mv,co){
   }
   if(vals.adm>0){
     const ajBadge=ajInfo&&ajInfo.cat==='adm'?'<span class="badge-ajuste">'+(ajInfo.diff>0?'+':'')+f(ajInfo.diff)+'</span>':'';
-    if(isR&&mv&&co)sr+='<tr class="isento"><td>AdministraÃ§Ã£o '+ajBadge+'</td><td class="r">R$ '+f(mv.adm)+'</td><td class="r">'+((co.adm||0)*100).toFixed(3)+'%</td><td class="r">R$ '+f(vals.adm)+'</td><td class="r">â€”</td><td class="r"><span class="badge-isento">ISENTO</span></td></tr>';
-    else sr+='<tr class="isento"><td>AdministraÃ§Ã£o</td><td class="r">R$ '+f(vals.adm)+'</td><td class="r">â€”</td><td class="r"><span class="badge-isento">ISENTO</span></td></tr>';
+    if(isR&&mv&&co)sr+='<tr class="isento"><td>Administração '+ajBadge+'</td><td class="r">R$ '+f(mv.adm)+'</td><td class="r">'+((co.adm||0)*100).toFixed(3)+'%</td><td class="r">R$ '+f(vals.adm)+'</td><td class="r">—</td><td class="r"><span class="badge-isento">ISENTO</span></td></tr>';
+    else sr+='<tr class="isento"><td>Administração</td><td class="r">R$ '+f(vals.adm)+'</td><td class="r">—</td><td class="r"><span class="badge-isento">ISENTO</span></td></tr>';
   }
-  const ajNota=ajInfo?'<div class="ajuste-nota">âš ï¸ Ajuste de arredondamento: <strong>'+(ajInfo.diff>0?'+':'')+f(ajInfo.diff)+'</strong> â€” diferenÃ§a entre cÃ¡lculo por coeficiente e total do PDF.</div>':'';
-  const th=isR?'<tr><th>ServiÃ§o</th><th class="r">MediÃ§Ã£o</th><th class="r">Coef.</th><th class="r">Reajuste</th><th class="r">AlÃ­q.</th><th class="r">Base INSS</th></tr>':'<tr><th>ServiÃ§o</th><th class="r">Valor</th><th class="r">AlÃ­q.</th><th class="r">Base INSS</th></tr>';
+  const ajNota=ajInfo?'<div class="ajuste-nota">âš ï¸ Ajuste de arredondamento: <strong>'+(ajInfo.diff>0?'+':'')+f(ajInfo.diff)+'</strong> — diferença entre cálculo por coeficiente e total do PDF.</div>':'';
+  const th=isR?'<tr><th>Serviço</th><th class="r">Medição</th><th class="r">Coef.</th><th class="r">Reajuste</th><th class="r">Alíq.</th><th class="r">Base INSS</th></tr>':'<tr><th>Serviço</th><th class="r">Valor</th><th class="r">Alíq.</th><th class="r">Base INSS</th></tr>';
   const bc=isR?'background:#f59e0b;color:#000':'background:#3b82f6;color:#fff';
   const uid='t_'+mode+'_'+idx;
-  return '<div class="city-card" style="--cc:'+cor+'"><div class="city-header"><div class="city-num">'+(idx+1)+'</div><span class="city-name">'+cd+'</span><span class="city-total">R$ '+f(vals.total)+'</span></div><div class="city-body"><div class="breakdown-col"><div class="col-title">ComposiÃ§Ã£o</div><table class="svc-table"><thead>'+th+'</thead><tbody>'+sr+'</tbody></table><div class="inss-box"><span>Base INSS: <strong>R$ '+f(bt)+'</strong></span><span class="inss-val">INSS 11%: R$ '+f(bt*ALIQ.inss)+'</span></div>'+ajNota+'</div><div class="text-col"><div class="text-header"><span class="col-title">Texto da nota</span><button class="btn-copy" style="'+bc+'" onclick="cp(\''+uid+'\',this)">ðŸ“‹ Copiar</button></div><textarea id="'+uid+'" class="nota-text" readonly>'+tx+'</textarea></div></div></div>';
+  return '<div class="city-card" style="--cc:'+cor+'"><div class="city-header"><div class="city-num">'+(idx+1)+'</div><span class="city-name">'+cd+'</span><span class="city-total">R$ '+f(vals.total)+'</span></div><div class="city-body"><div class="breakdown-col"><div class="col-title">Composição</div><table class="svc-table"><thead>'+th+'</thead><tbody>'+sr+'</tbody></table><div class="inss-box"><span>Base INSS: <strong>R$ '+f(bt)+'</strong></span><span class="inss-val">INSS 11%: R$ '+f(bt*ALIQ.inss)+'</span></div>'+ajNota+'</div><div class="text-col"><div class="text-header"><span class="col-title">Texto da nota</span><button class="btn-copy" style="'+bc+'" onclick="cp(\''+uid+'\',this)">ðŸ“‹ Copiar</button></div><textarea id="'+uid+'" class="nota-text" readonly>'+tx+'</textarea></div></div></div>';
 }
 function kpi(items){return'<div class="kpi-row">'+items.map(k=>'<div class="kpi" style="--kpi-c:'+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-value"'+(k.sm?' style="font-size:.9rem"':'')+'>'+k.v+'</div></div>').join('')+'</div>';}
 function cp(id,btn){navigator.clipboard.writeText(document.getElementById(id).value).then(()=>{const o=btn.textContent;btn.textContent='âœ… Copiado!';btn.classList.add('ok');setTimeout(()=>{btn.textContent=o;btn.classList.remove('ok');},2000);});}
@@ -628,7 +628,7 @@ function renderCtList(){
   if(!ids.length){list.innerHTML='<div class="ct-empty">Nenhum contrato cadastrado</div>';return;}
   list.innerHTML=ids.map(id=>{
     const c=CONTRATOS[id],active=EDIT_ID===id?'active':'';
-    return`<div class="ct-item ${active}" onclick="editarContrato('${id}')"><div style="flex:1;min-width:0"><div class="ct-item-id">${id}</div><div class="ct-item-nome">${c.nome||'â€”'}</div></div><button class="ct-item-del" onclick="event.stopPropagation();confirmarDeletar('${id}')" title="Excluir">âœ•</button></div>`;
+    return`<div class="ct-item ${active}" onclick="editarContrato('${id}')"><div style="flex:1;min-width:0"><div class="ct-item-id">${id}</div><div class="ct-item-nome">${c.nome||'—'}</div></div><button class="ct-item-del" onclick="event.stopPropagation();confirmarDeletar('${id}')" title="Excluir">âœ•</button></div>`;
   }).join('');
 }
 
@@ -636,7 +636,7 @@ function buildSvcsForm(){
   document.getElementById('fSvcs').innerHTML=SVC_ALL.map(s=>`
     <div class="ct-svc-row">
       <div class="ct-svc-check"><input type="checkbox" id="ck_${s.k}" onchange="toggleSvcCol('${s.k}')"><label for="ck_${s.k}" style="cursor:pointer">${s.label}</label></div>
-      <div class="ct-svc-col"><label>Coluna no Excel</label><input class="ct-input" id="fCol_${s.k}" type="number" min="0" placeholder="â€”" style="width:100px" disabled></div>
+      <div class="ct-svc-col"><label>Coluna no Excel</label><input class="ct-input" id="fCol_${s.k}" type="number" min="0" placeholder="—" style="width:100px" disabled></div>
     </div>`).join('');
 }
 function toggleSvcCol(k){const chk=document.getElementById('ck_'+k),inp=document.getElementById('fCol_'+k);inp.disabled=!chk.checked;if(!chk.checked)inp.value='';}
@@ -692,17 +692,17 @@ function syncFormTitle(){document.getElementById('ctFormTitle').textContent=docu
 function lerFormContrato(){
   const id=document.getElementById('fId').value.trim();
   const nome=document.getElementById('fNome').value.trim();
-  if(!id)throw new Error('ID do contrato Ã© obrigatÃ³rio.');
-  if(!nome)throw new Error('Nome Ã© obrigatÃ³rio.');
+  if(!id)throw new Error('ID do contrato é obrigatório.');
+  if(!nome)throw new Error('Nome é obrigatório.');
   const hdrCol=parseInt(document.getElementById('fColHdr').value);
   const hdrCheck=parseInt(document.getElementById('fColCheck').value);
   const nCidades=parseInt(document.getElementById('fNCidades').value);
   const total=parseInt(document.getElementById('fColTotal').value);
   const adm=parseInt(document.getElementById('fColAdm').value);
-  if(isNaN(hdrCol)||isNaN(hdrCheck)||isNaN(nCidades)||isNaN(total)||isNaN(adm))throw new Error('Preencha todas as colunas obrigatÃ³rias do Excel.');
+  if(isNaN(hdrCol)||isNaN(hdrCheck)||isNaN(nCidades)||isNaN(total)||isNaN(adm))throw new Error('Preencha todas as colunas obrigatórias do Excel.');
   const cols={hdrCol,hdrCheck,adm,total,pav:null,canteiro:null,rocada:null,terra:null};
   const svcs=[];
-  SVC_ALL.forEach(s=>{if(document.getElementById('ck_'+s.k).checked){const v=parseInt(document.getElementById('fCol_'+s.k).value);if(isNaN(v))throw new Error('Coluna de "'+s.label+'" Ã© obrigatÃ³ria quando marcada.');cols[s.k]=v;svcs.push(s.k);}});
+  SVC_ALL.forEach(s=>{if(document.getElementById('ck_'+s.k).checked){const v=parseInt(document.getElementById('fCol_'+s.k).value);if(isNaN(v))throw new Error('Coluna de "'+s.label+'" é obrigatória quando marcada.');cols[s.k]=v;svcs.push(s.k);}});
   const disp={};
   document.querySelectorAll('#fCityBody tr').forEach(tr=>{const k=tr.querySelector('.city-key').value.trim().toUpperCase();const v=tr.querySelector('.city-val').value.trim();if(k&&v)disp[k]=v;});
   return{id,cfg:{nome,medH:document.getElementById('fMedH').value,reajH:document.getElementById('fReajH').value,medLn:document.getElementById('fMedLn').value,reajLn:document.getElementById('fReajLn').value,totalMedP:document.getElementById('fTotalMedP').value,totalMedR:document.getElementById('fTotalMedR').value,svcs,disp,cols,nCidades}};
@@ -743,7 +743,7 @@ function onImport(e){
   rd.onload=ev=>{
     try{
       const data=JSON.parse(ev.target.result);let count=0;
-      for(const[id,cfg]of Object.entries(data)){if(typeof cfg==='object'&&cfg.cols&&cfg.nome){if(CONTRATOS[id]&&!confirm('Contrato "'+id+'" jÃ¡ existe. Substituir?'))continue;CONTRATOS[id]=cfg;count++;}}
+      for(const[id,cfg]of Object.entries(data)){if(typeof cfg==='object'&&cfg.cols&&cfg.nome){if(CONTRATOS[id]&&!confirm('Contrato "'+id+'" já existe. Substituir?'))continue;CONTRATOS[id]=cfg;count++;}}
       saveContratos();renderCtList();alert(count+' contrato(s) importado(s).');
     }catch(err){alert('Erro ao importar: '+err.message);}
     e.target.value='';
