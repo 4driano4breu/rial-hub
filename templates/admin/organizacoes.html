@@ -17,7 +17,10 @@
 {% endblock %}
 
 {% block content %}
-<h1>Organizações</h1>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+  <h1>Organizações</h1>
+  <a href="{{ url_for('admin.onboarding') }}" class="btn btn-primary" style="display:inline-block;padding:8px 16px;background:#3b82f6;color:#fff;border-radius:8px;font-size:.82rem;font-weight:600;text-decoration:none">+ Nova organização</a>
+</div>
 <p class="subtitle">Visão SUPERADMIN — todas as tenants</p>
 
 <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px">

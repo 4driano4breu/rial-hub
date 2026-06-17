@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Nova Organização — OBRIA{% endblock %}
+{% block nav_cur %}Admin / Nova Organização{% endblock %}
+{% block head %}
+<style>
+  .wizard-steps { display:flex; gap:0; margin-bottom:28px; }
+  .wstep { flex:1; padding:10px 14px; font-size:.8rem; font-weight:600; color:var(--muted); border-bottom:2px solid var(--border); }
+  .wstep.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .form-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:28px; max-width:520px; }
+  .field { margin-bottom:18px; }
+  label { display:block; color:var(--muted); font-size:.8rem; margin-bottom:6px; font-weight:500; }
+  input, select { width:100%; background:#0f172a; border:1px solid var(--border); border-radius:8px;
+    color:var(--text); padding:10px 12px; font-size:.9rem; outline:none; }
+  input:focus, select:focus { border-color:var(--accent); }
+  .help { color:var(--muted); font-size:.75rem; margin-top:4px; }
+  .btn { display:inline-block; padding:10px 20px; border-radius:8px; font-size:.85rem; font-weight:600; cursor:pointer; border:none; }
+  .btn-primary { background:var(--accent); color:#fff; }
+</style>
+{% endblock %}
+{% block content %}
+<h1>Nova Organização</h1>
+<p class="subtitle">Onboarding de novo cliente — 3 passos</p>
+
+<div class="wizard-steps">
+  <div class="wstep active">1. Empresa</div>
+  <div class="wstep">2. Contrato</div>
+  <div class="wstep">3. Admin</div>
+</div>
+
+<div class="form-card">
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label>Nome da empresa *</label>
+      <input type="text" name="nome" value="{{ form.get('nome','') }}" required placeholder="Ex: Construtora XYZ Ltda">
+    </div>
+    <div class="field">
+      <label>Slug (identificador único) *</label>
+      <input type="text" name="slug" value="{{ form.get('slug','') }}" required
+             placeholder="ex: xyz_construtora" pattern="[a-z0-9_]+" title="Apenas letras minúsculas, números e underscore">
+      <p class="help">Usado na URL e como identificador interno. Não pode ser alterado depois.</p>
+    </div>
+    <div class="field">
+      <label>Plano</label>
+      <select name="plano">
+        <option value="starter" {% if form.get('plano','starter')=='starter' %}selected{% endif %}>Starter — R$ 197/mês</option>
+        <option value="pro"     {% if form.get('plano')=='pro' %}selected{% endif %}>Pro — R$ 397/mês</option>
+        <option value="enterprise" {% if form.get('plano')=='enterprise' %}selected{% endif %}>Enterprise — R$ 797/mês</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Próximo →</button>
+  </form>
+</div>
+{% endblock %}

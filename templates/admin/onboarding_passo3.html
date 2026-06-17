@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Nova Organização — Admin{% endblock %}
+{% block nav_cur %}Admin / Nova Organização{% endblock %}
+{% block head %}
+<style>
+  .wizard-steps { display:flex; gap:0; margin-bottom:28px; }
+  .wstep { flex:1; padding:10px 14px; font-size:.8rem; font-weight:600; color:var(--muted); border-bottom:2px solid var(--border); }
+  .wstep.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .form-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:28px; max-width:480px; }
+  .field { margin-bottom:18px; }
+  label { display:block; color:var(--muted); font-size:.8rem; margin-bottom:6px; font-weight:500; }
+  input { width:100%; background:#0f172a; border:1px solid var(--border); border-radius:8px;
+    color:var(--text); padding:10px 12px; font-size:.9rem; outline:none; }
+  input:focus { border-color:var(--accent); }
+  .help { color:var(--muted); font-size:.75rem; margin-top:4px; }
+  .btn { display:inline-block; padding:10px 20px; border-radius:8px; font-size:.85rem; font-weight:600; cursor:pointer; border:none; }
+  .btn-primary { background:#16a34a; color:#fff; }
+  .btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); }
+</style>
+{% endblock %}
+{% block content %}
+<h1>Nova Organização</h1>
+<p class="subtitle">Passo 3 de 3 — Usuário administrador</p>
+
+<div class="wizard-steps">
+  <div class="wstep">1. Empresa</div>
+  <div class="wstep">2. Contrato</div>
+  <div class="wstep active">3. Admin</div>
+</div>
+
+<div class="form-card">
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label>Nome completo *</label>
+      <input type="text" name="nome" value="{{ form.get('nome','') }}" required>
+    </div>
+    <div class="field">
+      <label>E-mail *</label>
+      <input type="email" name="email" value="{{ form.get('email','') }}" required autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Senha *</label>
+      <input type="password" name="senha" required autocomplete="new-password" minlength="8">
+      <p class="help">Mínimo 8 caracteres. O usuário poderá alterar em /auth/perfil.</p>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button type="submit" class="btn btn-primary">✓ Criar Organização</button>
+      <a href="{{ url_for('admin.onboarding_passo2') }}" class="btn btn-ghost">← Voltar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
