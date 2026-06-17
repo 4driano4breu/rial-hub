@@ -71,23 +71,49 @@
 
 </div>
 
-<!-- Atualizar dados -->
-<div class="section-title">Atualizar dados</div>
+<!-- Status banco -->
+<div class="section-title">Banco de Dados</div>
+<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+  <div>
+    <span style="font-size:1.6rem;font-weight:800;color:var(--accent)">{{ total_db }}</span>
+    <span style="color:var(--muted);font-size:.82rem;margin-left:6px">registros no PostgreSQL</span>
+  </div>
+  <div style="margin-left:auto;font-size:.75rem;color:var(--muted)">
+    Última atualização: <strong style="color:var(--text)">{{ ultima_atualizacao | default('—') }}</strong>
+  </div>
+</div>
+
+<!-- Sync Google Sheets -->
+{% if sheets_ok %}
+<div class="section-title">Sincronizar &mdash; Google Sheets</div>
+<div class="upload-card" style="margin-bottom:20px">
+  {% if spreadsheet_id %}
+  <form method="POST" action="{{ url_for('usinagem.sincronizar') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px">Planilha configurada: <code style="color:var(--accent)">{{ spreadsheet_id[:20] }}...</code></p>
+    <button type="submit" class="btn btn-primary">&#8635; Sincronizar do Google Sheets</button>
+  </form>
+  {% else %}
+  <p style="font-size:.82rem;color:var(--muted)">Credenciais do Google configuradas, mas <strong>spreadsheet_id</strong> não definido em Configurações da organização.</p>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- Atualizar via CSV -->
+<div class="section-title">Atualizar via CSV (fallback)</div>
 <div class="upload-card">
   <form method="POST" action="{{ url_for('usinagem.atualizar') }}" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="field">
       <label for="csv-input">CSV do Google Sheets (File &rarr; Download &rarr; CSV)</label>
       <input id="csv-input" type="file" name="csv" accept=".csv" required>
     </div>
     <div class="hint">
-      O upload regenera os 3 dashboards automaticamente.
+      O upload regenera os 3 dashboards e salva os registros no banco automaticamente.
     </div>
     <div>
-      <button type="submit" class="btn btn-success">&#11014; Atualizar Dashboards</button>
+      <button type="submit" class="btn btn-success">&#11014; Atualizar</button>
     </div>
   </form>
-</div>
-<div style="margin-top:12px;font-size:.75rem;color:var(--muted)">
-  Última atualização: <strong style="color:var(--text)">{{ ultima_atualizacao | default('—') }}</strong>
 </div>
 {% endblock %}

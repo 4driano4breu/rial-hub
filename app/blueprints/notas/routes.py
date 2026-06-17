@@ -10,7 +10,8 @@ from app.blueprints.notas.logic import calcular_reajuste
 from core.extractor import extrair_dados_xlsx, extrair_pdf_reajuste
 from core.generator import gerar_word_medicao, gerar_word_reajuste, gerar_texto_medicao, gerar_texto_reajuste
 from core.extractor import fmt
-from core.config import ALIQUOTAS, SERVICE_LABELS, CIDADE_DISPLAY
+from core.config import SERVICE_LABELS, CIDADE_DISPLAY
+from app.org_settings import get_aliquotas
 
 
 def _registrar_medicao(tipo: str, info: dict) -> None:
@@ -161,13 +162,14 @@ def download():
 
 def _build_preview_medicao(info: dict, cidades: dict) -> list:
     CORES = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ef4444"]
+    ALIQUOTAS = get_aliquotas()
     preview = []
     for idx, (nome_upper, vals) in enumerate(cidades.items()):
         cidade_display = CIDADE_DISPLAY.get(nome_upper.rstrip(), nome_upper)
         servicos = []
         base_inss = 0.0
-        for key, aliq in [("pav", ALIQUOTAS["pav"]), ("canteiro", ALIQUOTAS["canteiro"]),
-                           ("rocada", ALIQUOTAS["rocada"]), ("terra", ALIQUOTAS["terra"])]:
+        for key in ("pav", "canteiro", "rocada", "terra"):
+            aliq = ALIQUOTAS.get(key, 0)
             if vals[key] > 0:
                 base = vals[key] * aliq
                 base_inss += base
@@ -180,7 +182,7 @@ def _build_preview_medicao(info: dict, cidades: dict) -> list:
             "servicos": servicos,
             "adm": fmt(vals["adm"]) if vals["adm"] > 0 else None,
             "base_inss": fmt(base_inss),
-            "inss_val": fmt(base_inss * ALIQUOTAS["inss"]),
+            "inss_val": fmt(base_inss * ALIQUOTAS.get("inss", 0)),
             "texto": gerar_texto_medicao(info, nome_upper, vals),
         })
     return preview
@@ -188,13 +190,14 @@ def _build_preview_medicao(info: dict, cidades: dict) -> list:
 
 def _build_preview_reajuste(info: dict, reajuste: dict) -> list:
     CORES = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ef4444"]
+    ALIQUOTAS = get_aliquotas()
     preview = []
     for idx, (nome, reaj) in enumerate(reajuste.items()):
         cidade_display = CIDADE_DISPLAY.get(nome.rstrip(), nome)
         servicos = []
         base_inss = 0.0
-        for key, aliq in [("pav", ALIQUOTAS["pav"]), ("canteiro", ALIQUOTAS["canteiro"]),
-                           ("rocada", ALIQUOTAS["rocada"]), ("terra", ALIQUOTAS["terra"])]:
+        for key in ("pav", "canteiro", "rocada", "terra"):
+            aliq = ALIQUOTAS.get(key, 0)
             if reaj[key] > 0:
                 base = reaj[key] * aliq
                 base_inss += base
@@ -207,7 +210,7 @@ def _build_preview_reajuste(info: dict, reajuste: dict) -> list:
             "servicos": servicos,
             "adm": fmt(reaj["adm"]) if reaj["adm"] > 0 else None,
             "base_inss": fmt(base_inss),
-            "inss_val": fmt(base_inss * ALIQUOTAS["inss"]),
+            "inss_val": fmt(base_inss * ALIQUOTAS.get("inss", 0)),
             "texto": gerar_texto_reajuste(info, nome, reaj),
         })
     return preview

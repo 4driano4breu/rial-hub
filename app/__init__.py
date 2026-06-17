@@ -128,7 +128,9 @@ def _seed_command():
         click.echo("Banco já possui dados. Seed ignorado.")
         return
 
-    rial = Organization(slug="rial", name="RIAL Construtora", plan="pro")
+    from app.org_settings import _DEFAULTS
+    rial = Organization(slug="rial", name="RIAL Construtora", plan="pro",
+                        settings=_DEFAULTS)
     db.session.add(rial)
     db.session.flush()
 
@@ -166,7 +168,9 @@ def _seed_auto_command():
         click.echo("ERRO: variável ADMIN_PASSWORD não definida. Seed abortado.")
         raise SystemExit(1)
 
-    rial = Organization(slug="rial", name="RIAL Construtora", plan="pro")
+    from app.org_settings import _DEFAULTS
+    rial = Organization(slug="rial", name="RIAL Construtora", plan="pro",
+                        settings=_DEFAULTS)
     db.session.add(rial)
     db.session.flush()
 
