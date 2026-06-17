@@ -4,7 +4,26 @@ from pathlib import Path
 from flask import Flask, render_template, redirect, url_for
 from flask_login import current_user
 
-from app.extensions import db, migrate, login_manager, bcrypt, csrf, limiter
+from werkzeug.middleware.proxy_fix import ProxyFix
+from app.extensions import db, migrate, login_manager, bcrypt, csrf, limiter, talisman
+
+# CSP compatível com todos os dashboards atuais (cdnjs, unpkg, Google Fonts)
+# 'unsafe-inline' e 'unsafe-eval' necessários para as ferramentas legadas (PDF.js, xlsx.js)
+# Serão removidos na Fase 2.0 quando os dashboards forem reconstruídos
+_CSP = {
+    'default-src': "'self'",
+    'script-src':  ["'self'", "'unsafe-inline'", "'unsafe-eval'", "blob:",
+                    "cdnjs.cloudflare.com", "unpkg.com"],
+    'style-src':   ["'self'", "'unsafe-inline'",
+                    "cdnjs.cloudflare.com", "fonts.googleapis.com"],
+    'font-src':    ["'self'", "fonts.gstatic.com", "cdnjs.cloudflare.com", "data:"],
+    'img-src':     ["'self'", "data:", "blob:"],
+    'worker-src':  ["'self'", "blob:"],
+    'connect-src': ["'self'", "blob:"],
+    'object-src':  "'none'",
+    'base-uri':    "'self'",
+    'frame-ancestors': "'none'",
+}
 
 
 def create_app() -> Flask:
@@ -19,6 +38,9 @@ def create_app() -> Flask:
     # Garantir pasta instance/ para SQLite local
     (base / "instance").mkdir(exist_ok=True)
 
+    # Railway termina HTTPS no proxy — ProxyFix repassa o esquema correto ao Flask
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
     # Inicializar extensões
     db.init_app(app)
     migrate.init_app(app, db)
@@ -26,6 +48,18 @@ def create_app() -> Flask:
     bcrypt.init_app(app)
     csrf.init_app(app)
     limiter.init_app(app)
+
+    _prod = os.environ.get("FLASK_ENV") == "production"
+    talisman.init_app(
+        app,
+        force_https=False,                          # Railway já força HTTPS no edge
+        strict_transport_security=_prod,
+        strict_transport_security_max_age=31536000,
+        strict_transport_security_include_subdomains=True,
+        content_security_policy=_CSP,
+        referrer_policy="strict-origin-when-cross-origin",
+        frame_options="DENY",
+    )
 
     login_manager.login_view = "auth.login"
     login_manager.login_message = "Faça login para acessar esta página."
