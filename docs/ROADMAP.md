@@ -18,6 +18,25 @@
 
 ---
 
+## Nomenclatura das Ferramentas (Tom: Técnico/Descritivo)
+
+Nomes oficiais dentro do OBRIA — substituem os nomes provisórios:
+
+| Nome Atual | Nome OBRIA | URL |
+|---|---|---|
+| Faz Tudo 3000 | **Registro de Produção Diária** | `/ferramentas/producao` |
+| Le Doc | **Preenchimento de Documentos** | `/ferramentas/documentos` |
+| Dashboard Abastecimento | **Controle de Combustível** | `/ferramentas/combustivel` |
+| Notas 037 (standalone) | **Notas de Medição (offline)** | `/ferramentas/notas` |
+| Notas (blueprint) | **Gerador de Notas de Medição** | `/notas` |
+| Dashboard Usinagem Geral | **Controle de Usinagem CBUQ** | `/usinagem/geral` |
+| Dashboard Guariroba | **Medição — Águas Guariroba** | `/usinagem/guariroba` |
+| Dashboard AEGEA | **Medição — AEGEA** | `/usinagem/aegea` |
+| Faturamento | **Gestão de Notas Fiscais** | `/faturamento` |
+| Viário | **Inspeção Viária** | `/viario` |
+
+---
+
 ## Situação Atual (Baseline)
 
 O RIAL Hub é um Flask monolítico funcional rodando localmente com:
@@ -186,11 +205,75 @@ Google Sheets (planilha de viagens)
 - Único ajuste: salvar `.docx` gerados no R2 com URL temporária (24h) para download
 - Registrar `MedicaoRecord` no banco (histórico de notas geradas por org)
 
-#### 1.4 — Ferramentas: Zero Mudança
+#### 1.4 — Registro de Produção Diária (ex-Faz Tudo 3000): Google Sheets → Banco
 
-- `Faz Tudo`, `Le Doc`, `Abastecimento`, `Notas HTML` são 100% client-side
-- Continuam sendo servidos via `send_from_directory` ✅
-- Apenas adicionar `@login_required`
+**Problema atual:** Salva em Google Sheets via Apps Script URL no `localStorage`. Troca de dispositivo = configuração perdida. Sem histórico auditável.
+
+**Análise do código:** O tool já faz `POST` com JSON estruturado para uma URL configurável:
+```javascript
+// Payload atual (já estruturado, só precisa trocar o destino)
+{
+  action: 'salvar',
+  payload: {
+    modo: 'tb' | 'qm',
+    data: 'dd/mm/yyyy',
+    ticketInicio: 1001,
+    ticketFim: 1008,
+    regioes: ['ANHANDUIZINHO', ...],
+    totalCaminhoes: 8,
+    registros: [{ placa, motorista, entrada, saida, tara, peso, regiao }, ...]
+  }
+}
+```
+
+**Nova arquitetura:**
+```
+Tool HTML (browser)
+    ↓ POST /api/producao/salvar  (substitui URL do Apps Script)
+    ↓ Blueprint: ferramentas/producao
+    ↓ Salva em PostgreSQL (multi-tenant por org_id)
+    ↓ Retorna: { ok: true, id: 1234 }
+```
+
+**Modelos no banco:**
+```python
+class OperacaoProducao(db.Model):
+    id, org_id, modo (TB/QM), data, ticket_inicio, ticket_fim
+    total_caminhoes, criado_por, criado_em
+
+class RegistroProducao(db.Model):
+    id, operacao_id, placa, motorista
+    entrada, saida, tara, peso, regiao
+
+class BuracoProducao(db.Model):  # dimensões de TB/QM
+    id, operacao_id, larg_original, comp_original
+    larg_ajustado, comp_ajustado, massa_calculada
+```
+
+**Mudanças no HTML** (`static/ferramentas/faz_tudo/medicao_pavimentacao_v6.0.html`):
+- Trocar `apiUrl` hardcoded por `/api/producao/salvar` (sem configuração manual)
+- Remover lógica de `localStorage` para URL do Apps Script
+- Adicionar header `X-CSRFToken` na requisição (Flask-WTF)
+- Histórico: buscar via `GET /api/producao/historico?de=&ate=` ao abrir tab Histórico
+
+**Novo endpoint Flask** (`app/blueprints/ferramentas/routes.py`):
+```python
+@ferramentas_bp.route("/api/producao/salvar", methods=["POST"])
+@login_required
+def producao_salvar():
+    # Valida, cria OperacaoProducao + RegistroProducao[]
+    # Retorna JSON { ok: True, id: operacao.id }
+
+@ferramentas_bp.route("/api/producao/historico")
+@login_required
+def producao_historico():
+    # Filtra por org_id, data range, retorna JSON
+```
+
+**Ferramentas sem mudança por ora:**
+- `Preenchimento de Documentos` (Le Doc): localStorage para config de campos é aceitável
+- `Notas de Medição (offline)`: versão standalone do blueprint já existente
+- `Controle de Combustível`: dados hardcoded — fase futura quando houver input de abastecimento
 
 #### 1.5 — Parametrização por Tenant
 
