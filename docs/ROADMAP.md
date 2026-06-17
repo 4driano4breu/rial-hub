@@ -218,6 +218,18 @@ Modules por org:
 - Upload validation: checar magic bytes (não só extensão) em todos os endpoints de upload
 - `.gitignore`: garantir que `.env`, `instance/`, `uploads/` nunca entram no repo
 
+#### 0.6 — Rebranding Mínimo (RIAL Hub → OBRIA)
+
+**Contexto:** O layout atual foi construído como protótipo RIAL-específico. Antes do Railway, limpar as referências hardcoded e estabelecer a identidade mínima do OBRIA.
+
+- Renomear "RIAL Hub" → "OBRIA" em `base.html`, `index.html` e templates de módulo
+- Logo SVG próprio (substituir emoji 🏗)
+- `index.html` genérico: mostrar módulos por `org.settings`, não hardcoded
+- Tagline "Do canteiro ao financeiro" visível na tela inicial
+- Sem redesign profundo — a Fase 2.0 faz isso antes do lançamento SaaS
+
+> A identidade visual completa (paleta definitiva, tipografia, componentes, landing page) é feita na **Fase 2.0**, antes de apresentar a clientes externos.
+
 ---
 
 ### FASE 1 — Módulos Existentes em Nuvem
