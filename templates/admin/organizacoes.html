@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Organizações — OBRIA{% endblock %}
+{% block nav_cur %}Admin / Organizações{% endblock %}
+
+{% block head %}
+<style>
+  .table { width:100%; border-collapse:collapse; font-size:.85rem; }
+  .table th { text-align:left; color:var(--muted); font-weight:500; padding:8px 12px; border-bottom:1px solid var(--border); }
+  .table td { padding:11px 12px; border-bottom:1px solid #1e293b; }
+  .table tr:hover td { background:#ffffff06; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:5px; font-size:.74rem; font-weight:600; }
+  .badge-ativo   { background:#10b98120; color:#34d399; }
+  .badge-inativo { background:#ef444420; color:#f87171; }
+  .badge-pro     { background:#3b82f620; color:#60a5fa; }
+  .badge-starter { background:#64748b20; color:#94a3b8; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Organizações</h1>
+<p class="subtitle">Visão SUPERADMIN — todas as tenants</p>
+
+<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Slug</th>
+        <th>Nome</th>
+        <th>Plano</th>
+        <th>Usuários</th>
+        <th>Status</th>
+        <th>Criado em</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for org in orgs %}
+      <tr>
+        <td style="color:var(--muted)">{{ org.id }}</td>
+        <td style="font-family:monospace;color:var(--accent)">{{ org.slug }}</td>
+        <td>{{ org.name }}</td>
+        <td><span class="badge badge-{{ org.plan }}">{{ org.plan | upper }}</span></td>
+        <td style="color:var(--muted)">{{ org.users | length }}</td>
+        <td><span class="badge badge-{{ 'ativo' if org.ativo else 'inativo' }}">{{ 'Ativa' if org.ativo else 'Inativa' }}</span></td>
+        <td style="color:var(--muted);font-size:.8rem">{{ org.criado_em.strftime('%d/%m/%Y') if org.criado_em else '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

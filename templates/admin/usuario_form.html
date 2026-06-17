@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} — OBRIA{% endblock %}
+{% block nav_cur %}Admin / {{ titulo }}{% endblock %}
+
+{% block head %}
+<style>
+  .form-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:28px; max-width:500px; }
+  .field { margin-bottom:18px; }
+  label { display:block; color:var(--muted); font-size:.8rem; margin-bottom:6px; font-weight:500; }
+  input, select { width:100%; background:#0f172a; border:1px solid var(--border); border-radius:8px;
+    color:var(--text); padding:10px 12px; font-size:.9rem; outline:none; }
+  input:focus, select:focus { border-color:var(--accent); }
+  .help { color:var(--muted); font-size:.75rem; margin-top:4px; }
+  .btn { display:inline-block; padding:10px 20px; border-radius:8px; font-size:.85rem; font-weight:600;
+    text-decoration:none; cursor:pointer; border:none; }
+  .btn-primary { background:var(--accent); color:#fff; }
+  .btn-primary:hover { background:#2563eb; }
+  .btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); }
+  .btn-ghost:hover { color:var(--text); }
+  .actions { display:flex; gap:10px; margin-top:24px; }
+  .toggle-row { display:flex; align-items:center; gap:10px; }
+  .toggle-label { color:var(--text); font-size:.85rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>{{ titulo }}</h1>
+<p class="subtitle">Organização: {{ current_user.organization.name }}</p>
+
+<div class="form-card">
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="field">
+      <label>E-mail {% if not usuario %}*{% endif %}</label>
+      {% if usuario %}
+        <input type="email" value="{{ usuario.email }}" disabled style="opacity:.5;cursor:not-allowed">
+        <p class="help">E-mail não pode ser alterado.</p>
+      {% else %}
+        <input type="email" name="email" value="{{ form.get('email','') }}" required autocomplete="off">
+      {% endif %}
+    </div>
+
+    <div class="field">
+      <label>Nome completo *</label>
+      <input type="text" name="nome" value="{{ usuario.nome if usuario else form.get('nome','') }}" required>
+    </div>
+
+    <div class="field">
+      <label>Cargo *</label>
+      <select name="role">
+        {% for r in roles %}
+        <option value="{{ r }}" {% if (usuario and usuario.role == r) or (not usuario and form.get('role','VIEWER') == r) %}selected{% endif %}>{{ r }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    {% if usuario %}
+    <div class="field">
+      <label>Status</label>
+      <div class="toggle-row">
+        <input type="checkbox" name="ativo" value="1" id="ativo_chk"
+               {% if usuario.ativo %}checked{% endif %}
+               {% if usuario.id == current_user.id %}disabled{% endif %}
+               style="width:auto">
+        <label for="ativo_chk" class="toggle-label">Usuário ativo</label>
+      </div>
+      {% if usuario.id == current_user.id %}
+      <p class="help">Não é possível desativar o próprio usuário.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="field">
+      <label>{{ 'Nova senha (deixe em branco para não alterar)' if usuario else 'Senha *' }}</label>
+      <input type="password" name="senha" {% if not usuario %}required{% endif %}
+             autocomplete="new-password" minlength="8">
+      <p class="help">Mínimo 8 caracteres.</p>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">{{ 'Salvar' if usuario else 'Criar usuário' }}</button>
+      <a href="{{ url_for('admin.usuarios') }}" class="btn btn-ghost">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

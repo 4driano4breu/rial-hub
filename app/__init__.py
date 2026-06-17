@@ -83,10 +83,13 @@ def create_app() -> Flask:
     from app.blueprints.usinagem import usinagem_bp
     from app.blueprints.ferramentas import ferramentas_bp
 
+    from app.blueprints.admin import admin_bp
+
     app.register_blueprint(notas_bp,       url_prefix="/notas")
     app.register_blueprint(faturamento_bp, url_prefix="/faturamento")
     app.register_blueprint(usinagem_bp,    url_prefix="/usinagem")
     app.register_blueprint(ferramentas_bp, url_prefix="/ferramentas")
+    app.register_blueprint(admin_bp,       url_prefix="/admin")
 
     @app.route("/")
     def index():
@@ -95,6 +98,10 @@ def create_app() -> Flask:
         return render_template("index.html")
 
     # Proteger todas as rotas exceto auth e static
+    @app.errorhandler(403)
+    def forbidden(e):
+        return render_template("errors/403.html"), 403
+
     @app.before_request
     def require_login():
         from flask import request

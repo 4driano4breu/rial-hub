@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Admin — OBRIA{% endblock %}
+{% block nav_cur %}Admin{% endblock %}
+
+{% block head %}
+<style>
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:32px; }
+  .stat { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; }
+  .stat-num { font-size:2rem; font-weight:800; color:var(--accent); }
+  .stat-label { color:var(--muted); font-size:.8rem; margin-top:4px; }
+  .table { width:100%; border-collapse:collapse; font-size:.85rem; }
+  .table th { text-align:left; color:var(--muted); font-weight:500; padding:8px 12px; border-bottom:1px solid var(--border); }
+  .table td { padding:10px 12px; border-bottom:1px solid #1e293b; }
+  .table tr:hover td { background:#ffffff06; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:5px; font-size:.74rem; font-weight:600; }
+  .badge-admin    { background:#3b82f620; color:#60a5fa; }
+  .badge-operacional { background:#10b98120; color:#34d399; }
+  .badge-financeiro  { background:#8b5cf620; color:#a78bfa; }
+  .badge-viewer   { background:#64748b20; color:#94a3b8; }
+  .badge-superadmin { background:#ef444420; color:#f87171; }
+  .badge-ativo    { background:#10b98120; color:#34d399; }
+  .badge-inativo  { background:#ef444420; color:#f87171; }
+  .btn { display:inline-block; padding:8px 16px; border-radius:8px; font-size:.82rem; font-weight:600; text-decoration:none; cursor:pointer; border:none; }
+  .btn-primary { background:var(--accent); color:#fff; }
+  .btn-primary:hover { background:#2563eb; }
+  .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Painel Administrativo</h1>
+<p class="subtitle">{{ org.name }} &mdash; Plano {{ org.plan | upper }}</p>
+
+<div class="stat-grid">
+  <div class="stat">
+    <div class="stat-num">{{ usuarios | length }}</div>
+    <div class="stat-label">Usuários cadastrados</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">{{ usuarios | selectattr("ativo") | list | length }}</div>
+    <div class="stat-label">Usuários ativos</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">{{ org.plan | upper }}</div>
+    <div class="stat-label">Plano atual</div>
+  </div>
+  {% if current_user.has_role("SUPERADMIN") %}
+  <div class="stat">
+    <div class="stat-num"><a href="{{ url_for('admin.organizacoes') }}" style="color:var(--accent);text-decoration:none">Orgs</a></div>
+    <div class="stat-label">Gerenciar organizações</div>
+  </div>
+  {% endif %}
+</div>
+
+<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px">
+  <div class="section-header">
+    <h2 style="font-size:1rem;font-weight:600">Usuários</h2>
+    <a href="{{ url_for('admin.usuario_novo') }}" class="btn btn-primary">+ Novo usuário</a>
+  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>E-mail</th>
+        <th>Cargo</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in usuarios %}
+      <tr>
+        <td>{{ u.nome }}</td>
+        <td style="color:var(--muted)">{{ u.email }}</td>
+        <td><span class="badge badge-{{ u.role | lower }}">{{ u.role }}</span></td>
+        <td><span class="badge badge-{{ 'ativo' if u.ativo else 'inativo' }}">{{ 'Ativo' if u.ativo else 'Inativo' }}</span></td>
+        <td><a href="{{ url_for('admin.usuario_editar', uid=u.id) }}" style="color:var(--accent);font-size:.8rem">Editar</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
