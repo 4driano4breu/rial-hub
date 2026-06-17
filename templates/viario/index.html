@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sistema Viário — RIAL Hub</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js" defer></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+.wrap{max-width:940px;margin:0 auto;padding:1.5rem 1rem}
+
+/* ── HEADER ── */
+.header{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:1.25rem 1.4rem;margin-bottom:1.25rem}
+.header-top{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.header-ico{font-size:2rem;flex-shrink:0}
+.header-text h1{font-size:1.25rem;font-weight:700;color:#f1f5f9}
+.header-text p{font-size:.82rem;color:#64748b;margin-top:3px}
+.header-actions{margin-left:auto;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.status-chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;font-weight:600;
+  padding:.3rem .6rem;border-radius:20px;border:1px solid}
+.chip-ok{background:#052e16;border-color:#16a34a;color:#4ade80}
+.chip-warn{background:#2d1b00;border-color:#d97706;color:#fbbf24}
+.chip-err{background:#2d0a0a;border-color:#dc2626;color:#f87171}
+.btn-diag{background:#0f172a;border:1px solid #334155;border-radius:8px;
+  padding:.4rem .85rem;color:#94a3b8;font-size:.78rem;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-diag:hover{border-color:#475569;color:#cbd5e1}
+
+/* ── GUIA RAPIDO ── */
+.guide{background:#172033;border:1px solid #1d4ed8;border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.25rem}
+.guide-title{font-size:.78rem;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.7rem}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.6rem}
+.guide-item{background:#0f172a;border-radius:8px;padding:.65rem .85rem;cursor:pointer;
+  border:1px solid #1e3a5f;transition:border-color .15s}
+.guide-item:hover{border-color:#3b82f6}
+.guide-item .gi-icon{font-size:1.2rem;margin-bottom:.3rem}
+.guide-item .gi-name{font-size:.78rem;font-weight:600;color:#93c5fd}
+.guide-item .gi-desc{font-size:.7rem;color:#64748b;margin-top:2px;line-height:1.4}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:.25rem;background:#1e293b;border-radius:10px;padding:.3rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.tab{flex:1;min-width:0;padding:.55rem .3rem;text-align:center;border-radius:7px;
+  font-size:.75rem;font-weight:500;cursor:pointer;color:#64748b;transition:all .15s}
+.tab.active{background:#3b82f6;color:#fff;box-shadow:0 2px 8px rgba(59,130,246,.35)}
+.tab:hover:not(.active){background:#334155;color:#cbd5e1}
+.tab-icon{display:block;font-size:1.1rem;margin-bottom:2px}
+.tab-label{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── CARDS ── */
+.card{background:#1e293b;border-radius:12px;padding:1.3rem;margin-bottom:1rem;border:1px solid #334155}
+
+/* ── INFO BOX "quando usar" ── */
+.info-box{background:#0f172a;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;
+  padding:.8rem 1rem;margin-bottom:1.1rem}
+.info-box p{font-size:.81rem;color:#94a3b8;line-height:1.55}
+.info-box strong{color:#93c5fd}
+.info-toggle{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:#3b82f6;
+  cursor:pointer;margin-bottom:.5rem;user-select:none}
+.info-toggle:hover{color:#60a5fa}
+
+/* ── STEPS ── */
+.steps{display:flex;flex-direction:column;gap:.85rem}
+.step{display:flex;gap:.9rem;align-items:flex-start}
+.step-num{width:1.6rem;height:1.6rem;border-radius:50%;background:#1d4ed8;color:#fff;
+  font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:.1rem}
+.step-body{flex:1}
+.step-body label{display:block;font-size:.8rem;font-weight:600;color:#e2e8f0;margin-bottom:.3rem}
+.step-hint{font-size:.73rem;color:#64748b;margin-top:.3rem;line-height:1.4}
+
+/* ── FORM INPUTS ── */
+.field-wrap select,.field-wrap input[type=text]{
+  width:100%;background:#0f172a;border:1px solid #334155;border-radius:7px;
+  padding:.55rem .75rem;color:#e2e8f0;font-size:.85rem;outline:none;transition:border-color .15s}
+.field-wrap select:focus,.field-wrap input:focus{border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.15)}
+.row{display:flex;gap:.5rem}
+.row input{flex:1;min-width:0}
+.btn-browse{background:#1e3a5f;border:1px solid #2563eb;border-radius:7px;padding:0 .9rem;
+  color:#60a5fa;font-size:.8rem;cursor:pointer;white-space:nowrap;transition:all .15s;height:100%}
+.btn-browse:hover{background:#1d4ed8;color:#fff}
+.btn-browse:disabled{opacity:.35;cursor:not-allowed}
+
+/* ── CHECKBOX ── */
+.chk-row{display:flex;align-items:center;gap:.55rem;padding:.6rem .8rem;
+  background:#0f172a;border-radius:7px;border:1px solid #1e293b;cursor:pointer}
+.chk-row:hover{border-color:#334155}
+.chk-row label{font-size:.83rem;color:#cbd5e1;cursor:pointer;flex:1}
+.chk-row small{font-size:.72rem;color:#64748b}
+input[type=checkbox]{accent-color:#3b82f6;width:1rem;height:1rem;cursor:pointer;flex-shrink:0}
+
+/* ── PREVIEW DO QUE VAI ACONTECER ── */
+.what-happens{background:#0c1a0c;border:1px solid #14532d;border-radius:9px;padding:.9rem 1rem;margin-top:.85rem}
+.what-happens h4{font-size:.73rem;font-weight:700;color:#4ade80;text-transform:uppercase;
+  letter-spacing:.05em;margin-bottom:.6rem}
+.wh-step{display:flex;gap:.55rem;align-items:flex-start;margin-bottom:.4rem}
+.wh-step:last-child{margin-bottom:0}
+.wh-num{font-size:.68rem;font-weight:700;color:#4ade80;background:#14532d;
+  border-radius:50%;width:1.2rem;height:1.2rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wh-step p{font-size:.77rem;color:#86efac;line-height:1.4}
+
+/* ── RUN BUTTON ── */
+.btn-run{width:100%;padding:.9rem;border-radius:10px;border:none;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;
+  font-size:.95rem;font-weight:700;cursor:pointer;transition:all .18s;
+  margin-top:1rem;display:flex;align-items:center;justify-content:center;gap:.6rem}
+.btn-run:hover:not(:disabled){background:linear-gradient(135deg,#3b82f6,#2563eb);
+  box-shadow:0 4px 15px rgba(37,99,235,.4)}
+.btn-run:disabled{opacity:.4;cursor:not-allowed}
+.btn-run .arrow{font-size:1.1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;animation:spin 1s linear infinite}
+
+/* ── PROGRESSO ── */
+.prog-card{background:#1e293b;border-radius:12px;padding:1.2rem;margin-bottom:1rem;
+  border:1px solid #334155}
+.prog-title{font-size:.8rem;font-weight:600;color:#64748b;text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:.9rem}
+.stage{display:flex;align-items:flex-start;gap:.8rem;padding:.65rem 0;
+  border-bottom:1px solid #1e293b}
+.stage:last-child{border:none}
+.dot{width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.85rem;flex-shrink:0;margin-top:1px;transition:all .2s}
+.dot.pending{background:#0f172a;border:2px solid #334155;color:#475569}
+.dot.running{background:#1e3a8a;border:2px solid #3b82f6;color:#93c5fd}
+.dot.ok{background:#052e16;border:2px solid #22c55e;color:#4ade80}
+.dot.error{background:#2d0a0a;border:2px solid #ef4444;color:#fca5a5}
+.dot.skipped{background:#0f172a;border:2px solid #475569;color:#64748b}
+.stage-body{flex:1;min-width:0}
+.s-title{font-size:.875rem;font-weight:600;color:#e2e8f0}
+.s-sub{font-size:.77rem;color:#64748b;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-bar{height:5px;background:#0f172a;border-radius:3px;margin-top:7px;overflow:hidden}
+.s-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:3px;transition:width .4s}
+.s-pct{font-size:.78rem;color:#64748b;min-width:3rem;text-align:right;padding-top:4px}
+
+/* ── LOG ── */
+.log-card{background:#1e293b;border-radius:12px;padding:1.2rem;margin-bottom:1rem;
+  border:1px solid #334155}
+.log-title{font-size:.8rem;font-weight:600;color:#64748b;text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:.7rem;display:flex;align-items:center;gap:.5rem}
+.log-box{background:#0a0f1a;border:1px solid #1e293b;border-radius:8px;
+  padding:.75rem;max-height:200px;overflow-y:auto;
+  font-size:.75rem;font-family:'Courier New',monospace;color:#94a3b8;line-height:1.55}
+.l-ok{color:#4ade80}.l-warn{color:#fbbf24}.l-error{color:#f87171}.l-info{color:#60a5fa}
+
+/* ── RESULTADO ── */
+.result-card{background:#052e16;border:1px solid #16a34a;border-radius:12px;
+  padding:1.3rem;margin-bottom:1rem}
+.result-card h3{font-size:.85rem;font-weight:700;color:#4ade80;margin-bottom:.8rem;
+  display:flex;align-items:center;gap:.5rem}
+.dl-list{display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:.7rem}
+.btn-dl{display:inline-flex;align-items:center;gap:.45rem;background:#14532d;
+  border:1px solid #22c55e;border-radius:8px;padding:.6rem 1rem;
+  color:#4ade80;font-size:.84rem;font-weight:600;text-decoration:none;
+  cursor:pointer;transition:all .15s}
+.btn-dl:hover{background:#166534;color:#86efac}
+.pasta-saida{font-size:.73rem;color:#4ade80;margin-top:.5rem;display:flex;
+  align-items:flex-start;gap:.4rem;word-break:break-all}
+.next-step{background:#0f172a;border:1px solid #1d4ed8;border-radius:8px;
+  padding:.65rem .9rem;margin-top:.7rem;font-size:.78rem;color:#93c5fd;
+  display:flex;align-items:flex-start;gap:.5rem}
+
+/* ── ERRO ── */
+.err-card{background:#2d0a0a;border:1px solid #b91c1c;border-radius:10px;
+  padding:1rem 1.2rem;margin-bottom:1rem}
+.err-card h3{font-size:.83rem;font-weight:700;color:#f87171;margin-bottom:.4rem;
+  display:flex;align-items:center;gap:.45rem}
+.err-card p{font-size:.8rem;color:#fca5a5;line-height:1.5}
+
+/* ── DIAGNOSTICO ── */
+.diag-card{background:#1e293b;border-radius:12px;padding:1.3rem;margin-bottom:1rem;border:1px solid #334155}
+.diag-row{display:flex;justify-content:space-between;align-items:flex-start;
+  padding:.55rem 0;border-bottom:1px solid #1e293b;font-size:.82rem}
+.diag-row:last-child{border:none}
+.d-label{color:#94a3b8;font-weight:500}
+.d-ok{color:#4ade80;font-weight:700}
+.d-err{color:#f87171;font-weight:700}
+.d-warn{color:#fbbf24;font-weight:700}
+.d-val{font-size:.72rem;color:#475569;margin-top:2px}
+
+/* ── RESPONSIVO ── */
+@media(max-width:640px){
+  .wrap{padding:1rem .75rem}
+  .tabs{gap:.15rem;padding:.25rem}
+  .tab{font-size:.68rem;padding:.45rem .2rem}
+  .tab-icon{font-size:.95rem}
+  .guide-grid{grid-template-columns:1fr 1fr}
+  .header-actions{margin-left:0;margin-top:.5rem;width:100%}
+  .g2{grid-template-columns:1fr}
+  .btn-run{font-size:.88rem;padding:.8rem}
+  .dl-list{flex-direction:column}
+}
+@media(max-width:400px){
+  .tabs{flex-direction:row}
+  .tab-label{display:none}
+  .tab-icon{font-size:1.2rem;margin-bottom:0}
+  .tab{padding:.5rem}
+  .guide-grid{grid-template-columns:1fr}
+}
+
+/* ── MISC ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+.tag{display:inline-block;font-size:.65rem;padding:.12rem .4rem;border-radius:4px;font-weight:700;margin-left:.35rem}
+.tag-gps{background:#1e3a5f;color:#60a5fa}
+.tag-km{background:#3b2712;color:#fbbf24}
+.tag-tb{background:#2d1b4e;color:#c084fc}
+.sep{height:1px;background:#334155;margin:.9rem 0}
+
+/* ── TABELA DE VIAS ── */
+.vias-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.vias-table th{background:#0f172a;color:#64748b;font-weight:600;text-align:left;
+  padding:.5rem .75rem;border-bottom:2px solid #334155;white-space:nowrap}
+.vias-table td{padding:.55rem .75rem;border-bottom:1px solid #1e293b;color:#cbd5e1;vertical-align:middle}
+.vias-table tr:hover td{background:#0f172a}
+.vias-table td.mono{font-family:'Courier New',monospace;font-size:.75rem;color:#94a3b8}
+.badge-modo{display:inline-block;font-size:.65rem;padding:.1rem .4rem;border-radius:4px;font-weight:700}
+.badge-simples{background:#0f2942;color:#60a5fa}
+.badge-correcao{background:#2d1b00;color:#fbbf24}
+.badge-ajuste{background:#1a0f2e;color:#c084fc}
+.btn-icon{background:none;border:1px solid #334155;border-radius:6px;padding:.3rem .5rem;
+  cursor:pointer;font-size:.85rem;transition:all .15s;color:#94a3b8}
+.btn-icon:hover{border-color:#475569;color:#e2e8f0}
+.btn-icon.danger:hover{border-color:#dc2626;color:#f87171;background:#2d0a0a}
+.btn-add{display:inline-flex;align-items:center;gap:.4rem;background:#0c2340;
+  border:1px solid #2563eb;border-radius:8px;padding:.5rem 1rem;
+  color:#60a5fa;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-add:hover{background:#1d4ed8;color:#fff}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem}
+.section-title{font-size:.82rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;
+  display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto}
+.modal{background:#1e293b;border:1px solid #334155;border-radius:14px;width:100%;max-width:540px;padding:1.5rem}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem}
+.modal-hdr h2{font-size:.95rem;font-weight:700;color:#f1f5f9}
+.modal-close{background:none;border:none;color:#64748b;font-size:1.2rem;cursor:pointer;padding:.2rem .4rem}
+.modal-close:hover{color:#e2e8f0}
+.form-group{margin-bottom:.9rem}
+.form-group label{display:block;font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.3rem}
+.form-group input,.form-group select{
+  width:100%;background:#0f172a;border:1px solid #334155;border-radius:7px;
+  padding:.55rem .75rem;color:#e2e8f0;font-size:.85rem;outline:none;transition:border-color .15s}
+.form-group input:focus,.form-group select:focus{border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.15)}
+.form-hint{font-size:.7rem;color:#475569;margin-top:.25rem}
+.modal-footer{display:flex;gap:.7rem;justify-content:flex-end;margin-top:1.3rem}
+.btn-cancel{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:.55rem 1.1rem;
+  color:#94a3b8;font-size:.84rem;cursor:pointer}
+.btn-cancel:hover{border-color:#475569;color:#cbd5e1}
+.btn-save{background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;border-radius:8px;
+  padding:.55rem 1.3rem;color:#fff;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-save:hover{background:linear-gradient(135deg,#3b82f6,#2563eb)}
+.btn-save:disabled{opacity:.4;cursor:not-allowed}
+.inline-grid2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.alert-saved{background:#052e16;border:1px solid #16a34a;border-radius:8px;padding:.65rem .9rem;
+  font-size:.8rem;color:#4ade80;display:flex;align-items:center;gap:.5rem;margin-top:.8rem}
+.alert-err{background:#2d0a0a;border:1px solid #b91c1c;border-radius:8px;padding:.65rem .9rem;
+  font-size:.8rem;color:#f87171;display:flex;align-items:center;gap:.5rem;margin-top:.8rem}
+</style>
+</head>
+<body>
+<nav style="position:sticky;top:0;z-index:999;height:54px;background:#0f172a;border-bottom:1px solid #334155;display:flex;align-items:center;gap:12px;padding:0 20px;font-family:'Segoe UI',system-ui,sans-serif">
+  <div style="width:28px;height:28px;background:#3b82f6;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🏗</div>
+  <div style="font-size:.78rem;color:#94a3b8;white-space:nowrap">
+    <a href="/" style="color:#94a3b8;text-decoration:none">RIAL Hub</a>
+    <span style="margin:0 6px;opacity:.4">›</span>
+    <span style="color:#f1f5f9;font-weight:600">🛣 Sistema Viário</span>
+  </div>
+  <div style="flex:1;font-size:.72rem;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+    · OCR GPS · Cálculo KM · Relatórios xlsm · MS 245, MS 441, MS 040…
+  </div>
+  <a href="/" style="display:inline-flex;align-items:center;gap:5px;background:transparent;border:1px solid #334155;border-radius:20px;padding:5px 12px;color:#94a3b8;font-size:.75rem;font-weight:600;text-decoration:none;white-space:nowrap;transition:all .15s" onmouseover="this.style.borderColor='#3b82f6';this.style.color='#f1f5f9'" onmouseout="this.style.borderColor='#334155';this.style.color='#94a3b8'">← Hub</a>
+</nav>
+<div class="wrap" x-data="app()" x-init="init()">
+
+<!-- ═══ DIAGNOSTICO ═══ -->
+<template x-if="diag && mostrarDiag">
+<div class="diag-card">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem">
+    <span style="font-size:.8rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">Diagnóstico do Sistema</span>
+    <button @click="mostrarDiag=false" style="background:none;border:none;color:#475569;cursor:pointer;font-size:1rem">✕</button>
+  </div>
+  <div class="diag-row">
+    <div>
+      <div class="d-label">Tesseract OCR (leitura GPS)</div>
+      <div class="d-val" x-text="diag.tesseract?.cmd"></div>
+    </div>
+    <div style="text-align:right">
+      <div :class="diag.tesseract?.ok ? 'd-ok' : 'd-err'" x-text="diag.tesseract?.ok ? '✓ Instalado v'+diag.tesseract.versao : '✗ Não encontrado'"></div>
+      <template x-if="!diag.tesseract?.ok">
+        <div class="d-val" style="color:#f87171">Instale em: github.com/UB-Mannheim/tesseract/wiki</div>
+      </template>
+    </div>
+  </div>
+  <div class="diag-row">
+    <div class="d-label">API Key OpenRouteService (cálculo de KM)</div>
+    <div :class="diag.api_key_existe ? 'd-ok' : 'd-warn'" x-text="diag.api_key_existe ? '✓ Encontrada' : '⚠ api_key.txt ausente'"></div>
+  </div>
+  <div class="diag-row">
+    <div class="d-label">Template Excel (.xlsm)</div>
+    <div :class="diag.template_existe ? 'd-ok' : 'd-err'" x-text="diag.template_existe ? '✓ Encontrado' : '✗ base_gerar_relatorio.xlsm não encontrado'"></div>
+  </div>
+  <div class="diag-row">
+    <div class="d-label">Pillow (processamento de imagem)</div>
+    <div class="d-ok" x-text="'✓ v'+diag.pillow?.versao"></div>
+  </div>
+</div>
+</template>
+
+<!-- ═══ GUIA RAPIDO ═══ -->
+<div class="guide">
+  <div class="guide-title">📋 Qual módulo usar?</div>
+  <div class="guide-grid">
+    <div class="guide-item" @click="trocar('gps')">
+      <div class="gi-icon">📡</div>
+      <div class="gi-name">Por GPS</div>
+      <div class="gi-desc">Cascalho, Aterro, Conformação, Raspagem… App grava coordenadas GPS na foto</div>
+    </div>
+    <div class="guide-item" @click="trocar('rossada')">
+      <div class="gi-icon">🌿</div>
+      <div class="gi-name">KM na Foto</div>
+      <div class="gi-desc">Roçada, Caiação, Limpeza… KM está escrito diretamente na imagem</div>
+    </div>
+    <div class="guide-item" @click="trocar('tapa')">
+      <div class="gi-icon">🚧</div>
+      <div class="gi-name">Tapa-Buraco</div>
+      <div class="gi-desc">Calcula KM usando Campo Grande ou Santa Rita como ponto de origem</div>
+    </div>
+    <div class="guide-item" @click="trocar('km')">
+      <div class="gi-icon">📏</div>
+      <div class="gi-name">Atualizar KM</div>
+      <div class="gi-desc">Já tem dados.xlsx com coordenadas mas sem o KM? Recalcule aqui</div>
+    </div>
+    <div class="guide-item" @click="trocar('rel')">
+      <div class="gi-icon">📄</div>
+      <div class="gi-name">Só o Relatório</div>
+      <div class="gi-desc">Já tem dados.xlsx pronto? Gere o relatório .xlsm sem reprocessar</div>
+    </div>
+    <div class="guide-item" @click="trocar('vias')">
+      <div class="gi-icon">⚙️</div>
+      <div class="gi-name">Configurar Vias</div>
+      <div class="gi-desc">Veja ou edite os pontos de início de cada rodovia (MS 040, MS 245…)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TABS ═══ -->
+<div class="tabs">
+  <div class="tab" :class="{active:aba==='gps'}" @click="trocar('gps')">
+    <span class="tab-icon">📡</span><span class="tab-label">Por GPS</span>
+  </div>
+  <div class="tab" :class="{active:aba==='rossada'}" @click="trocar('rossada')">
+    <span class="tab-icon">🌿</span><span class="tab-label">KM na Foto</span>
+  </div>
+  <div class="tab" :class="{active:aba==='tapa'}" @click="trocar('tapa')">
+    <span class="tab-icon">🚧</span><span class="tab-label">Tapa-Buraco</span>
+  </div>
+  <div class="tab" :class="{active:aba==='km'}" @click="trocar('km')">
+    <span class="tab-icon">📏</span><span class="tab-label">Atualizar KM</span>
+  </div>
+  <div class="tab" :class="{active:aba==='rel'}" @click="trocar('rel')">
+    <span class="tab-icon">📄</span><span class="tab-label">Relatório</span>
+  </div>
+  <div class="tab" :class="{active:aba==='vias'}" @click="trocar('vias')">
+    <span class="tab-icon">⚙️</span><span class="tab-label">Configurar Vias</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     ABA: GPS
+════════════════════════════════════════════════════ -->
+<template x-if="aba==='gps'">
+<div>
+  <div class="card">
+    <!-- Quando usar -->
+    <div class="info-box">
+      <div class="info-toggle" @click="cfg.infoAberta.gps=!cfg.infoAberta.gps">
+        <span x-text="cfg.infoAberta.gps ? '▾' : '▸'"></span>
+        <span>Quando usar este módulo?</span>
+      </div>
+      <template x-if="cfg.infoAberta.gps">
+        <p>Use para serviços onde o aplicativo de campo (ex.: GPS Status) grava automaticamente as <strong>coordenadas GPS no rodapé da foto</strong>. Após selecionar a pasta, o sistema lê cada foto, converte as coordenadas em KM na rodovia e gera o relatório final em Excel.<br><br>
+        Serviços compatíveis: <strong>Cascalho, Aterro, Conformação, Raspagem, Caiação, Limpeza, Roçada</strong>.</p>
+      </template>
+    </div>
+
+    <!-- Passo a passo -->
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <label>Rodovia</label>
+          <div class="field-wrap">
+            <select x-model="cfg.rodovia">
+              {% for r in rodovias %}<option>{{ r }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="step-hint">Selecione a rodovia onde o serviço foi executado.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <label>Tipo de Serviço</label>
+          <div class="field-wrap">
+            <select x-model="cfg.servico_gps">
+              {% for s in servicos_gps %}<option>{{ s }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="step-hint">Este nome aparecerá na descrição de cada registro do relatório.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <label>Pasta com as fotos originais</label>
+          <div class="field-wrap">
+            <div class="row">
+              <input type="text" x-model="cfg.pasta" placeholder="Clique em 📁 para selecionar a pasta..."/>
+              <button class="btn-browse" @click="browse('folder','cfg.pasta')" :disabled="rodando">📁 Selecionar</button>
+            </div>
+          </div>
+          <div class="step-hint">Selecione a pasta que contém as fotos .jpg tiradas em campo. As fotos originais não serão alteradas.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <label>Opções</label>
+          <div class="chk-row" @click="cfg.comRel=!cfg.comRel" style="cursor:pointer">
+            <input type="checkbox" x-model="cfg.comRel" @click.stop/>
+            <label @click.prevent>Gerar relatório .xlsm automaticamente ao final</label>
+            <small>Recomendado</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- O que vai acontecer -->
+    <div class="what-happens">
+      <h4>O que vai acontecer ao executar:</h4>
+      <div class="wh-step"><div class="wh-num">1</div><p>O sistema copia e renomeia as fotos (foto_001.jpg, foto_002.jpg…)</p></div>
+      <div class="wh-step"><div class="wh-num">2</div><p>Lê as coordenadas GPS gravadas no rodapé de cada foto</p></div>
+      <div class="wh-step"><div class="wh-num">3</div><p>Calcula o KM de cada ponto na rodovia selecionada via API de rotas</p></div>
+      <div class="wh-step"><div class="wh-num">4</div><p>Gera o <strong>dados.xlsx</strong> e o <strong>relatório .xlsm</strong> prontos para uso</p></div>
+    </div>
+  </div>
+
+  <button class="btn-run" @click="run('gps')" :disabled="rodando||!cfg.pasta">
+    <template x-if="!rodando"><span class="arrow">▶</span><span>Executar — OCR + Cálculo de KM + Relatório</span></template>
+    <template x-if="rodando"><span class="spin">⟳</span><span>Processando… aguarde</span></template>
+  </button>
+</div>
+</template>
+
+<!-- ════════════════════════════════════════════════════
+     ABA: KM NA FOTO
+════════════════════════════════════════════════════ -->
+<template x-if="aba==='rossada'">
+<div>
+  <div class="card">
+    <div class="info-box">
+      <div class="info-toggle" @click="cfg.infoAberta.rossada=!cfg.infoAberta.rossada">
+        <span x-text="cfg.infoAberta.rossada ? '▾' : '▸'"></span>
+        <span>Quando usar este módulo?</span>
+      </div>
+      <template x-if="cfg.infoAberta.rossada">
+        <p>Use quando o aplicativo de campo grava o <strong>número do KM diretamente no texto da foto</strong> (ex.: "KM 42"). O sistema lê esse número automaticamente sem precisar de GPS ou API de rotas.<br><br>
+        Serviços compatíveis: <strong>Roçada, Caiação, Limpeza</strong>.</p>
+      </template>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <label>Tipo de Serviço</label>
+          <div class="field-wrap">
+            <select x-model="cfg.tipo_servico">
+              {% for s in servicos_km_foto %}<option>{{ s }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="step-hint">O serviço que foi realizado nas fotos selecionadas.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <label>Rota / Rodovia</label>
+          <div class="field-wrap">
+            <select x-model="cfg.rota_km_foto">
+              {% for r in rotas_km_foto %}<option>{{ r }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="step-hint">A rota onde o serviço foi executado. Aparecerá na descrição do relatório.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <label>Pasta com as fotos originais</label>
+          <div class="field-wrap">
+            <div class="row">
+              <input type="text" x-model="cfg.pasta" placeholder="Clique em 📁 para selecionar a pasta..."/>
+              <button class="btn-browse" @click="browse('folder','cfg.pasta')" :disabled="rodando">📁 Selecionar</button>
+            </div>
+          </div>
+          <div class="step-hint">Selecione a pasta com as fotos onde o KM aparece escrito na imagem.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <label>Opções</label>
+          <div class="chk-row" @click="cfg.comRel=!cfg.comRel" style="cursor:pointer">
+            <input type="checkbox" x-model="cfg.comRel" @click.stop/>
+            <label @click.prevent>Gerar relatório .xlsm automaticamente ao final</label>
+            <small>Recomendado</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="what-happens">
+      <h4>O que vai acontecer ao executar:</h4>
+      <div class="wh-step"><div class="wh-num">1</div><p>O sistema copia e renomeia as fotos</p></div>
+      <div class="wh-step"><div class="wh-num">2</div><p>Lê o número do KM escrito em cada foto (ex.: "KM 42")</p></div>
+      <div class="wh-step"><div class="wh-num">3</div><p>Gera o <strong>dados.xlsx</strong> e o <strong>relatório .xlsm</strong> com as descrições compostas</p></div>
+    </div>
+  </div>
+
+  <button class="btn-run" @click="run('rossada')" :disabled="rodando||!cfg.pasta">
+    <template x-if="!rodando"><span class="arrow">▶</span><span>Executar — Ler KM das Fotos + Relatório</span></template>
+    <template x-if="rodando"><span class="spin">⟳</span><span>Processando… aguarde</span></template>
+  </button>
+</div>
+</template>
+
+<!-- ════════════════════════════════════════════════════
+     ABA: TAPA-BURACO
+════════════════════════════════════════════════════ -->
+<template x-if="aba==='tapa'">
+<div>
+  <div class="card">
+    <div class="info-box">
+      <div class="info-toggle" @click="cfg.infoAberta.tapa=!cfg.infoAberta.tapa">
+        <span x-text="cfg.infoAberta.tapa ? '▾' : '▸'"></span>
+        <span>Quando usar este módulo?</span>
+      </div>
+      <template x-if="cfg.infoAberta.tapa">
+        <p>Use para registros de <strong>Tapa-Buraco</strong>. O sistema extrai o GPS da foto e calcula automaticamente a distância a partir de dois pontos de referência:<br><br>
+        • Se o ponto estiver a <strong>até 224 km de Campo Grande</strong> → usa Campo Grande (MS 040)<br>
+        • Se estiver <strong>além de 224 km</strong> → usa Santa Rita do Pardo (MS 338 + 285 km de offset)</p>
+      </template>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <label>Pasta com as fotos originais</label>
+          <div class="field-wrap">
+            <div class="row">
+              <input type="text" x-model="cfg.pasta" placeholder="Clique em 📁 para selecionar a pasta..."/>
+              <button class="btn-browse" @click="browse('folder','cfg.pasta')" :disabled="rodando">📁 Selecionar</button>
+            </div>
+          </div>
+          <div class="step-hint">As fotos devem ter coordenadas GPS gravadas pelo app de campo.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <label>Opções</label>
+          <div class="chk-row" @click="cfg.comRel=!cfg.comRel" style="cursor:pointer">
+            <input type="checkbox" x-model="cfg.comRel" @click.stop/>
+            <label @click.prevent>Gerar relatório .xlsm automaticamente ao final</label>
+            <small>Recomendado</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="what-happens">
+      <h4>O que vai acontecer ao executar:</h4>
+      <div class="wh-step"><div class="wh-num">1</div><p>Lê as coordenadas GPS de cada foto</p></div>
+      <div class="wh-step"><div class="wh-num">2</div><p>Calcula a distância a partir de Campo Grande — se passar de 224 km, recalcula a partir de Santa Rita</p></div>
+      <div class="wh-step"><div class="wh-num">3</div><p>Gera o <strong>dados.xlsx</strong> e o <strong>relatório .xlsm</strong></p></div>
+    </div>
+  </div>
+
+  <button class="btn-run" @click="run('tapa')" :disabled="rodando||!cfg.pasta">
+    <template x-if="!rodando"><span class="arrow">▶</span><span>Executar — OCR + KM Campo Grande/Santa Rita + Relatório</span></template>
+    <template x-if="rodando"><span class="spin">⟳</span><span>Processando… aguarde</span></template>
+  </button>
+</div>
+</template>
+
+<!-- ════════════════════════════════════════════════════
+     ABA: ATUALIZAR KM
+════════════════════════════════════════════════════ -->
+<template x-if="aba==='km'">
+<div>
+  <div class="card">
+    <div class="info-box">
+      <div class="info-toggle" @click="cfg.infoAberta.km=!cfg.infoAberta.km">
+        <span x-text="cfg.infoAberta.km ? '▾' : '▸'"></span>
+        <span>Quando usar este módulo?</span>
+      </div>
+      <template x-if="cfg.infoAberta.km">
+        <p>Use quando você já tem um <strong>dados.xlsx</strong> gerado anteriormente (com coordenadas GPS preenchidas), mas o KM não foi calculado — por exemplo, porque a API falhou ou você preencheu as coordenadas manualmente.<br><br>
+        ⚠ As coordenadas podem estar em formato decimal (-21.238889) ou em graus/minutos/segundos (21 14 20) — o sistema converte automaticamente.</p>
+      </template>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <label>Rodovia</label>
+          <div class="field-wrap">
+            <select x-model="cfg.rodovia">
+              {% for r in rodovias %}<option>{{ r }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="step-hint">Selecione a rodovia de referência para o cálculo de KM.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <label>Tipo de Serviço</label>
+          <div class="field-wrap">
+            <select x-model="cfg.servico_gps">
+              {% for s in servicos_gps %}<option>{{ s }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="step-hint">Aparecerá na coluna "Descrição" do arquivo atualizado.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <label>Arquivo dados.xlsx</label>
+          <div class="field-wrap">
+            <div class="row">
+              <input type="text" x-model="cfg.arquivo" placeholder="Clique em 📄 para selecionar o arquivo..."/>
+              <button class="btn-browse" @click="browse('file','cfg.arquivo')" :disabled="rodando">📄 Selecionar</button>
+            </div>
+          </div>
+          <div class="step-hint">Selecione o arquivo dados.xlsx que contém as colunas Latitude e Longitude preenchidas.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="what-happens">
+      <h4>O que vai acontecer ao executar:</h4>
+      <div class="wh-step"><div class="wh-num">1</div><p>Lê as linhas com coordenadas do dados.xlsx</p></div>
+      <div class="wh-step"><div class="wh-num">2</div><p>Consulta a API para calcular o KM de cada ponto na rodovia</p></div>
+      <div class="wh-step"><div class="wh-num">3</div><p>Salva o KM e a Descrição de volta no mesmo arquivo .xlsx</p></div>
+    </div>
+  </div>
+
+  <button class="btn-run" @click="run('km')" :disabled="rodando||!cfg.arquivo">
+    <template x-if="!rodando"><span class="arrow">▶</span><span>Recalcular KM no arquivo selecionado</span></template>
+    <template x-if="rodando"><span class="spin">⟳</span><span>Calculando… aguarde</span></template>
+  </button>
+</div>
+</template>
+
+<!-- ════════════════════════════════════════════════════
+     ABA: RELATÓRIO
+════════════════════════════════════════════════════ -->
+<template x-if="aba==='rel'">
+<div>
+  <div class="card">
+    <div class="info-box">
+      <div class="info-toggle" @click="cfg.infoAberta.rel=!cfg.infoAberta.rel">
+        <span x-text="cfg.infoAberta.rel ? '▾' : '▸'"></span>
+        <span>Quando usar este módulo?</span>
+      </div>
+      <template x-if="cfg.infoAberta.rel">
+        <p>Use quando já tem um <strong>dados.xlsx pronto</strong> (com Imagem e Descrição preenchidos) e quer gerar ou regenerar o relatório .xlsm sem reprocessar as fotos.<br><br>
+        Funciona para qualquer tipo de serviço: GPS, Roçada, Caiação, Tapa-Buraco, etc.</p>
+      </template>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <label>Nome do relatório</label>
+          <div class="field-wrap">
+            <input type="text" x-model="cfg.nomeRel" placeholder="Ex: MS395_Rossada  ou  MS245_Cascalho"/>
+          </div>
+          <div class="step-hint">Este nome aparecerá no nome do arquivo .xlsm gerado. Use algo que identifique o lote.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <label>Arquivo dados.xlsx</label>
+          <div class="field-wrap">
+            <div class="row">
+              <input type="text" x-model="cfg.arquivo" placeholder="Clique em 📄 para selecionar o arquivo..."/>
+              <button class="btn-browse" @click="browse('file','cfg.arquivo')" :disabled="rodando">📄 Selecionar</button>
+            </div>
+          </div>
+          <div class="step-hint">O arquivo deve ter as colunas <strong>Imagem</strong> e <strong>Descrição</strong> preenchidas.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <label>Pasta com as fotos</label>
+          <div class="field-wrap">
+            <div class="row">
+              <input type="text" x-model="cfg.pasta" placeholder="Clique em 📁 para selecionar a pasta..."/>
+              <button class="btn-browse" @click="browse('folder','cfg.pasta')" :disabled="rodando">📁 Selecionar</button>
+            </div>
+          </div>
+          <div class="step-hint">A pasta onde estão as fotos renomeadas (foto_001.jpg, foto_002.jpg…).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="what-happens">
+      <h4>O que vai acontecer ao executar:</h4>
+      <div class="wh-step"><div class="wh-num">1</div><p>Lê o dados.xlsx e busca cada foto na pasta selecionada</p></div>
+      <div class="wh-step"><div class="wh-num">2</div><p>Insere as fotos e descrições nas planilhas do modelo Excel</p></div>
+      <div class="wh-step"><div class="wh-num">3</div><p>Salva o <strong>relatório .xlsm</strong> final na mesma pasta do dados.xlsx</p></div>
+    </div>
+  </div>
+
+  <button class="btn-run" @click="run('rel')" :disabled="rodando||!cfg.arquivo||!cfg.pasta">
+    <template x-if="!rodando"><span class="arrow">▶</span><span>Gerar Relatório .xlsm</span></template>
+    <template x-if="rodando"><span class="spin">⟳</span><span>Gerando relatório… aguarde</span></template>
+  </button>
+</div>
+</template>
+
+<!-- ════════════════════════════════════════════════════
+     ABA: CONFIGURAR VIAS
+════════════════════════════════════════════════════ -->
+<template x-if="aba==='vias'">
+<div>
+
+  <!-- ── Card: Rodovias cadastradas ── -->
+  <div class="card">
+    <div class="section-hdr">
+      <span class="section-title">🛣️ Rodovias cadastradas</span>
+      <button class="btn-add" @click="abrirModalNova()">➕ Nova Rodovia</button>
+    </div>
+
+    <template x-if="!viasConfig">
+      <p style="color:#64748b;font-size:.82rem">Carregando…</p>
+    </template>
+
+    <template x-if="viasConfig">
+      <div style="overflow-x:auto">
+        <table class="vias-table">
+          <thead>
+            <tr>
+              <th>Sigla</th>
+              <th>Ponto de início (lat, lon)</th>
+              <th>Modo de cálculo</th>
+              <th>Detalhes</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="[sigla, rod] in Object.entries(viasConfig.rodovias)" :key="sigla">
+              <tr>
+                <td><strong x-text="sigla"></strong></td>
+                <td class="mono" x-text="rod.inicio ? rod.inicio[0].toFixed(6)+', '+rod.inicio[1].toFixed(6) : '—'"></td>
+                <td>
+                  <span class="badge-modo"
+                    :class="{
+                      'badge-simples':   rod.modo_calculo==='simples',
+                      'badge-correcao':  rod.modo_calculo==='limite_com_correcao',
+                      'badge-ajuste':    rod.modo_calculo==='fixo_com_ajuste'
+                    }"
+                    x-text="rod.modo_calculo==='simples' ? 'Simples' :
+                            rod.modo_calculo==='limite_com_correcao' ? 'Com correção' : 'Fixo + ajuste'">
+                  </span>
+                </td>
+                <td class="mono" style="font-size:.7rem;color:#475569"
+                  x-text="rod.limite_km ? 'Limite: '+rod.limite_km+' km | Ajuste: +'+rod.ajuste_km+' km' :
+                           rod.ajuste_km ? 'Ajuste: +'+rod.ajuste_km+' km' : '—'">
+                </td>
+                <td>
+                  <div style="display:flex;gap:.4rem">
+                    <button class="btn-icon" title="Editar" @click="abrirModalEditar(sigla, rod)">✏️</button>
+                    <button class="btn-icon danger" title="Remover"
+                      @click="deletarVia(sigla)">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </template>
+
+    <div class="info-box" style="margin-top:1rem;margin-bottom:0">
+      <p>As alterações entram em vigor imediatamente para novos processamentos.<br>
+      <strong>Após adicionar ou renomear uma rodovia</strong>, recarregue a página (F5) para ela aparecer nos menus de seleção.</p>
+    </div>
+  </div>
+
+  <!-- ── Card: Tapa-Buraco ── -->
+  <div class="card" x-show="viasConfig">
+    <div class="section-hdr">
+      <span class="section-title">🚧 Tapa-Buraco — pontos de origem</span>
+      <button class="btn-icon" title="Editar" @click="editandoTapa=!editandoTapa"
+        x-text="editandoTapa ? '✕ Cancelar' : '✏️ Editar'"></button>
+    </div>
+
+    <!-- Visualização -->
+    <template x-if="!editandoTapa && viasConfig">
+      <div>
+        <div class="vias-table" style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
+          <div style="background:#0f172a;border-radius:8px;padding:.8rem">
+            <div style="font-size:.72rem;font-weight:700;color:#60a5fa;margin-bottom:.4rem">PONTO CAMPO GRANDE</div>
+            <div class="mono" style="font-size:.78rem;color:#cbd5e1"
+              x-text="viasConfig.tapa_buraco.ponto_cg ? viasConfig.tapa_buraco.ponto_cg[0].toFixed(6)+', '+viasConfig.tapa_buraco.ponto_cg[1].toFixed(6) : '—'"></div>
+            <div style="font-size:.72rem;color:#64748b;margin-top:.3rem"
+              x-text="'Até ' + viasConfig.tapa_buraco.limite_cg + ' km → usa CG'"></div>
+            <div style="font-size:.7rem;color:#475569;margin-top:.2rem" x-text="viasConfig.tapa_buraco.descricao_cg"></div>
+          </div>
+          <div style="background:#0f172a;border-radius:8px;padding:.8rem">
+            <div style="font-size:.72rem;font-weight:700;color:#c084fc;margin-bottom:.4rem">PONTO SANTA RITA</div>
+            <div class="mono" style="font-size:.78rem;color:#cbd5e1"
+              x-text="viasConfig.tapa_buraco.ponto_sr ? viasConfig.tapa_buraco.ponto_sr[0].toFixed(6)+', '+viasConfig.tapa_buraco.ponto_sr[1].toFixed(6) : '—'"></div>
+            <div style="font-size:.72rem;color:#64748b;margin-top:.3rem"
+              x-text="'Acima → dist. SR + ' + viasConfig.tapa_buraco.ajuste_sr + ' km de offset'"></div>
+            <div style="font-size:.7rem;color:#475569;margin-top:.2rem" x-text="viasConfig.tapa_buraco.descricao_sr"></div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- Formulário de edição inline -->
+    <template x-if="editandoTapa && viasConfig">
+      <div>
+        <div class="inline-grid2" style="margin-bottom:.7rem">
+          <div class="form-group">
+            <label>Lat. Campo Grande</label>
+            <input type="text" x-model="tapaBuracoForm.lat_cg" placeholder="-20.555483"/>
+          </div>
+          <div class="form-group">
+            <label>Lon. Campo Grande</label>
+            <input type="text" x-model="tapaBuracoForm.lon_cg" placeholder="-54.555274"/>
+          </div>
+          <div class="form-group">
+            <label>Lat. Santa Rita</label>
+            <input type="text" x-model="tapaBuracoForm.lat_sr" placeholder="-21.306168"/>
+          </div>
+          <div class="form-group">
+            <label>Lon. Santa Rita</label>
+            <input type="text" x-model="tapaBuracoForm.lon_sr" placeholder="-52.823840"/>
+          </div>
+          <div class="form-group">
+            <label>Limite CG (km)</label>
+            <input type="text" x-model="tapaBuracoForm.limite_cg" placeholder="224"/>
+            <div class="form-hint">Até este valor usa Campo Grande como origem</div>
+          </div>
+          <div class="form-group">
+            <label>Offset SR (km)</label>
+            <input type="text" x-model="tapaBuracoForm.ajuste_sr" placeholder="285"/>
+            <div class="form-hint">KM = dist. Santa Rita + offset</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Descrição CG</label>
+          <input type="text" x-model="tapaBuracoForm.descricao_cg"/>
+        </div>
+        <div class="form-group">
+          <label>Descrição SR</label>
+          <input type="text" x-model="tapaBuracoForm.descricao_sr"/>
+        </div>
+        <div style="display:flex;gap:.7rem;margin-top:.5rem">
+          <button class="btn-cancel" @click="editandoTapa=false">Cancelar</button>
+          <button class="btn-save" @click="salvarTapaBuraco()" :disabled="salvando">
+            <span x-text="salvando ? 'Salvando…' : '💾 Salvar Tapa-Buraco'"></span>
+          </button>
+        </div>
+        <template x-if="tapaMsgOk"><div class="alert-saved">✅ Configuração salva!</div></template>
+        <template x-if="tapaMsgErr"><div class="alert-err">❌ <span x-text="tapaMsgErr"></span></div></template>
+      </div>
+    </template>
+  </div>
+
+</div>
+</template>
+
+<!-- ── MODAL: Editar / Nova Rodovia ── -->
+<template x-if="modalVia">
+<div class="modal-bg" @click.self="modalVia=false">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2 x-text="editandoVia ? '✏️ Editar — '+editForm.sigla : '➕ Nova Rodovia'"></h2>
+      <button class="modal-close" @click="modalVia=false">✕</button>
+    </div>
+
+    <div class="form-group">
+      <label>Sigla (ex: MS 040)</label>
+      <input type="text" x-model="editForm.sigla" :disabled="editandoVia"
+        placeholder="MS XXX" style="text-transform:uppercase"/>
+      <div class="form-hint">Identificador único da rodovia. Não pode ser alterado depois de criado.</div>
+    </div>
+
+    <div class="form-group">
+      <label>Descrição</label>
+      <input type="text" x-model="editForm.descricao" placeholder="Ex: MS 040"/>
+    </div>
+
+    <div class="form-group">
+      <label>Modo de cálculo</label>
+      <select x-model="editForm.modo_calculo">
+        <option value="simples">Simples — distância direta do ponto de início</option>
+        <option value="limite_com_correcao">Com correção — usa ponto alternativo acima do limite</option>
+        <option value="fixo_com_ajuste">Fixo + ajuste — adiciona offset fixo ao resultado</option>
+      </select>
+    </div>
+
+    <div class="inline-grid2">
+      <div class="form-group">
+        <label>Latitude início</label>
+        <input type="text" x-model="editForm.lat_inicio" placeholder="-21.251334"/>
+        <div class="form-hint">Número negativo (Sul)</div>
+      </div>
+      <div class="form-group">
+        <label>Longitude início</label>
+        <input type="text" x-model="editForm.lon_inicio" placeholder="-52.055517"/>
+        <div class="form-hint">Número negativo (Oeste)</div>
+      </div>
+    </div>
+
+    <!-- Campos extra para "limite_com_correcao" -->
+    <template x-if="editForm.modo_calculo==='limite_com_correcao'">
+      <div>
+        <div style="font-size:.75rem;font-weight:700;color:#fbbf24;margin:.5rem 0 .6rem">Ponto corrigido (alternativo)</div>
+        <div class="inline-grid2">
+          <div class="form-group">
+            <label>Lat. ponto corrigido</label>
+            <input type="text" x-model="editForm.lat_corrigido" placeholder="-19.996978"/>
+          </div>
+          <div class="form-group">
+            <label>Lon. ponto corrigido</label>
+            <input type="text" x-model="editForm.lon_corrigido" placeholder="-54.042767"/>
+          </div>
+          <div class="form-group">
+            <label>Limite (km)</label>
+            <input type="text" x-model="editForm.limite_km" placeholder="99"/>
+            <div class="form-hint">Acima deste KM usa o ponto corrigido</div>
+          </div>
+          <div class="form-group">
+            <label>Ajuste (km)</label>
+            <input type="text" x-model="editForm.ajuste_km" placeholder="40"/>
+            <div class="form-hint">Soma ao resultado do ponto corrigido</div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- Campo extra para "fixo_com_ajuste" -->
+    <template x-if="editForm.modo_calculo==='fixo_com_ajuste'">
+      <div class="form-group">
+        <label>Ajuste fixo (km)</label>
+        <input type="text" x-model="editForm.ajuste_km" placeholder="0"/>
+        <div class="form-hint">Valor somado à distância calculada</div>
+      </div>
+    </template>
+
+    <template x-if="viaMsgOk"><div class="alert-saved">✅ Rodovia salva com sucesso!</div></template>
+    <template x-if="viaMsgErr"><div class="alert-err">❌ <span x-text="viaMsgErr"></span></div></template>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" @click="modalVia=false">Cancelar</button>
+      <button class="btn-save" @click="salvarVia()" :disabled="salvando">
+        <span x-text="salvando ? 'Salvando…' : '💾 Salvar'"></span>
+      </button>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- ═══ PROGRESSO ═══ -->
+<template x-if="etapas.length>0">
+<div class="prog-card" style="margin-top:1rem">
+  <div class="prog-title">⚙ Progresso da Execução</div>
+  <template x-for="e in etapas" :key="e.id">
+    <div class="stage">
+      <div class="dot" :class="e.status">
+        <span x-show="e.status==='pending'">○</span>
+        <span x-show="e.status==='running'" class="spin">⟳</span>
+        <span x-show="e.status==='ok'">✓</span>
+        <span x-show="e.status==='error'">✗</span>
+        <span x-show="e.status==='skipped'">—</span>
+      </div>
+      <div class="stage-body">
+        <div class="s-title" x-text="e.titulo"></div>
+        <div class="s-sub" x-text="e.msg"></div>
+        <div class="s-bar" x-show="e.status==='running'||e.status==='ok'">
+          <div class="s-fill" :style="'width:'+e.pct+'%'"></div>
+        </div>
+      </div>
+      <div class="s-pct" x-show="e.status==='running'" x-text="e.pct+'%'"></div>
+    </div>
+  </template>
+</div>
+</template>
+
+<!-- ═══ LOG ═══ -->
+<template x-if="logs.length>0">
+<div class="log-card">
+  <div class="log-title">
+    <span>📋 Log detalhado</span>
+    <span style="font-size:.7rem;color:#475569;font-weight:400">Últimas operações</span>
+  </div>
+  <div class="log-box" id="logbox">
+    <template x-for="(l,i) in logs" :key="i">
+      <div :class="'l-'+l.t" x-text="l.m"></div>
+    </template>
+  </div>
+</div>
+</template>
+
+<!-- ═══ RESULTADO ═══ -->
+<template x-if="dls.length>0">
+<div class="result-card">
+  <h3>✅ Processamento concluído!</h3>
+  <div class="dl-list">
+    <template x-for="d in dls" :key="d.url">
+      <a class="btn-dl" :href="d.url" :download="d.nome">
+        📥 <span x-text="d.nome"></span>
+      </a>
+    </template>
+  </div>
+  <div class="pasta-saida" x-show="pastaSaida">
+    <span>📂</span>
+    <span x-text="'Arquivos salvos em: ' + pastaSaida"></span>
+  </div>
+  <template x-if="proximoPasso">
+    <div class="next-step">
+      <span>💡</span>
+      <span x-text="proximoPasso"></span>
+    </div>
+  </template>
+</div>
+</template>
+
+<!-- ═══ ERRO GERAL ═══ -->
+<template x-if="erroGeral">
+<div class="err-card">
+  <h3>❌ Erro durante o processamento</h3>
+  <p x-text="erroGeral"></p>
+  <p style="margin-top:.5rem;font-size:.75rem;color:#f87171">Verifique o log acima para mais detalhes. Se o erro persistir, clique em "Diagnóstico" no topo da página.</p>
+</div>
+</template>
+
+</div><!-- /wrap -->
+
+<script>
+function app(){
+  return {
+    aba:'gps', rodando:false, erroGeral:'', logs:[], dls:[],
+    pastaSaida:'', etapas:[], diag:null, mostrarDiag:false, proximoPasso:'',
+
+    // ── Config de Vias ──
+    viasConfig:   null,
+    modalVia:     false,
+    editandoVia:  false,
+    editandoTapa: false,
+    salvando:     false,
+    viaMsgOk:     false,
+    viaMsgErr:    '',
+    tapaMsgOk:    false,
+    tapaMsgErr:   '',
+    editForm: {
+      sigla:'', descricao:'', modo_calculo:'simples',
+      lat_inicio:'', lon_inicio:'',
+      lat_corrigido:'', lon_corrigido:'',
+      limite_km:'', ajuste_km:''
+    },
+    tapaBuracoForm: {
+      lat_cg:'', lon_cg:'', lat_sr:'', lon_sr:'',
+      limite_cg:'', ajuste_sr:'', descricao_cg:'', descricao_sr:''
+    },
+
+    cfg:{
+      rodovia:'{{ rodovias[0] }}',
+      servico_gps:'{{ servicos_gps[0] }}',
+      tipo_servico:'{{ servicos_km_foto[0] }}',
+      rota_km_foto:'{{ rotas_km_foto[0] }}',
+      nomeRel:'',
+      pasta:'', arquivo:'', comRel:true,
+      infoAberta:{ gps:false, rossada:false, tapa:false, km:false, rel:false }
+    },
+
+    init(){
+      this.runDiag(true);
+    },
+
+    trocar(nome){
+      if(this.rodando) return;
+      this.aba = nome;
+      this.resetUI();
+      if(nome === 'vias') this.carregarVias();
+    },
+
+    resetUI(){
+      this.logs=[]; this.dls=[]; this.pastaSaida='';
+      this.etapas=[]; this.erroGeral=''; this.proximoPasso='';
+    },
+
+    async browse(tipo, campo){
+      const ep = tipo==='folder' ? '/viario/api/browse-folder' : '/viario/api/browse-file';
+      try {
+        const r = await fetch(ep, {method:'POST'});
+        const d = await r.json();
+        if(d.path){
+          const k = campo.split('.');
+          let o = this;
+          for(let i=0;i<k.length-1;i++) o=o[k[i]];
+          o[k[k.length-1]] = d.path;
+        }
+      } catch(e){ console.error(e); }
+    },
+
+    async runDiag(silencioso=false){
+      try {
+        const r = await fetch('/viario/api/diagnostico');
+        this.diag = await r.json();
+        if(!silencioso) this.mostrarDiag = true;
+      } catch(e){ console.error(e); }
+    },
+
+    log(m, t='info'){
+      this.logs.push({m, t});
+      this.$nextTick(()=>{
+        const b = document.getElementById('logbox');
+        if(b) b.scrollTop = b.scrollHeight;
+      });
+    },
+
+    etapa(id){ return this.etapas.find(e=>e.id===id); },
+
+    initEtapas(titulos){
+      this.etapas = titulos.map((t,i)=>({id:i+1, titulo:t, msg:'Aguardando…', status:'pending', pct:0}));
+    },
+
+    sse(url, onDone){
+      this.resetUI();
+      this.rodando = true;
+      const src = new EventSource(url);
+      src.onmessage = e => {
+        const d = JSON.parse(e.data);
+        if(d.type==='etapa'){
+          const et=this.etapa(d.etapa);
+          if(et){ et.status='running'; et.msg=d.msg; et.pct=0; }
+          this.log('▶ '+d.msg,'info');
+        } else if(d.type==='progresso'){
+          const et=this.etapa(d.etapa);
+          if(et){ et.pct=d.valor; et.msg=d.msg; }
+          const isBad = d.msg.includes('sem GPS')||d.msg.includes('KM não encontrado');
+          if(d.msg.includes('✓')||isBad)
+            this.log(d.msg, isBad ? 'warn' : 'ok');
+        } else if(d.type==='etapa_ok'){
+          const et=this.etapa(d.etapa);
+          if(et){ et.status='ok'; et.pct=100; et.msg=d.msg; }
+          this.log('✓ '+d.msg,'ok');
+        } else if(d.type==='aviso'){
+          this.log('⚠ '+d.msg,'warn');
+        } else if(d.type==='info'){
+          this.log(d.msg,'info');
+        } else if(d.type==='error'){
+          this.erroGeral = d.msg;
+          this.log('✗ '+d.msg,'error');
+          this.rodando=false; src.close();
+        } else if(d.type==='concluido'){
+          onDone(d);
+          this.rodando=false; src.close();
+          this.log('✅ Concluído!','ok');
+        }
+      };
+      src.onerror = () => {
+        if(this.rodando){
+          this.erroGeral='Erro de conexão com o servidor. Verifique se o app está rodando.';
+          this.rodando=false; src.close();
+        }
+      };
+    },
+
+    run(tipo){
+      const p = new URLSearchParams();
+
+      if(tipo==='gps'){
+        this.initEtapas(['Etapa 1 — Leitura GPS das fotos','Etapa 2 — Cálculo de KM via API','Etapa 3 — Geração do relatório .xlsm']);
+        p.set('pasta',this.cfg.pasta); p.set('rodovia',this.cfg.rodovia);
+        p.set('servico',this.cfg.servico_gps); p.set('relatorio',this.cfg.comRel);
+        this.sse('/viario/api/pipeline-gps?'+p, d=>this._onDone(d,'gps'));
+
+      } else if(tipo==='rossada'){
+        this.initEtapas(['Etapa 1 — Leitura do KM nas fotos','Etapa 2 — Geração do relatório .xlsm']);
+        p.set('pasta',this.cfg.pasta);
+        p.set('tipo_servico',this.cfg.tipo_servico);
+        p.set('rota',this.cfg.rota_km_foto);
+        p.set('relatorio',this.cfg.comRel);
+        this.sse('/viario/api/pipeline-km-foto?'+p, d=>this._onDone(d,'rossada'));
+
+      } else if(tipo==='tapa'){
+        this.initEtapas(['Etapa 1 — Leitura GPS das fotos','Etapa 2 — Cálculo KM (Campo Grande / Santa Rita)','Etapa 3 — Geração do relatório .xlsm']);
+        p.set('pasta',this.cfg.pasta); p.set('relatorio',this.cfg.comRel);
+        this.sse('/viario/api/pipeline-tapa-buraco?'+p, d=>this._onDone(d,'tapa'));
+
+      } else if(tipo==='km'){
+        this.initEtapas(['Cálculo de KM via API de Rotas']);
+        p.set('arquivo',this.cfg.arquivo); p.set('rodovia',this.cfg.rodovia);
+        p.set('servico',this.cfg.servico_gps);
+        this.sse('/viario/api/atualizar-km?'+p, d=>this._onDone(d,'km'));
+
+      } else if(tipo==='rel'){
+        this.initEtapas(['Geração do Relatório .xlsm']);
+        p.set('arquivo',this.cfg.arquivo); p.set('pasta',this.cfg.pasta);
+        p.set('nome', this.cfg.nomeRel || 'relatorio');
+        this.sse('/viario/api/relatorio?'+p, d=>this._onDone(d,'rel'));
+      }
+    },
+
+    // ══════════════════════════════════════
+    //  MÉTODOS DE CONFIGURAÇÃO DE VIAS
+    // ══════════════════════════════════════
+
+    async carregarVias(){
+      try {
+        const r = await fetch('/viario/api/config/rodovias');
+        this.viasConfig = await r.json();
+        // preenche form tapa-buraco com valores atuais
+        const tb = this.viasConfig.tapa_buraco;
+        this.tapaBuracoForm = {
+          lat_cg:       tb.ponto_cg?.[0] ?? '',
+          lon_cg:       tb.ponto_cg?.[1] ?? '',
+          lat_sr:       tb.ponto_sr?.[0] ?? '',
+          lon_sr:       tb.ponto_sr?.[1] ?? '',
+          limite_cg:    tb.limite_cg    ?? '',
+          ajuste_sr:    tb.ajuste_sr    ?? '',
+          descricao_cg: tb.descricao_cg ?? '',
+          descricao_sr: tb.descricao_sr ?? '',
+        };
+      } catch(e){ console.error(e); }
+    },
+
+    abrirModalNova(){
+      this.editandoVia = false;
+      this.viaMsgOk    = false;
+      this.viaMsgErr   = '';
+      this.editForm    = {
+        sigla:'', descricao:'', modo_calculo:'simples',
+        lat_inicio:'', lon_inicio:'',
+        lat_corrigido:'', lon_corrigido:'',
+        limite_km:'', ajuste_km:''
+      };
+      this.modalVia = true;
+    },
+
+    abrirModalEditar(sigla, rod){
+      this.editandoVia = true;
+      this.viaMsgOk    = false;
+      this.viaMsgErr   = '';
+      const ini = rod.inicio || [0,0];
+      const cor = rod.inicio_corrigido || ['',''];
+      this.editForm = {
+        sigla:         sigla,
+        descricao:     rod.descricao    || sigla,
+        modo_calculo:  rod.modo_calculo || 'simples',
+        lat_inicio:    ini[0],
+        lon_inicio:    ini[1],
+        lat_corrigido: cor[0],
+        lon_corrigido: cor[1],
+        limite_km:     rod.limite_km    ?? '',
+        ajuste_km:     rod.ajuste_km    ?? '',
+      };
+      this.modalVia = true;
+    },
+
+    async salvarVia(){
+      this.viaMsgOk  = false;
+      this.viaMsgErr = '';
+      const f = this.editForm;
+      if(!f.sigla.trim()){ this.viaMsgErr='Informe a sigla.'; return; }
+      if(!f.lat_inicio || !f.lon_inicio){ this.viaMsgErr='Informe as coordenadas de início.'; return; }
+      if(f.modo_calculo==='limite_com_correcao' && (!f.lat_corrigido||!f.lon_corrigido||!f.limite_km)){
+        this.viaMsgErr='Preencha o ponto corrigido e o limite de KM.'; return;
+      }
+      this.salvando = true;
+      try {
+        const r = await fetch('/viario/api/config/rodovias', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({...f, sigla: f.sigla.trim().toUpperCase()})
+        });
+        const d = await r.json();
+        if(d.ok){
+          this.viaMsgOk = true;
+          await this.carregarVias();
+        } else {
+          this.viaMsgErr = d.error || 'Erro ao salvar.';
+        }
+      } catch(e){ this.viaMsgErr = String(e); }
+      this.salvando = false;
+    },
+
+    async deletarVia(sigla){
+      if(!confirm(`Remover "${sigla}"? Esta ação não pode ser desfeita.`)) return;
+      try {
+        const slug = sigla.replace(/ /g,'-');
+        const r = await fetch(`/viario/api/config/rodovias/${encodeURIComponent(slug)}`, {method:'DELETE'});
+        const d = await r.json();
+        if(d.ok) await this.carregarVias();
+        else alert('Erro: ' + (d.error || 'não foi possível remover'));
+      } catch(e){ alert(String(e)); }
+    },
+
+    async salvarTapaBuraco(){
+      this.tapaMsgOk  = false;
+      this.tapaMsgErr = '';
+      this.salvando   = true;
+      try {
+        const r = await fetch('/viario/api/config/tapa-buraco', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(this.tapaBuracoForm)
+        });
+        const d = await r.json();
+        if(d.ok){
+          this.tapaMsgOk    = true;
+          this.editandoTapa = false;
+          await this.carregarVias();
+        } else {
+          this.tapaMsgErr = d.error || 'Erro ao salvar.';
+        }
+      } catch(e){ this.tapaMsgErr = String(e); }
+      this.salvando = false;
+    },
+
+    _onDone(d, tipo){
+      this.pastaSaida = d.pasta || '';
+      if(d.dados)     this.dls.push({nome:'dados.xlsx',     url:'/viario/api/download?file='+d.dados});
+      if(d.relatorio) this.dls.push({nome:'relatorio.xlsm', url:'/viario/api/download?file='+d.relatorio});
+
+      // Sugestão de próximo passo por tipo
+      const dicas = {
+        gps:      'Verifique o dados.xlsx e corrija eventuais KMs ausentes. Se necessário, use "Atualizar KM".',
+        rossada:  'Revise o dados.xlsx para confirmar os KMs lidos. Se algum não foi encontrado, preencha manualmente e use "Só o Relatório".',
+        tapa:     'Confira o relatório .xlsm gerado. Ele está pronto para entrega.',
+        km:       'KM atualizado. Agora você pode gerar o relatório final em "Só o Relatório".',
+        rel:      'Relatório .xlsm gerado e pronto para entrega.',
+      };
+      this.proximoPasso = dicas[tipo] || '';
+
+      // Marca última etapa como skipped se não foi solicitada
+      if(!this.cfg.comRel){
+        const last = this.etapas[this.etapas.length-1];
+        if(last && last.status==='pending'){ last.status='skipped'; last.msg='Não solicitado'; }
+      }
+    }
+  }
+}
+</script>
+</body>
+</html>
