@@ -117,9 +117,9 @@ def _seed_auto_command():
         click.echo("Seed-auto: banco já possui dados, pulando.")
         return
 
-    admin_email = os.environ.get("ADMIN_EMAIL", "admin@rial.com.br")
-    admin_senha = os.environ.get("ADMIN_PASSWORD")
-    admin_nome  = os.environ.get("ADMIN_NOME", "Administrador RIAL")
+    admin_email = os.environ.get("ADMIN_EMAIL", "admin@rial.com.br").strip()
+    admin_senha = os.environ.get("ADMIN_PASSWORD", "").strip()
+    admin_nome  = os.environ.get("ADMIN_NOME", "Administrador RIAL").strip()
 
     if not admin_senha:
         click.echo("ERRO: variável ADMIN_PASSWORD não definida. Seed abortado.")
