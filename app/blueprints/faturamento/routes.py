@@ -1,10 +1,11 @@
-import io
 import os
 import tempfile
 from pathlib import Path
 from flask import render_template, request, send_from_directory, current_app, flash, redirect, url_for
+from flask_login import current_user
 
 from app.blueprints.faturamento import faturamento_bp
+from app.extensions import db
 
 _R2_XLSX = "faturamento/Faturamento_2026.xlsx"
 _R2_DASH = "faturamento/dashboard.html"
@@ -160,6 +161,29 @@ def atualizar():
         # Persiste xlsx atualizado no R2
         r2.upload(_R2_XLSX, xlsx_path.read_bytes(),
                   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+        # Persiste notas no banco PostgreSQL
+        from app.models import FaturamentoNota
+        org_id = current_user.org_id if current_user.is_authenticated else 1
+        for n in notas:
+            exists = FaturamentoNota.query.filter_by(org_id=org_id, nr=n["nr"]).first()
+            if not exists:
+                emissao = n["emissao"].date() if hasattr(n["emissao"], "date") else n["emissao"]
+                db.session.add(FaturamentoNota(
+                    org_id=org_id,
+                    nr=n["nr"],
+                    emissao=emissao,
+                    contrato=n.get("contrato", ""),
+                    orgao=n.get("orgao", ""),
+                    municipio=n.get("municipio", ""),
+                    tipo=n.get("tipo", ""),
+                    bruto=n.get("bruto", 0),
+                    inss=n.get("inss", 0),
+                    ir=n.get("ir", 0),
+                    iss=n.get("iss", 0),
+                    liquido=n.get("liquido", 0),
+                ))
+        db.session.commit()
 
         from core.timestamps import salvar_timestamp
         salvar_timestamp("faturamento")

@@ -32,3 +32,95 @@ class User(UserMixin, db.Model):
 
     def has_role(self, *roles):
         return self.role in roles
+
+
+class FaturamentoNota(db.Model):
+    __tablename__ = "faturamento_notas"
+
+    id               = db.Column(db.Integer, primary_key=True)
+    org_id           = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=False)
+    nr               = db.Column(db.Integer, nullable=False)
+    emissao          = db.Column(db.Date, nullable=False)
+    contrato         = db.Column(db.String(80))
+    orgao            = db.Column(db.String(120))
+    municipio        = db.Column(db.String(120))
+    tipo             = db.Column(db.String(60))
+    bruto            = db.Column(db.Numeric(14, 2), default=0)
+    inss             = db.Column(db.Numeric(14, 2), default=0)
+    ir               = db.Column(db.Numeric(14, 2), default=0)
+    iss              = db.Column(db.Numeric(14, 2), default=0)
+    liquido          = db.Column(db.Numeric(14, 2), default=0)
+    recebido         = db.Column(db.Boolean, default=False)
+    data_recebimento = db.Column(db.Date, nullable=True)
+    criado_em        = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint("org_id", "nr", name="uq_faturamento_org_nr"),
+    )
+
+
+class MedicaoRecord(db.Model):
+    __tablename__ = "medicao_records"
+
+    id          = db.Column(db.Integer, primary_key=True)
+    org_id      = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=False)
+    gerado_por  = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    tipo        = db.Column(db.String(40))   # 'parcial' | 'reajustamento'
+    contrato    = db.Column(db.String(80))
+    periodo     = db.Column(db.String(40))
+    docx_r2_key = db.Column(db.String(255))  # key no R2 para download
+    criado_em   = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class UsinagemRegistro(db.Model):
+    __tablename__ = "usinagem_registros"
+
+    id            = db.Column(db.Integer, primary_key=True)
+    org_id        = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=False)
+    ticket        = db.Column(db.String(40))
+    data_operacao = db.Column(db.Date)
+    placa         = db.Column(db.String(20))
+    motorista     = db.Column(db.String(120))
+    peso_bruto    = db.Column(db.Numeric(10, 3))
+    tara          = db.Column(db.Numeric(10, 3))
+    peso_liquido  = db.Column(db.Numeric(10, 3))
+    regiao        = db.Column(db.String(60))   # 'AEGEA' | 'GUARIROBA' | etc
+    contrato      = db.Column(db.String(80))
+    criado_em     = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint("org_id", "ticket", name="uq_usinagem_org_ticket"),
+    )
+
+
+class OperacaoProducao(db.Model):
+    __tablename__ = "operacoes_producao"
+
+    id              = db.Column(db.Integer, primary_key=True)
+    org_id          = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=False)
+    modo            = db.Column(db.String(10))   # 'tb' | 'qm'
+    data_operacao   = db.Column(db.Date, nullable=False)
+    ticket_inicio   = db.Column(db.Integer)
+    ticket_fim      = db.Column(db.Integer)
+    total_caminhoes = db.Column(db.Integer, default=0)
+    criado_por      = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    criado_em       = db.Column(db.DateTime, default=datetime.utcnow)
+
+    registros = db.relationship(
+        "RegistroProducao", backref="operacao", lazy=True, cascade="all, delete-orphan"
+    )
+
+
+class RegistroProducao(db.Model):
+    __tablename__ = "registros_producao"
+
+    id          = db.Column(db.Integer, primary_key=True)
+    operacao_id = db.Column(db.Integer, db.ForeignKey("operacoes_producao.id"), nullable=False)
+    org_id      = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=False)
+    placa       = db.Column(db.String(20))
+    motorista   = db.Column(db.String(120))
+    entrada     = db.Column(db.String(10))
+    saida       = db.Column(db.String(10))
+    tara        = db.Column(db.Numeric(10, 3))
+    peso        = db.Column(db.Numeric(10, 3))
+    regiao      = db.Column(db.String(80))

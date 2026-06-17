@@ -3,6 +3,7 @@ import io
 import tempfile
 from pathlib import Path
 from flask import render_template, request, send_file, flash, redirect, url_for, session
+from flask_login import current_user
 
 from app.blueprints.notas import notas_bp
 from app.blueprints.notas.logic import calcular_reajuste
@@ -10,6 +11,24 @@ from core.extractor import extrair_dados_xlsx, extrair_pdf_reajuste
 from core.generator import gerar_word_medicao, gerar_word_reajuste, gerar_texto_medicao, gerar_texto_reajuste
 from core.extractor import fmt
 from core.config import ALIQUOTAS, SERVICE_LABELS, CIDADE_DISPLAY
+
+
+def _registrar_medicao(tipo: str, info: dict) -> None:
+    try:
+        from app.extensions import db
+        from app.models import MedicaoRecord
+        org_id = current_user.org_id if current_user.is_authenticated else 1
+        user_id = current_user.id if current_user.is_authenticated else None
+        db.session.add(MedicaoRecord(
+            org_id=org_id,
+            gerado_por=user_id,
+            tipo=tipo,
+            contrato=info.get("contrato", ""),
+            periodo=info.get("num_medicao", ""),
+        ))
+        db.session.commit()
+    except Exception:
+        pass
 
 
 def _allowed(filename: str, exts: set[str]) -> bool:
@@ -42,6 +61,7 @@ def gerar_medicao():
         tmp_path = _save_upload(xlsx_file, ".xlsx")
         info, cidades = extrair_dados_xlsx(tmp_path)
         docx_bytes = gerar_word_medicao(info, cidades)
+        _registrar_medicao("parcial", info)
         digitos = re.sub(r"[^\d]", "", info["num_medicao"])
         filename = f"notas_{digitos}_medicao.docx"
 
@@ -88,6 +108,7 @@ def gerar_reajuste():
         coefs, total_pdf, reaj_secao = extrair_pdf_reajuste(tmp_pdf)
         reajuste = calcular_reajuste(cidades, coefs, total_pdf, reaj_secao)
         docx_bytes = gerar_word_reajuste(info, reajuste)
+        _registrar_medicao("reajustamento", info)
         digitos = re.sub(r"[^\d]", "", info["num_medicao"])
         filename = f"reajuste_{digitos}_medicao.docx"
 
