@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Faz Tudo 3000 â€” OBRIA</title>
+<title>Faz Tudo 3000 — OBRIA</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
@@ -127,7 +127,7 @@
   .badge.mod{background:var(--amber-light);color:var(--amber);border-color:var(--amber-border)}
   .badge.tb{background:var(--accent-light);color:var(--accent);border-color:var(--accent-border)}
   .badge.qm{background:var(--blue-light);color:var(--blue);border-color:var(--blue-border)}
-  /* HistÃ³rico */
+  /* Histórico */
   .hist-filters{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:1rem}
   .hist-filter-group{display:flex;flex-direction:column;gap:5px}
   .hist-filter-group label{margin-bottom:0}
@@ -166,24 +166,24 @@
 <body>
 <nav style="background:#0f172a;border-bottom:1px solid #334155;padding:0 20px;height:54px;display:flex;align-items:center;gap:0;font-family:'Segoe UI',system-ui,sans-serif;position:sticky;top:0;z-index:9999;box-shadow:0 1px 3px #00000040">
   <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none;padding-right:16px;border-right:1px solid #334155;margin-right:16px;flex-shrink:0">
-    <div style="width:28px;height:28px;background:#3b82f6;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">ðŸ—</div>
+    <div style="width:28px;height:28px;background:#3b82f6;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🏗</div>
     <span style="font-size:.83rem;font-weight:700;color:#3b82f6">OBRIA</span>
   </a>
   <span style="font-size:.75rem;color:#64748b;white-space:nowrap">Ferramentas</span>
-  <span style="color:#475569;margin:0 8px;font-size:.85rem">â€º</span>
+  <span style="color:#475569;margin:0 8px;font-size:.85rem">›</span>
   <span style="font-size:.82rem;font-weight:600;color:#f1f5f9;white-space:nowrap">Faz Tudo 3000</span>
-  <span style="font-size:.73rem;color:#64748b;margin-left:12px;padding-left:12px;border-left:1px solid #334155;white-space:nowrap">CÃ¡lculo de mediÃ§Ã£o de pavimentaÃ§Ã£o Â· Contrato 037/2021</span>
-  <a href="/ferramentas/" style="margin-left:auto;font-size:.75rem;color:#94a3b8;text-decoration:none;padding:4px 12px;border:1px solid #334155;border-radius:6px;white-space:nowrap;flex-shrink:0">â† Ferramentas</a>
+  <span style="font-size:.73rem;color:#64748b;margin-left:12px;padding-left:12px;border-left:1px solid #334155;white-space:nowrap">Cálculo de medição de pavimentação · Contrato 037/2021</span>
+  <a href="/ferramentas/" style="margin-left:auto;font-size:.75rem;color:#94a3b8;text-decoration:none;padding:4px 12px;border:1px solid #334155;border-radius:6px;white-space:nowrap;flex-shrink:0">← Ferramentas</a>
 </nav>
 <div class="page">
 
 <div class="header">
   <div>
-    <div class="header-tag">PavimentaÃ§Ã£o Â· Controle diÃ¡rio</div>
-    <div class="header-title">MediÃ§Ã£o <span>PavimentaÃ§Ã£o</span></div>
+    <div class="header-tag">Pavimentação · Controle diário</div>
+    <div class="header-title">Medição <span>Pavimentação</span></div>
   </div>
   <div class="header-right">
-    <div class="header-badge">v6.0 Â· 2025</div>
+    <div class="header-badge">v6.0 · 2025</div>
     <div class="api-indicator"><div class="api-dot" id="api-dot"></div><span id="api-txt">verificando...</span></div>
   </div>
 </div>
@@ -191,58 +191,58 @@
 <div class="mode-tabs">
   <button class="mode-tab tab-tb active" onclick="setMode('tb')"><span class="tab-dot"></span>Tapa-Buraco</button>
   <button class="mode-tab tab-qm" onclick="setMode('qm')"><span class="tab-dot"></span>Quebra-Mola</button>
-  <button class="mode-tab tab-hist" onclick="setMode('hist')"><span class="tab-dot"></span>HistÃ³rico</button>
+  <button class="mode-tab tab-hist" onclick="setMode('hist')"><span class="tab-dot"></span>Histórico</button>
   <button class="mode-tab tab-cfg" onclick="setMode('cfg')"><span class="tab-dot"></span>Config</button>
 </div>
 
-<!-- â•â• TAPA-BURACO â•â• -->
+<!-- ══ TAPA-BURACO ══ -->
 <div class="panel panel-tb active" id="panel-tb">
   <div class="card">
-    <div class="card-title">01 â€” Texto de produÃ§Ã£o</div>
-    <label>Cole o texto completo do dia â€” todas as regiÃµes de uma vez</label>
-    <textarea id="tb-texto" rows="11" placeholder="ANHANDUIZINHO&#10;NSB9C49 - Alexandre&#10;Entrada - 5:02  SaÃ­da - 5:32&#10;Tara: 10.40&#10;Peso: 25.60&#10;&#10;SEGREDO&#10;HTQ4C66 - Osmir&#10;Entrada - 5:32  Saida - 6:03&#10;Tara: 9.90&#10;Peso: 25.73"></textarea>
-    <div class="hint">RegiÃ£o em linha prÃ³pria Â· pode repetir a mesma regiÃ£o vÃ¡rias vezes</div>
+    <div class="card-title">01 — Texto de produção</div>
+    <label>Cole o texto completo do dia — todas as regiões de uma vez</label>
+    <textarea id="tb-texto" rows="11" placeholder="ANHANDUIZINHO&#10;NSB9C49 - Alexandre&#10;Entrada - 5:02  Saída - 5:32&#10;Tara: 10.40&#10;Peso: 25.60&#10;&#10;SEGREDO&#10;HTQ4C66 - Osmir&#10;Entrada - 5:32  Saida - 6:03&#10;Tara: 9.90&#10;Peso: 25.73"></textarea>
+    <div class="hint">Região em linha própria · pode repetir a mesma região várias vezes</div>
     <div id="tb-notas-wrap" style="display:none">
       <div class="divider"></div>
       <div class="notas-config">
         <div class="notas-config-group"><label>Ticket inicial</label><input type="number" id="tb-ticket" value="1001" min="1"></div>
         <div class="notas-config-group"><label>Data (dd/mm/aaaa)</label><input type="text" id="tb-data" placeholder="01/04/2026" style="width:145px"></div>
-        <button class="btn btn-amber" onclick="copiarNotas('tb')">âŽ˜ Copiar para Excel</button>
-        <button class="btn btn-purple" id="tb-btn-salvar" onclick="salvarNotas('tb')">ðŸ’¾ Salvar no histÃ³rico</button>
+        <button class="btn btn-amber" onclick="copiarNotas('tb')">⎘ Copiar para Excel</button>
+        <button class="btn btn-purple" id="tb-btn-salvar" onclick="salvarNotas('tb')">💾 Salvar no histórico</button>
       </div>
     </div>
     <div class="region-selector-wrap" id="tb-regSelector">
       <div class="divider"></div>
-      <div class="region-selector-label">Selecione a regiÃ£o para calcular</div>
+      <div class="region-selector-label">Selecione a região para calcular</div>
       <div class="region-chips" id="tb-chips"></div>
       <div class="region-preview" id="tb-preview"></div>
     </div>
   </div>
   <div class="card">
-    <div class="card-title">02 â€” Buracos / massa aplicada</div>
+    <div class="card-title">02 — Buracos / massa aplicada</div>
     <label>Arquivo Excel (.xlsx) com colunas Largura e Comprimento</label>
     <div class="file-drop" id="tb-dropZone" onclick="document.getElementById('tb-fileInput').click()">
-      <div class="file-drop-icon">ðŸ“‚</div><div class="file-drop-text">Clique ou arraste o arquivo Excel aqui</div>
-      <div class="file-drop-sub">.xlsx Â· colunas: Largura, Comprimento</div>
+      <div class="file-drop-icon">📂</div><div class="file-drop-text">Clique ou arraste o arquivo Excel aqui</div>
+      <div class="file-drop-sub">.xlsx · colunas: Largura, Comprimento</div>
     </div>
     <div class="file-name" id="tb-fileName"></div>
     <input type="file" id="tb-fileInput" accept=".xlsx" style="display:none">
     <hr class="sep">
-    <label>Ou insira os buracos manualmente (largura Ã— comprimento, um por linha)</label>
+    <label>Ou insira os buracos manualmente (largura × comprimento, um por linha)</label>
     <textarea id="tb-manual" rows="5" placeholder="0,60 x 0,80&#10;1,20 x 0,90&#10;0,50 x 0,70"></textarea>
-    <div class="hint">Espessura fixa = 0,03 m Â· Densidade = 2,4 t/mÂ³ Â· Perda fixa = 0,25 t/caminhÃ£o Â· MÃºltiplos de 0,05</div>
+    <div class="hint">Espessura fixa = 0,03 m · Densidade = 2,4 t/m³ · Perda fixa = 0,25 t/caminhão · Múltiplos de 0,05</div>
   </div>
   <div class="btn-row">
-    <button class="btn btn-primary" onclick="processar('tb')">â–¶ Calcular e ajustar</button>
-    <button class="btn" onclick="limpar('tb')">â†º Limpar</button>
+    <button class="btn btn-primary" onclick="processar('tb')">▶ Calcular e ajustar</button>
+    <button class="btn" onclick="limpar('tb')">↺ Limpar</button>
   </div>
   <div class="output-section" id="tb-output">
     <div class="card">
-      <div class="card-title">Resumo â€” Tapa-Buraco</div>
+      <div class="card-title">Resumo — Tapa-Buraco</div>
       <div class="metrics">
-        <div class="metric"><div class="metric-val" id="tb-mProd">â€”</div><div class="metric-lbl">Massa produzida (t)</div></div>
-        <div class="metric"><div class="metric-val" id="tb-mAplic">â€”</div><div class="metric-lbl">Massa aplicada ajustada (t)</div></div>
-        <div class="metric"><div class="metric-val" id="tb-mDiff">â€”</div><div class="metric-lbl">DiferenÃ§a final (t)</div></div>
+        <div class="metric"><div class="metric-val" id="tb-mProd">—</div><div class="metric-lbl">Massa produzida (t)</div></div>
+        <div class="metric"><div class="metric-val" id="tb-mAplic">—</div><div class="metric-lbl">Massa aplicada ajustada (t)</div></div>
+        <div class="metric"><div class="metric-val" id="tb-mDiff">—</div><div class="metric-lbl">Diferença final (t)</div></div>
       </div>
       <div id="tb-sumario"></div>
     </div>
@@ -250,70 +250,70 @@
       <div class="card-title">Tabela de buracos ajustada</div>
       <div class="table-wrap"><div id="tb-tabela"></div></div>
       <div class="dl-row">
-        <button class="btn btn-primary" onclick="exportarCSV('tb')">â¬‡ Exportar CSV</button>
-        <button class="btn" onclick="copiarTabela('tb')">âŽ˜ Copiar tabela completa</button>
-        <button class="btn btn-green" onclick="copiarAjustados('tb')">âŽ˜ Copiar sÃ³ ajustados</button>
+        <button class="btn btn-primary" onclick="exportarCSV('tb')">⬇ Exportar CSV</button>
+        <button class="btn" onclick="copiarTabela('tb')">⎘ Copiar tabela completa</button>
+        <button class="btn btn-green" onclick="copiarAjustados('tb')">⎘ Copiar só ajustados</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- â•â• QUEBRA-MOLA â•â• -->
+<!-- ══ QUEBRA-MOLA ══ -->
 <div class="panel panel-qm" id="panel-qm">
   <div class="card">
-    <div class="card-title">01 â€” Texto de produÃ§Ã£o</div>
-    <label>Cole o texto completo do dia â€” todas as regiÃµes de uma vez</label>
-    <textarea id="qm-texto" rows="11" placeholder="ANHANDUIZINHO&#10;NSB9C49 - Alexandre&#10;Entrada - 5:02  SaÃ­da - 5:32&#10;Tara: 10.40&#10;Peso: 25.60"></textarea>
-    <div class="hint">RegiÃ£o em linha prÃ³pria Â· pode repetir a mesma regiÃ£o vÃ¡rias vezes</div>
+    <div class="card-title">01 — Texto de produção</div>
+    <label>Cole o texto completo do dia — todas as regiões de uma vez</label>
+    <textarea id="qm-texto" rows="11" placeholder="ANHANDUIZINHO&#10;NSB9C49 - Alexandre&#10;Entrada - 5:02  Saída - 5:32&#10;Tara: 10.40&#10;Peso: 25.60"></textarea>
+    <div class="hint">Região em linha própria · pode repetir a mesma região várias vezes</div>
     <div id="qm-notas-wrap" style="display:none">
       <div class="divider"></div>
       <div class="notas-config">
         <div class="notas-config-group"><label>Ticket inicial</label><input type="number" id="qm-ticket" value="1001" min="1"></div>
         <div class="notas-config-group"><label>Data (dd/mm/aaaa)</label><input type="text" id="qm-data" placeholder="01/04/2026" style="width:145px"></div>
-        <button class="btn btn-amber" onclick="copiarNotas('qm')">âŽ˜ Copiar para Excel</button>
-        <button class="btn btn-purple" id="qm-btn-salvar" onclick="salvarNotas('qm')">ðŸ’¾ Salvar no histÃ³rico</button>
+        <button class="btn btn-amber" onclick="copiarNotas('qm')">⎘ Copiar para Excel</button>
+        <button class="btn btn-purple" id="qm-btn-salvar" onclick="salvarNotas('qm')">💾 Salvar no histórico</button>
       </div>
     </div>
     <div class="region-selector-wrap" id="qm-regSelector">
       <div class="divider"></div>
-      <div class="region-selector-label">Selecione a regiÃ£o para calcular</div>
+      <div class="region-selector-label">Selecione a região para calcular</div>
       <div class="region-chips" id="qm-chips"></div>
       <div class="region-preview" id="qm-preview"></div>
     </div>
   </div>
   <div class="card">
-    <div class="card-title">02 â€” Perda por caminhÃ£o</div>
+    <div class="card-title">02 — Perda por caminhão</div>
     <div class="perda-row">
-      <span style="font-family:var(--mono);font-size:12px;color:var(--text-muted)">Perda por caminhÃ£o:</span>
+      <span style="font-family:var(--mono);font-size:12px;color:var(--text-muted)">Perda por caminhão:</span>
       <input type="number" id="qm-perda" value="0" min="0" step="0.01" placeholder="0,00">
-      <span style="font-family:var(--mono);font-size:12px;color:var(--text-faint)">toneladas / caminhÃ£o</span>
+      <span style="font-family:var(--mono);font-size:12px;color:var(--text-faint)">toneladas / caminhão</span>
     </div>
   </div>
   <div class="card">
-    <div class="card-title">03 â€” Quebra-molas / massa aplicada</div>
+    <div class="card-title">03 — Quebra-molas / massa aplicada</div>
     <label>Arquivo Excel (.xlsx) com colunas Largura e Comprimento</label>
     <div class="file-drop" id="qm-dropZone" onclick="document.getElementById('qm-fileInput').click()">
-      <div class="file-drop-icon">ðŸ“‚</div><div class="file-drop-text">Clique ou arraste o arquivo Excel aqui</div>
-      <div class="file-drop-sub">.xlsx Â· colunas: Largura, Comprimento</div>
+      <div class="file-drop-icon">📂</div><div class="file-drop-text">Clique ou arraste o arquivo Excel aqui</div>
+      <div class="file-drop-sub">.xlsx · colunas: Largura, Comprimento</div>
     </div>
     <div class="file-name" id="qm-fileName"></div>
     <input type="file" id="qm-fileInput" accept=".xlsx" style="display:none">
     <hr class="sep">
-    <label>Ou insira os quebra-molas manualmente (largura Ã— comprimento, um por linha)</label>
+    <label>Ou insira os quebra-molas manualmente (largura × comprimento, um por linha)</label>
     <textarea id="qm-manual" rows="5" placeholder="2,50 x 0,10&#10;3,00 x 0,12&#10;2,80 x 0,10"></textarea>
-    <div class="hint">Espessura fixa = 0,03 m Â· Densidade = 2,4 t/mÂ³ Â· MÃºltiplos de 0,05</div>
+    <div class="hint">Espessura fixa = 0,03 m · Densidade = 2,4 t/m³ · Múltiplos de 0,05</div>
   </div>
   <div class="btn-row">
-    <button class="btn btn-primary" onclick="processar('qm')">â–¶ Calcular e ajustar</button>
-    <button class="btn" onclick="limpar('qm')">â†º Limpar</button>
+    <button class="btn btn-primary" onclick="processar('qm')">▶ Calcular e ajustar</button>
+    <button class="btn" onclick="limpar('qm')">↺ Limpar</button>
   </div>
   <div class="output-section" id="qm-output">
     <div class="card">
-      <div class="card-title">Resumo â€” Quebra-Mola</div>
+      <div class="card-title">Resumo — Quebra-Mola</div>
       <div class="metrics">
-        <div class="metric"><div class="metric-val" id="qm-mProd">â€”</div><div class="metric-lbl">Massa produzida (t)</div></div>
-        <div class="metric"><div class="metric-val" id="qm-mAplic">â€”</div><div class="metric-lbl">Massa aplicada ajustada (t)</div></div>
-        <div class="metric"><div class="metric-val" id="qm-mDiff">â€”</div><div class="metric-lbl">DiferenÃ§a final (t)</div></div>
+        <div class="metric"><div class="metric-val" id="qm-mProd">—</div><div class="metric-lbl">Massa produzida (t)</div></div>
+        <div class="metric"><div class="metric-val" id="qm-mAplic">—</div><div class="metric-lbl">Massa aplicada ajustada (t)</div></div>
+        <div class="metric"><div class="metric-val" id="qm-mDiff">—</div><div class="metric-lbl">Diferença final (t)</div></div>
       </div>
       <div id="qm-sumario"></div>
     </div>
@@ -321,67 +321,67 @@
       <div class="card-title">Tabela ajustada</div>
       <div class="table-wrap"><div id="qm-tabela"></div></div>
       <div class="dl-row">
-        <button class="btn btn-primary" onclick="exportarCSV('qm')">â¬‡ Exportar CSV</button>
-        <button class="btn" onclick="copiarTabela('qm')">âŽ˜ Copiar tabela completa</button>
-        <button class="btn btn-green" onclick="copiarAjustados('qm')">âŽ˜ Copiar sÃ³ ajustados</button>
+        <button class="btn btn-primary" onclick="exportarCSV('qm')">⬇ Exportar CSV</button>
+        <button class="btn" onclick="copiarTabela('qm')">⎘ Copiar tabela completa</button>
+        <button class="btn btn-green" onclick="copiarAjustados('qm')">⎘ Copiar só ajustados</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- â•â• HISTÃ“RICO â•â• -->
+<!-- ══ HISTÓRICO ══ -->
 <div class="panel panel-hist" id="panel-hist">
   <div class="card">
     <div class="card-title">Buscar notas salvas</div>
     <div class="hist-filters">
       <div class="hist-filter-group"><label>Data inicial</label><input type="date" id="hist-data-ini"></div>
       <div class="hist-filter-group"><label>Data final</label><input type="date" id="hist-data-fim"></div>
-      <div class="hist-filter-group"><label>RegiÃ£o</label><input type="text" id="hist-regiao" placeholder="ex: ANHANDUIZINHO" style="width:185px"></div>
+      <div class="hist-filter-group"><label>Região</label><input type="text" id="hist-regiao" placeholder="ex: ANHANDUIZINHO" style="width:185px"></div>
       <div class="hist-filter-group"><label>Tipo</label>
         <select id="hist-tipo"><option value="">Todos</option><option value="tb">Tapa-Buraco</option><option value="qm">Quebra-Mola</option></select>
       </div>
-      <button class="btn btn-primary" onclick="buscarHistorico()">ðŸ” Buscar</button>
-      <button class="btn" onclick="limparFiltros()">â†º Limpar</button>
+      <button class="btn btn-primary" onclick="buscarHistorico()">🔍 Buscar</button>
+      <button class="btn" onclick="limparFiltros()">↺ Limpar</button>
     </div>
   </div>
   <div id="hist-resultados"><div class="loading-msg">Carregando...</div></div>
 </div>
 
-<!-- â•â• CONFIG â•â• -->
+<!-- ══ CONFIG ══ -->
 <div class="panel panel-cfg" id="panel-cfg">
   <div class="card">
-    <div class="card-title">ConexÃ£o com Google Sheets</div>
+    <div class="card-title">Conexão com Google Sheets</div>
     <label>URL do Web App (Google Apps Script)</label>
     <div class="cfg-url-row">
       <input type="text" id="cfg-url" placeholder="https://script.google.com/macros/s/.../exec">
       <button class="btn btn-primary" onclick="salvarCfg()">Salvar</button>
-      <button class="btn" onclick="testarApi()">Testar conexÃ£o</button>
+      <button class="btn" onclick="testarApi()">Testar conexão</button>
     </div>
     <div class="cfg-status-row">
       <div class="api-dot" id="cfg-dot"></div>
-      <span id="cfg-txt">â€”</span>
+      <span id="cfg-txt">—</span>
     </div>
   </div>
   <div class="card">
     <div class="card-title">Como configurar</div>
     <div class="cfg-steps">
-      <p><b>1.</b> Acesse <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> e crie uma planilha nova (ex: <b>MediÃ§Ã£o PavimentaÃ§Ã£o</b>).</p>
-      <p><b>2.</b> No menu da planilha: <b>ExtensÃµes â†’ Apps Script</b>.</p>
-      <p><b>3.</b> Apague o conteÃºdo do editor e cole o cÃ³digo do arquivo <code>codigo_apps_script.gs</code>.</p>
-      <p><b>4.</b> Clique em <b>Implantar â†’ Nova implantaÃ§Ã£o</b> Â· Tipo: <b>App da Web</b> Â· Executar como: <b>Eu</b> Â· Acesso: <b>Qualquer pessoa</b> Â· <b>Implantar</b>.</p>
-      <p><b>5.</b> Autorize as permissÃµes solicitadas.</p>
-      <p><b>6.</b> Copie a <b>URL do Web App</b> e cole no campo acima. Clique em <b>Salvar</b> e depois <b>Testar conexÃ£o</b>.</p>
+      <p><b>1.</b> Acesse <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> e crie uma planilha nova (ex: <b>Medição Pavimentação</b>).</p>
+      <p><b>2.</b> No menu da planilha: <b>Extensões → Apps Script</b>.</p>
+      <p><b>3.</b> Apague o conteúdo do editor e cole o código do arquivo <code>codigo_apps_script.gs</code>.</p>
+      <p><b>4.</b> Clique em <b>Implantar → Nova implantação</b> · Tipo: <b>App da Web</b> · Executar como: <b>Eu</b> · Acesso: <b>Qualquer pessoa</b> · <b>Implantar</b>.</p>
+      <p><b>5.</b> Autorize as permissões solicitadas.</p>
+      <p><b>6.</b> Copie a <b>URL do Web App</b> e cole no campo acima. Clique em <b>Salvar</b> e depois <b>Testar conexão</b>.</p>
     </div>
   </div>
 </div>
 
-<div class="footer">MediÃ§Ã£o de PavimentaÃ§Ã£o Â· Uso interno Â· Esp. 0,03 m Â· Dens. 2,4 t/mÂ³ Â· Base no Google Sheets</div>
+<div class="footer">Medição de Pavimentação · Uso interno · Esp. 0,03 m · Dens. 2,4 t/m³ · Base no Google Sheets</div>
 </div>
 
 <script>
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// API â€” URL prÃ©-configurada + localStorage fallback
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
+// API — URL pré-configurada + localStorage fallback
+// ══════════════════════════════════════════════
 const DEFAULT_API = '/ferramentas/api/producao';
 let API_URL = localStorage.getItem('pav_api_url') || DEFAULT_API;
 
@@ -399,7 +399,7 @@ function setApiIndicator(state, msg){
 
 async function apiPost(body){
   const url=getApiUrl();
-  if(!url) throw new Error('URL nÃ£o configurada');
+  if(!url) throw new Error('URL não configurada');
   const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   if(!r.ok) throw new Error('HTTP '+r.status);
   return r.json();
@@ -409,7 +409,7 @@ async function testarApi(){
   setApiIndicator('spin','testando...');
   try{
     const r=await apiPost({action:'buscar',filtros:{dataIni:'',dataFim:'',regiao:'',modo:''}});
-    if(r.ok!==false) setApiIndicator('ok','Google Sheets conectado âœ“');
+    if(r.ok!==false) setApiIndicator('ok','Google Sheets conectado ✓');
     else setApiIndicator('err','Erro: '+(r.erro||'?'));
   }catch(e){ setApiIndicator('err','Falha: '+e.message); }
 }
@@ -433,7 +433,7 @@ async function fetchUltimoTicket(){
   try{
     const r=await apiPost({action:'ultimoTicket'});
     if(r.ok){
-      setApiIndicator('ok','Google Sheets conectado âœ“');
+      setApiIndicator('ok','Google Sheets conectado ✓');
       const prox=r.proximoTicket||1001;
       window._proximoTicket=prox;
       ['tb','qm'].forEach(m=>{
@@ -443,13 +443,13 @@ async function fetchUltimoTicket(){
       setApiIndicator('err','API com erro');
     }
   }catch(e){
-    setApiIndicator('err','sem conexÃ£o');
+    setApiIndicator('err','sem conexão');
   }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 // STATE / UTILS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 const state={
   tb:{file:null,dados:[],regioes:{},regiaoAtiva:null,registros:[]},
   qm:{file:null,dados:[],regioes:{},regiaoAtiva:null,registros:[]}
@@ -472,13 +472,13 @@ function setMode(m){
   if(m==='tb'||m==='qm') fetchUltimoTicket();
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 // FILE HANDLERS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 ['tb','qm'].forEach(mode=>{
   document.getElementById(mode+'-fileInput').addEventListener('change',e=>{
     state[mode].file=e.target.files[0];
-    document.getElementById(mode+'-fileName').textContent=state[mode].file?'âœ“ '+state[mode].file.name:'';
+    document.getElementById(mode+'-fileName').textContent=state[mode].file?'✓ '+state[mode].file.name:'';
   });
   const dz=document.getElementById(mode+'-dropZone');
   dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='#1a1814';});
@@ -486,35 +486,35 @@ function setMode(m){
   dz.addEventListener('drop',e=>{
     e.preventDefault();dz.style.borderColor='';
     state[mode].file=e.dataTransfer.files[0];
-    document.getElementById(mode+'-fileName').textContent=state[mode].file?'âœ“ '+state[mode].file.name:'';
+    document.getElementById(mode+'-fileName').textContent=state[mode].file?'✓ '+state[mode].file.name:'';
   });
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 // PARSE
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-const SKIP=/^(tara|peso|entrada|saÃ­da|saida|operador|data|ticket|t)$/i;
+// ══════════════════════════════════════════════
+const SKIP=/^(tara|peso|entrada|saída|saida|operador|data|ticket|t)$/i;
 const PLATE_RE=/\b([A-Z]{3}\d[A-Z0-9]\d{2}|[A-Z]{3}\d{4})\b/i;
 
 function isRegiao(line){
   if(!line||line.length<2) return null;
   // *NOME*
   let m=line.match(/^\*([^*]+)\*$/);if(m) return m[1].trim().toUpperCase();
-  // REGIÃƒO: NOME
-  m=line.match(/^regi[aÃ£]o[:\s]+(.+)/i);if(m) return m[1].trim().toUpperCase();
-  // Linha que contÃ©m placa â†’ nÃ£o Ã© regiÃ£o
+  // REGIÃO: NOME
+  m=line.match(/^regi[aã]o[:\s]+(.+)/i);if(m) return m[1].trim().toUpperCase();
+  // Linha que contém placa → não é região
   if(PLATE_RE.test(line)) return null;
-  // Linha que Ã© sÃ³ data dd/mm/yyyy â†’ nÃ£o Ã© regiÃ£o
+  // Linha que é só data dd/mm/yyyy → não é região
   if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(line.trim())) return null;
-  // Linha com horÃ¡rio â†’ nÃ£o Ã© regiÃ£o
+  // Linha com horário → não é região
   if(/\d{1,2}:\d{2}/.test(line)) return null;
-  // Linha com "Tara", "Peso", "Entrada", "SaÃ­da" â†’ nÃ£o Ã© regiÃ£o
+  // Linha com "Tara", "Peso", "Entrada", "Saída" → não é região
   if(SKIP.test(line.trim())) return null;
-  if(/^(tara|peso|entrada|sa[Ã­i]da)\s*[:\-]/i.test(line)) return null;
-  // Linha com apenas nÃºmeros â†’ nÃ£o Ã© regiÃ£o
+  if(/^(tara|peso|entrada|sa[íi]da)\s*[:\-]/i.test(line)) return null;
+  // Linha com apenas números → não é região
   if(/^\d[\d.,]*$/.test(line.trim())) return null;
-  // Linha suficientemente descritiva (tem letras, sem ser nÃºmero puro)
-  if(line.trim().length>=3 && /[A-Za-zÃ¡Ã©Ã­Ã³ÃºÃ£ÃµÃ¢ÃªÃ®Ã´Ã»Ã Ã¼ÃÃ‰ÃÃ“ÃšÃƒÃ•Ã‚ÃŠÃŽÃ”Ã›Ã€Ãœ]/.test(line)){
+  // Linha suficientemente descritiva (tem letras, sem ser número puro)
+  if(line.trim().length>=3 && /[A-Za-záéíóúãõâêîôûàüÁÉÍÓÚÃÕÂÊÎÔÛÀÜ]/.test(line)){
     return line.trim().toUpperCase();
   }
   return null;
@@ -534,33 +534,33 @@ function parseAll(txt){
     if(!line) continue;
     // Ignora linha de config ticket/data
     if(/^\d{4,}\s+data\s+\d/i.test(line)) continue;
-    // Ignora linha que Ã© sÃ³ data dd/mm/yyyy
+    // Ignora linha que é só data dd/mm/yyyy
     if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(line)) continue;
 
     // Tara
     const tm=line.match(/^tara\s*:?\s*([\d.,]+)/i);if(tm){tar=tm[1].replace(',','.');continue;}
-    // Peso â†’ flush record
+    // Peso → flush record
     const pm2=line.match(/^peso\s*:?\s*([\d.,]+)/i);
     if(pm2&&placa){
-      registros.push({placa,motorista:mot||'',entrada:ent||'',saida:sai||'',tara:tar||'',peso:pm2[1].replace(',','.'),regiao:reg||'â€”'});
+      registros.push({placa,motorista:mot||'',entrada:ent||'',saida:sai||'',tara:tar||'',peso:pm2[1].replace(',','.'),regiao:reg||'—'});
       placa=null;mot=null;ent=null;sai=null;tar=null;continue;
     }
-    // Entrada / SaÃ­da
-    const em=line.match(/^entrada\s*[-â€“]?\s*(\d{1,2}:\d{2})/i);
-    if(em){ent=fmtHora(em[1]);const si=line.match(/sa[Ã­i]da\s*[-â€“]?\s*(\d{1,2}:\d{2})/i);if(si)sai=fmtHora(si[1]);continue;}
-    const sm=line.match(/^sa[Ã­i]da\s*[-â€“]?\s*(\d{1,2}:\d{2})/i);if(sm){sai=fmtHora(sm[1]);continue;}
+    // Entrada / Saída
+    const em=line.match(/^entrada\s*[-–]?\s*(\d{1,2}:\d{2})/i);
+    if(em){ent=fmtHora(em[1]);const si=line.match(/sa[íi]da\s*[-–]?\s*(\d{1,2}:\d{2})/i);if(si)sai=fmtHora(si[1]);continue;}
+    const sm=line.match(/^sa[íi]da\s*[-–]?\s*(\d{1,2}:\d{2})/i);if(sm){sai=fmtHora(sm[1]);continue;}
 
     // Detecta placa na linha (pode estar antes ou depois do motorista)
     const plateM=line.match(PLATE_RE);
     if(plateM){
       placa=plateM[1].toUpperCase();
-      // Motorista: tudo que nÃ£o for a placa
-      const semPlaca=line.replace(PLATE_RE,'').replace(/[-â€“]/g,'').trim();
+      // Motorista: tudo que não for a placa
+      const semPlaca=line.replace(PLATE_RE,'').replace(/[-–]/g,'').trim();
       mot=semPlaca?semPlaca.toUpperCase():'';
       ent=null;sai=null;tar=null;continue;
     }
 
-    // Tenta detectar regiÃ£o (depois de descartar todos os outros padrÃµes)
+    // Tenta detectar região (depois de descartar todos os outros padrões)
     const r=isRegiao(line);if(r){reg=r;continue;}
   }
   return{registros,tkAuto,dtAuto};
@@ -570,14 +570,14 @@ function parseProd(txt){
   for(const r of registros){
     if(!re[r.regiao]) re[r.regiao]={n:0,soma:0,pesos:[],motoristas:[],placas:[]};
     const p=parseFloat(r.peso);re[r.regiao].n++;re[r.regiao].soma+=p;
-    re[r.regiao].pesos.push(p);re[r.regiao].motoristas.push(r.motorista||'â€”');re[r.regiao].placas.push(r.placa);
+    re[r.regiao].pesos.push(p);re[r.regiao].motoristas.push(r.motorista||'—');re[r.regiao].placas.push(r.placa);
   }
   return re;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 // LIVE REGION
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 ['tb','qm'].forEach(m=>{document.getElementById(m+'-texto').addEventListener('input',()=>detectar(m));});
 document.getElementById('qm-perda').addEventListener('input',()=>{if(state.qm.regiaoAtiva) renderPrev('qm',state.qm.regiaoAtiva);});
 
@@ -616,15 +616,15 @@ function renderPrev(mode,reg){
   const perda=pu*r.n,final=r.soma-perda;
   const eq=r.pesos.map(p=>fmt2(p)).join(' + ')+(r.pesos.length>1?` = <b>${fmt3(r.soma)} t</b>`:'');
   let trucks='';
-  r.pesos.forEach((p,i)=>{trucks+=`<div class="rp-truck-row"><div class="rp-cell num">${i+1}</div><div class="rp-cell name">${r.placas[i]} Â· ${r.motoristas[i]}</div><div class="rp-cell peso-val">${fmt2(p)} t</div></div>`;});
-  el.innerHTML=`<div class="rp-header"><span class="rp-tag">${reg}</span><span class="rp-eq">${r.n} cam. &nbsp;Â·&nbsp; ${eq}</span></div><div>${trucks}</div>
-    <div class="rp-total"><span class="rp-total-label">Î£ Peso</span><span class="rp-total-val">${fmt3(r.soma)} t</span><span class="rp-total-sep">âˆ’</span><span class="rp-total-label">Perda (${r.n} Ã— ${fmt2(pu)} t)</span><span class="rp-total-val" style="color:var(--amber)">${fmt3(perda)} t</span><span class="rp-total-sep">=</span><span class="rp-total-label">Final</span><span class="rp-total-val" style="font-size:16px">${fmt3(final)} t</span></div>`;
+  r.pesos.forEach((p,i)=>{trucks+=`<div class="rp-truck-row"><div class="rp-cell num">${i+1}</div><div class="rp-cell name">${r.placas[i]} · ${r.motoristas[i]}</div><div class="rp-cell peso-val">${fmt2(p)} t</div></div>`;});
+  el.innerHTML=`<div class="rp-header"><span class="rp-tag">${reg}</span><span class="rp-eq">${r.n} cam. &nbsp;·&nbsp; ${eq}</span></div><div>${trucks}</div>
+    <div class="rp-total"><span class="rp-total-label">Σ Peso</span><span class="rp-total-val">${fmt3(r.soma)} t</span><span class="rp-total-sep">−</span><span class="rp-total-label">Perda (${r.n} × ${fmt2(pu)} t)</span><span class="rp-total-val" style="color:var(--amber)">${fmt3(perda)} t</span><span class="rp-total-sep">=</span><span class="rp-total-label">Final</span><span class="rp-total-val" style="font-size:16px">${fmt3(final)} t</span></div>`;
   el.classList.add('visible');
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 // COPIAR / SALVAR NOTAS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 function buildNotas(registros,ti,data){
   const R={ticket:[],data:[],placa:[],motorista:[],operador:[],entrada:[],saida:[],tara:[],peso:[],regiao:[]};
   registros.forEach((r,i)=>{
@@ -651,21 +651,21 @@ async function salvarNotas(mode){
       regioes:[...new Set(regs.map(r=>r.regiao))],totalCaminhoes:regs.length,registros:regs};
     const res=await apiPost({action:'salvar',payload});
     if(res.ok){
-      btn.textContent='âœ“ Salvo!';
-      // Atualiza prÃ³ximo ticket automaticamente
+      btn.textContent='✓ Salvo!';
+      // Atualiza próximo ticket automaticamente
       await fetchUltimoTicket();
-      setTimeout(()=>{btn.disabled=false;btn.textContent='ðŸ’¾ Salvar no histÃ³rico';},2500);
-      alert(`âœ“ ${regs.length} notas salvas!\nTickets ${ti}â€“${ti+regs.length-1}\nPrÃ³ximo ticket: ${window._proximoTicket||'â€”'}`);
+      setTimeout(()=>{btn.disabled=false;btn.textContent='💾 Salvar no histórico';},2500);
+      alert(`✓ ${regs.length} notas salvas!\nTickets ${ti}–${ti+regs.length-1}\nPróximo ticket: ${window._proximoTicket||'—'}`);
     }else throw new Error(res.erro||'Erro desconhecido');
   }catch(e){
-    btn.disabled=false;btn.textContent='ðŸ’¾ Salvar no histÃ³rico';
+    btn.disabled=false;btn.textContent='💾 Salvar no histórico';
     alert('Erro ao salvar:\n'+e.message);
   }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// HISTÃ“RICO
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
+// HISTÓRICO
+// ══════════════════════════════════════════════
 let _hist={};
 async function buscarHistorico(){
   const el=document.getElementById('hist-resultados');
@@ -681,12 +681,12 @@ async function buscarHistorico(){
     _hist={};res.grupos.forEach(g=>_hist[g.id]=g);
     renderHist(res.grupos);
   }catch(e){
-    el.innerHTML=`<div class="empty-state"><div class="empty-icon">âš </div>Erro: ${e.message}</div>`;
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">⚠</div>Erro: ${e.message}</div>`;
   }
 }
 function renderHist(grupos){
   const el=document.getElementById('hist-resultados');
-  if(!grupos.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">ðŸ”</div>Nenhuma nota encontrada.</div>';return;}
+  if(!grupos.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div>Nenhuma nota encontrada.</div>';return;}
   let html=`<div style="font-family:var(--mono);font-size:12px;color:var(--text-muted);margin-bottom:12px">${grupos.length} lote(s) encontrado(s)</div><div class="hist-list">`;
   grupos.forEach(g=>{
     const bClass=g.modo==='tb'?'tb':'qm';
@@ -698,17 +698,17 @@ function renderHist(grupos){
           <span class="hist-date">${g.data}</span>
           <span class="badge ${bClass}">${mLabel}</span>
           ${rtags}
-          <span style="font-family:var(--mono);font-size:12px;color:var(--text-muted)">Tickets ${g.ticketInicio}â€“${g.ticketFim} Â· ${g.totalCaminhoes} cam.</span>
+          <span style="font-family:var(--mono);font-size:12px;color:var(--text-muted)">Tickets ${g.ticketInicio}–${g.ticketFim} · ${g.totalCaminhoes} cam.</span>
         </div>
         <div class="hist-card-actions" onclick="event.stopPropagation()">
-          <button class="btn btn-amber btn-sm" onclick="recopiar('${g.id}')">âŽ˜ Copiar notas</button>
-          <button class="btn btn-danger btn-sm" onclick="excluir('${g.id}')">âœ• Excluir</button>
+          <button class="btn btn-amber btn-sm" onclick="recopiar('${g.id}')">⎘ Copiar notas</button>
+          <button class="btn btn-danger btn-sm" onclick="excluir('${g.id}')">✕ Excluir</button>
         </div>
       </div>
       <div class="hist-card-body" id="hbody-${g.id}">
         <div style="padding:12px 16px;overflow-x:auto">
           <table class="hist-preview-table">
-            <thead><tr><th>Ticket</th><th>Placa</th><th>Motorista</th><th>Entrada</th><th>SaÃ­da</th><th>Tara</th><th>Peso</th><th>RegiÃ£o</th></tr></thead>
+            <thead><tr><th>Ticket</th><th>Placa</th><th>Motorista</th><th>Entrada</th><th>Saída</th><th>Tara</th><th>Peso</th><th>Região</th></tr></thead>
             <tbody>${g.registros.map(r=>`<tr><td><b>${r.ticket}</b></td><td>${r.placa}</td><td>${r.motorista}</td><td>${r.entrada}</td><td>${r.saida}</td><td>${r.tara}</td><td>${r.peso}</td><td>${r.regiao}</td></tr>`).join('')}</tbody>
           </table>
           <div style="margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--text-faint)">Salvo em: ${g.dataSalvamento||''}</div>
@@ -722,13 +722,13 @@ function toggleCard(id){document.getElementById('hbody-'+id)?.classList.toggle('
 function recopiar(id){
   const g=_hist[id];if(!g) return;
   const regs=g.registros.map(r=>({placa:r.placa,motorista:r.motorista,entrada:r.entrada,saida:r.saida,tara:r.tara,peso:r.peso,regiao:r.regiao}));
-  navigator.clipboard.writeText(buildNotas(regs,g.ticketInicio,g.data)).then(()=>alert(`âœ“ ${regs.length} notas copiadas!\nCole direto no Excel.`));
+  navigator.clipboard.writeText(buildNotas(regs,g.ticketInicio,g.data)).then(()=>alert(`✓ ${regs.length} notas copiadas!\nCole direto no Excel.`));
 }
 async function excluir(id){
-  if(!confirm('Excluir este lote do histÃ³rico? AÃ§Ã£o irreversÃ­vel.')) return;
+  if(!confirm('Excluir este lote do histórico? Ação irreversível.')) return;
   try{
     const res=await apiPost({action:'excluir',id});
-    if(res.ok){document.getElementById('hcard-'+id)?.remove();alert('ExcluÃ­do com sucesso.');}
+    if(res.ok){document.getElementById('hcard-'+id)?.remove();alert('Excluído com sucesso.');}
     else throw new Error(res.erro||'Erro');
   }catch(e){alert('Erro ao excluir: '+e.message);}
 }
@@ -738,9 +738,9 @@ function limparFiltros(){
   buscarHistorico();
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 // BURACOS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 function parseMnl(txt){
   return txt.split('\n').map(l=>l.trim()).filter(Boolean).map(line=>{
     const n=line.match(/[\d.,]+/g);if(!n||n.length<2) return null;
@@ -767,9 +767,9 @@ async function parseXLSX(file){
   });
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 // AJUSTE
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 function ajustar(buracos,massaProd){
   const E=0.03,D=2.4;
   const mo=buracos.reduce((s,b)=>s+b.larg*b.comp*E*D,0);
@@ -788,7 +788,7 @@ function ajustar(buracos,massaProd){
     for(const i of sorted){
       if(Math.abs(diff)<=0.005) break;
       const b=aj[i];
-      if(b.larg_aj===0||b.comp_aj===0) continue; // mantÃ©m zeros intocados
+      if(b.larg_aj===0||b.comp_aj===0) continue; // mantém zeros intocados
       const nl=parseFloat((b.larg_aj+sg*0.05).toFixed(2));
       if(nl>=0.05){aj[i]={...b,larg_aj:nl};diff-=sg*b.comp_aj*0.05*E*D;ok=true;}
     }
@@ -797,16 +797,16 @@ function ajustar(buracos,massaProd){
   return aj.map(b=>({...b,massa:parseFloat((b.larg_aj*b.comp_aj*E*D).toFixed(4))}));
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 // PROCESSAR
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 async function processar(mode){
   const txt=document.getElementById(mode+'-texto').value.trim();
-  if(!txt){alert('Insira o texto de produÃ§Ã£o.');return;}
+  if(!txt){alert('Insira o texto de produção.');return;}
   const pu=mode==='tb'?0.25:(parseFloat(document.getElementById('qm-perda').value)||0);
   const re=parseProd(txt);state[mode].regioes=re;
   const ra=state[mode].regiaoAtiva;
-  if(!ra||!re[ra]){alert('Selecione uma regiÃ£o antes de calcular.');detectar(mode);return;}
+  if(!ra||!re[ra]){alert('Selecione uma região antes de calcular.');detectar(mode);return;}
   let buracos=[];
   if(state[mode].file){try{buracos=await parseXLSX(state[mode].file);}catch(e){alert('Erro Excel: '+e.message);return;}}
   if(!buracos.length) buracos=parseMnl(document.getElementById(mode+'-manual').value);
@@ -818,7 +818,7 @@ async function processar(mode){
   document.getElementById(mode+'-mAplic').textContent=fmt3(ma)+' t';
   const de=document.getElementById(mode+'-mDiff');de.textContent=fmt4(df)+' t';
   de.className='metric-val '+(df<=0.01?'val-ok':df<=0.05?'val-warn':'val-err');
-  document.getElementById(mode+'-sumario').innerHTML=`<div class="region-row"><span class="region-tag">${ra}</span><span class="region-info">${r.n} cam. Â· Î£ Peso: <b>${fmt3(r.soma)} t</b> Â· Perda: ${fmt3(perda)} t Â· Final: <b>${fmt3(mf)} t</b></span></div>`;
+  document.getElementById(mode+'-sumario').innerHTML=`<div class="region-row"><span class="region-tag">${ra}</span><span class="region-info">${r.n} cam. · Σ Peso: <b>${fmt3(r.soma)} t</b> · Perda: ${fmt3(perda)} t · Final: <b>${fmt3(mf)} t</b></span></div>`;
   let html=`<table><thead><tr><th>ID</th><th>Larg orig</th><th>Comp orig</th><th>Larg aj</th><th>Comp aj</th><th>Esp</th><th>Massa (t)</th><th>Status</th></tr></thead><tbody>`;
   res.forEach((b,i)=>{const mod=b.larg_aj!==b.larg||b.comp_aj!==b.comp;html+=`<tr><td>${i+1}</td><td>${fmt2(b.larg)}</td><td>${fmt2(b.comp)}</td><td><b>${fmt2(b.larg_aj)}</b></td><td><b>${fmt2(b.comp_aj)}</b></td><td>0,03</td><td>${fmt4(b.massa)}</td><td><span class="badge ${mod?'mod':''}">${mod?'ajustado':'original'}</span></td></tr>`;});
   html+='</tbody></table>';
@@ -827,9 +827,9 @@ async function processar(mode){
   document.getElementById(mode+'-output').scrollIntoView({behavior:'smooth'});
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 // EXPORT / COPY
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════
 function exportarCSV(mode){
   const d=state[mode].dados;if(!d.length) return;
   const rows=[['ID','Larg_orig','Comp_orig','Larg_aj','Comp_aj','Espessura','Massa_t']];

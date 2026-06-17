@@ -148,7 +148,7 @@
   .badge-recebido   { background:#05280e40; color:#4ade80; }
   .badge-pendente   { background:#1e293b;   color:#94a3b8; }
 
-  /* â”€â”€ Painel Recebimentos â”€â”€ */
+  /* ── Painel Recebimentos ── */
   .rec-section { display:block; margin-bottom:20px; }
   .rec-grid {
     display: grid;
@@ -184,7 +184,7 @@
     font-size:.88rem; color:var(--muted); gap:8px; z-index:2;
   }
 
-  /* â”€â”€ Painel Conferência (flutuante) â”€â”€ */
+  /* ── Painel Conferência (flutuante) ── */
   .painel-conf {
     position: fixed; bottom: 28px; right: 28px;
     width: 320px; z-index: 200;
@@ -294,7 +294,7 @@
   }
   .save-toast.show { opacity: 1; }
 
-  /* â”€â”€ Teto Lucro Presumido â”€â”€ */
+  /* ── Teto Lucro Presumido ── */
   .teto-section {
     background: var(--card); border: 1px solid var(--border);
     border-radius: 12px; padding: 22px 24px; margin-bottom: 20px;
@@ -330,7 +330,7 @@
   .progress-teto-line { position: absolute; top: 0; bottom: 0; width: 2px; background: #ef4444cc; }
   .progress-teto-label { position: absolute; top: -18px; font-size: 0.68rem; color: #ef4444; transform: translateX(-50%); white-space: nowrap; }
 
-  /* â”€â”€ TABS â”€â”€ */
+  /* ── TABS ── */
   .tab-nav { display:flex; gap:4px; padding:0 32px; background:#0f172a; border-bottom:1px solid #1e293b; }
   .tab-btn { padding:12px 22px; font-size:0.875rem; font-weight:600; color:#64748b; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:color .15s,border-color .15s; }
   .tab-btn:hover { color:#94a3b8; }
@@ -338,7 +338,7 @@
   .tab-panel { display:none; }
   .tab-panel.active { display:block; }
 
-  /* â”€â”€ ABA MEDIÇÕES â”€â”€ */
+  /* ── ABA MEDIÇÕES ── */
   .med-main { padding:28px 32px; max-width:1400px; margin:0 auto; }
   .med-kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:28px; }
   .med-filter-bar { display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
@@ -364,19 +364,19 @@
 <body>
 <nav style="background:#0f172a;border-bottom:1px solid #334155;padding:0 20px;height:54px;display:flex;align-items:center;gap:0;font-family:'Segoe UI',system-ui,sans-serif;position:sticky;top:0;z-index:9999;box-shadow:0 1px 3px #00000040">
   <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none;padding-right:16px;border-right:1px solid #334155;margin-right:16px;flex-shrink:0">
-    <div style="width:28px;height:28px;background:#3b82f6;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">ðŸ—</div>
+    <div style="width:28px;height:28px;background:#3b82f6;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🏗</div>
     <span style="font-size:.83rem;font-weight:700;color:#3b82f6">OBRIA</span>
   </a>
   <span style="font-size:.75rem;color:#64748b;white-space:nowrap">Faturamento NFS-e</span>
-  <span style="color:#475569;margin:0 8px;font-size:.85rem">€º</span>
-  <span style="font-size:.82rem;font-weight:600;color:#f1f5f9;white-space:nowrap">Dashboard 2026 ðŸ“Š</span>
+  <span style="color:#475569;margin:0 8px;font-size:.85rem">›</span>
+  <span style="font-size:.82rem;font-weight:600;color:#f1f5f9;white-space:nowrap">Dashboard 2026 📊</span>
   <span style="font-size:.73rem;color:#64748b;margin-left:12px;padding-left:12px;border-left:1px solid #334155;white-space:nowrap">Contrato 037/2021 · Construtora Rial Ltda</span>
-  <a href="/faturamento/" style="margin-left:auto;font-size:.75rem;color:#94a3b8;text-decoration:none;padding:4px 12px;border:1px solid #334155;border-radius:6px;white-space:nowrap;flex-shrink:0">â† Faturamento</a>
+  <a href="/faturamento/" style="margin-left:auto;font-size:.75rem;color:#94a3b8;text-decoration:none;padding:4px 12px;border:1px solid #334155;border-radius:6px;white-space:nowrap;flex-shrink:0">← Faturamento</a>
 </nav>
 
 <nav class="tab-nav">
-  <button class="tab-btn active" onclick="switchTab('faturamento',this)">ðŸ“Š Faturamento Geral</button>
-  <button class="tab-btn" onclick="switchTab('medicoes',this)">ðŸ” Medições 037/2021</button>
+  <button class="tab-btn active" onclick="switchTab('faturamento',this)">📊 Faturamento Geral</button>
+  <button class="tab-btn" onclick="switchTab('medicoes',this)">🔍 Medições 037/2021</button>
 </nav>
 
 <div id="tab-faturamento" class="tab-panel active">
@@ -384,12 +384,12 @@
 
   <!-- Teto Lucro Presumido -->
   <div class="teto-section">
-    <h2>âš ï¸ Controle de Teto — Lucro Presumido (Limite: R$ 78.000.000/ano)</h2>
+    <h2>⚠️ Controle de Teto — Lucro Presumido (Limite: R$ 78.000.000/ano)</h2>
     <div id="alertBox"></div>
     <div class="teto-grid" id="tetoGrid"></div>
     <div class="progress-wrap">
       <div class="progress-label">
-        <span>Acumulado Jan€“Abr 2026</span>
+        <span>Acumulado Jan–Abr 2026</span>
         <span id="progressLabel"></span>
       </div>
       <div class="progress-bar-bg">
@@ -430,21 +430,21 @@
 
   <!-- Painel Recebimentos -->
   <div class="rec-section card" id="recSection" style="position:relative">
-    <div class="rec-overlay" id="recOverlay">ðŸ”— Conecte ao <strong style="color:var(--text);margin:0 4px">recebimentos.json</strong> para ver os dados de recebimento</div>
-    <h2>ðŸ’° Status de Recebimentos — Notas Fiscais</h2>
+    <div class="rec-overlay" id="recOverlay">🔗 Conecte ao <strong style="color:var(--text);margin:0 4px">recebimentos.json</strong> para ver os dados de recebimento</div>
+    <h2>💰 Status de Recebimentos — Notas Fiscais</h2>
     <div class="rec-grid">
       <div class="rec-kpi rec-pago">
-        <div class="rec-label">âœ… Valor Recebido</div>
+        <div class="rec-label">✅ Valor Recebido</div>
         <div class="rec-value" id="recValorPago">—</div>
         <div class="rec-sub" id="recSubPago">0 notas</div>
       </div>
       <div class="rec-kpi rec-pendente">
-        <div class="rec-label">â³ Valor Pendente</div>
+        <div class="rec-label">⏳ Valor Pendente</div>
         <div class="rec-value" id="recValorPendente">—</div>
         <div class="rec-sub" id="recSubPendente">0 notas</div>
       </div>
       <div class="rec-kpi rec-pct">
-        <div class="rec-label">ðŸ“Š % Recebido</div>
+        <div class="rec-label">📊 % Recebido</div>
         <div class="rec-value" id="recPct">—</div>
         <div class="rec-sub" id="recSubPct">do total líquido</div>
       </div>
@@ -469,8 +469,8 @@
         <span id="conexaoTexto">Desconectado</span>
       </div>
       <span class="conexao-info" id="conexaoInfo">Conecte ao arquivo <strong>recebimentos.json</strong> da pasta compartilhada para sincronizar com toda a equipe.</span>
-      <button class="btn-reconectar" id="btnReconectar" onclick="reconectarJson()" style="display:none">ðŸ” Reconectar</button>
-      <button class="btn-conectar"   id="btnConectar"   onclick="conectarJson()">ðŸ“‚ Conectar arquivo</button>
+      <button class="btn-reconectar" id="btnReconectar" onclick="reconectarJson()" style="display:none">🔁 Reconectar</button>
+      <button class="btn-conectar"   id="btnConectar"   onclick="conectarJson()">📂 Conectar arquivo</button>
     </div>
 
     <div class="filter-bar">
@@ -495,11 +495,11 @@
       <table id="tabelaNotas">
         <thead>
           <tr>
-            <th style="width:28px" title="Selecionar para conferência">â˜</th>
+            <th style="width:28px" title="Selecionar para conferência">☐</th>
             <th>Mês</th><th>NF</th><th>Emissão</th><th>Contrato</th>
             <th>Órgão</th>
             <th class="num">Bruto (R$)</th>
-            <th class="num" title="INSS + IR + ISS — passe o mouse nas células para ver o detalhamento">Deduções â“˜</th>
+            <th class="num" title="INSS + IR + ISS — passe o mouse nas células para ver o detalhamento">Deduções ⓘ</th>
             <th class="num">Líquido (R$)</th>
             <th>Recebido?</th>
             <th>Data Receb.</th>
@@ -513,7 +513,7 @@
 </div>
 </div><!-- /tab-faturamento -->
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â• ABA MEDIÇÕES 037/2021 â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ══════════════ ABA MEDIÇÕES 037/2021 ══════════════ -->
 <div id="tab-medicoes" class="tab-panel">
 <div class="med-main">
 
@@ -548,35 +548,35 @@
 <!-- Painel flutuante de conferência -->
 <div class="painel-conf" id="painelConf">
   <div class="painel-conf-header">
-    <span class="painel-conf-titulo">ðŸ§¾ Conferência de Extrato</span>
-    <button class="painel-conf-fechar" onclick="fecharPainelConf()" title="Fechar">âœ•</button>
+    <span class="painel-conf-titulo">🧾 Conferência de Extrato</span>
+    <button class="painel-conf-fechar" onclick="fecharPainelConf()" title="Fechar">✕</button>
   </div>
   <div class="painel-conf-lista" id="confLista"></div>
   <div class="painel-conf-footer">
     <div class="painel-conf-totais" id="confTotais"></div>
     <div class="painel-conf-acoes">
-      <button class="btn-limpar-sel" onclick="limparSelecao()">ðŸ—‘ Limpar seleção</button>
+      <button class="btn-limpar-sel" onclick="limparSelecao()">🗑 Limpar seleção</button>
     </div>
   </div>
 </div>
 
-<div class="save-toast" id="saveToast">âœ… Arquivo salvo com sucesso!</div>
+<div class="save-toast" id="saveToast">✅ Arquivo salvo com sucesso!</div>
 
 <script>
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ DATA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────── DATA ─────────────
 const SUMMARY = [{"notas":7,"bruto":1993983.57,"inss":22614.73,"ir":23927.78,"iss":99699.15,"liquido":1847741.91,"mes":"JANEIRO"},{"notas":18,"bruto":7457325.23,"inss":102024.05,"ir":89487.81,"iss":347578.53,"liquido":6918234.84,"mes":"FEVEREIRO"},{"notas":31,"bruto":10729238.04,"inss":156128.38,"ir":128750.71,"iss":523001.68,"liquido":9921357.27,"mes":"MARÇO"},{"notas":22,"bruto":9397036.92,"inss":152000.18,"ir":112764.32,"iss":469851.73,"liquido":8662420.69,"mes":"ABRIL"}];
 
 const ORGAO_ABRIL = {"MUNICIPIO DE CAMPO GRANDE":{"bruto":5629521.99,"notas":9},"AGETRAN - AGENCIA MUNICIPAL DE TRANSPORTE E TRANSITO":{"bruto":70733.22,"notas":1},"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS":{"bruto":3555006.77,"notas":11},"AGUAS GUARIROBA S.A.":{"bruto":141774.94,"notas":1}};
 
 const NOTES = [{"mes":"JANEIRO","nr":2702,"emissao":"20/01/2026","contrato":"27/2025","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":123802.72,"inss":2042.74,"ir":1485.63,"iss":6190.13,"liquido":114084.22,"recebido":false,"dataRecebimento":""},{"mes":"JANEIRO","nr":2701,"emissao":"19/01/2026","contrato":"280/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":128490.11,"inss":1413.39,"ir":1541.88,"iss":6424.5,"liquido":119110.34,"recebido":false,"dataRecebimento":""},{"mes":"JANEIRO","nr":2699,"emissao":"19/01/2026","contrato":"279/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":180235.6,"inss":1982.59,"ir":2162.82,"iss":9011.78,"liquido":167078.41,"recebido":false,"dataRecebimento":""},{"mes":"JANEIRO","nr":2698,"emissao":"19/01/2026","contrato":"281/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":401514.35,"inss":4416.66,"ir":4818.17,"iss":20075.71,"liquido":372203.81,"recebido":false,"dataRecebimento":""},{"mes":"JANEIRO","nr":2697,"emissao":"19/01/2026","contrato":"280/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":468087.86,"inss":5148.97,"ir":5617.05,"iss":23404.39,"liquido":433917.45,"recebido":false,"dataRecebimento":""},{"mes":"JANEIRO","nr":2696,"emissao":"19/01/2026","contrato":"279/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":656596.01,"inss":7222.56,"ir":7879.15,"iss":32829.8,"liquido":608664.5,"recebido":false,"dataRecebimento":""},{"mes":"JANEIRO","nr":2695,"emissao":"13/01/2026","contrato":"79.325/2022-02","orgao":"AGETRAN - AGENCIA MUNICIPAL DE TRANSPORTE E TRANSITO","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":35256.92,"inss":387.82,"ir":423.08,"iss":1762.84,"liquido":32683.18,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2731,"emissao":"25/02/2026","contrato":"281/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":259480.43,"inss":2854.28,"ir":3113.76,"iss":12974.02,"liquido":240538.37,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2729,"emissao":"25/02/2026","contrato":"280/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":213712.92,"inss":2350.84,"ir":2564.55,"iss":10685.64,"liquido":198111.89,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2728,"emissao":"25/02/2026","contrato":"279/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":312131.89,"inss":3433.45,"ir":3745.58,"iss":15606.59,"liquido":289346.27,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2727,"emissao":"24/02/2026","contrato":"02/2026","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":180559.08,"inss":1986.15,"ir":2166.7,"iss":9027.95,"liquido":167378.28,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2725,"emissao":"24/02/2026","contrato":"281/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":140258.7,"inss":1542.84,"ir":1683.1,"iss":7012.93,"liquido":130019.83,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2722,"emissao":"19/02/2026","contrato":"79.325/2022-02","orgao":"AGETRAN - AGENCIA MUNICIPAL DE TRANSPORTE E TRANSITO","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":5555.74,"inss":61.11,"ir":66.66,"iss":277.78,"liquido":5150.19,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2721,"emissao":"13/02/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"TRES LAGOAS","tipo":"PRINCIPAL","bruto":53440.71,"inss":801.9,"ir":641.28,"iss":1068.81,"liquido":50928.72,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2720,"emissao":"13/02/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BRASILANDIA","tipo":"PRINCIPAL","bruto":119915.33,"inss":1752.3,"ir":1438.98,"iss":5995.76,"liquido":110728.29,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2719,"emissao":"13/02/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"SANTA RITA DO PARDO","tipo":"PRINCIPAL","bruto":1098966.51,"inss":20849.43,"ir":13187.59,"iss":32968.99,"liquido":1031960.5,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2718,"emissao":"13/02/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO DO PARDO","tipo":"PRINCIPAL","bruto":838475.58,"inss":13897.61,"ir":10061.7,"iss":41923.77,"liquido":772592.5,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2713,"emissao":"11/02/2026","contrato":"02/2026","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":612396.94,"inss":6736.37,"ir":7348.76,"iss":30619.84,"liquido":567691.97,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2711,"emissao":"11/02/2026","contrato":"27/2025","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":254340.11,"inss":4196.61,"ir":3052.08,"iss":12717.0,"liquido":234374.42,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2708,"emissao":"09/02/2026","contrato":"281/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":478557.8,"inss":5264.13,"ir":5742.69,"iss":23927.89,"liquido":443623.09,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2707,"emissao":"09/02/2026","contrato":"280/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":692552.01,"inss":7618.07,"ir":8310.62,"iss":34627.6,"liquido":641995.72,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2706,"emissao":"09/02/2026","contrato":"279/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":1013352.16,"inss":11146.87,"ir":12160.22,"iss":50667.6,"liquido":939377.47,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2705,"emissao":"06/02/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"PRINCIPAL","bruto":12528.34,"inss":185.63,"ir":150.34,"iss":626.41,"liquido":11565.96,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2704,"emissao":"06/02/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BANDEIRANTES","tipo":"PRINCIPAL","bruto":1085846.2,"inss":16084.21,"ir":13030.15,"iss":54292.31,"liquido":1002439.53,"recebido":false,"dataRecebimento":""},{"mes":"FEVEREIRO","nr":2703,"emissao":"06/02/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"CAMAPUA","tipo":"PRINCIPAL","bruto":85254.78,"inss":1262.25,"ir":1023.05,"iss":2557.64,"liquido":80411.84,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2770,"emissao":"20/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BRASILANDIA","tipo":"REAJUSTE","bruto":573972.65,"inss":8830.52,"ir":6887.67,"iss":28698.63,"liquido":529555.83,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2769,"emissao":"20/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"SANTA RITA DO PARDO","tipo":"REAJUSTE","bruto":149150.15,"inss":3278.0,"ir":1789.8,"iss":7457.5,"liquido":136624.85,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2768,"emissao":"20/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"REAJUSTE","bruto":34987.97,"inss":1084.89,"ir":419.85,"iss":1749.39,"liquido":31733.84,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2766,"emissao":"20/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"SANTA RITA DO PARDO","tipo":"PRINCIPAL","bruto":278697.65,"inss":6144.08,"ir":3344.37,"iss":13934.88,"liquido":255274.32,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2765,"emissao":"20/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO DO PARDO","tipo":"PRINCIPAL","bruto":64796.3,"inss":1879.08,"ir":777.55,"iss":3239.81,"liquido":58899.86,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2764,"emissao":"20/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BRASILANDIA","tipo":"PRINCIPAL","bruto":1087442.19,"inss":16439.88,"ir":13049.3,"iss":54372.1,"liquido":1003580.91,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2763,"emissao":"18/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"REAJUSTE","bruto":225697.64,"inss":3436.8,"ir":2708.37,"iss":11284.88,"liquido":208267.59,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2762,"emissao":"18/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"CAMAPUA","tipo":"REAJUSTE","bruto":76819.46,"inss":1162.8,"ir":921.83,"iss":3840.97,"liquido":70893.86,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2761,"emissao":"18/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BANDEIRANTES","tipo":"REAJUSTE","bruto":292047.28,"inss":4430.16,"ir":3504.56,"iss":14602.36,"liquido":269510.2,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2760,"emissao":"18/03/2026","contrato":"280/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":248366.08,"inss":2732.03,"ir":2980.39,"iss":12418.3,"liquido":230235.36,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2759,"emissao":"18/03/2026","contrato":"279/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":331343.91,"inss":3644.78,"ir":3976.12,"iss":16567.19,"liquido":307155.82,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2758,"emissao":"18/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"PRINCIPAL","bruto":428652.07,"inss":6398.33,"ir":5143.82,"iss":21432.6,"liquido":395677.32,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2757,"emissao":"18/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"CAMAPUA","tipo":"PRINCIPAL","bruto":146103.21,"inss":2164.8,"ir":1753.23,"iss":7305.16,"liquido":134880.02,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2756,"emissao":"18/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BANDEIRANTES","tipo":"PRINCIPAL","bruto":555165.7,"inss":8247.69,"ir":6661.98,"iss":27758.28,"liquido":512497.75,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2755,"emissao":"16/03/2026","contrato":"02/2026","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":222485.05,"inss":2447.33,"ir":2669.82,"iss":11124.25,"liquido":206243.65,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2754,"emissao":"16/03/2026","contrato":"281/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":191403.14,"inss":2105.43,"ir":2296.83,"iss":9570.15,"liquido":177430.73,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2751,"emissao":"16/03/2026","contrato":"02/2026","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":754595.84,"inss":8300.55,"ir":9055.15,"iss":37729.79,"liquido":699510.35,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2750,"emissao":"11/03/2026","contrato":"79.325/2022-02","orgao":"AGETRAN - AGENCIA MUNICIPAL DE TRANSPORTE E TRANSITO","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":26932.99,"inss":296.26,"ir":323.19,"iss":1346.64,"liquido":24966.9,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2747,"emissao":"11/03/2026","contrato":"281/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":649176.25,"inss":7140.93,"ir":7790.11,"iss":32458.81,"liquido":601786.4,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2746,"emissao":"11/03/2026","contrato":"280/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":842375.83,"inss":9266.13,"ir":10108.5,"iss":42118.79,"liquido":780882.41,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2745,"emissao":"11/03/2026","contrato":"279/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":1123809.25,"inss":12361.9,"ir":13485.71,"iss":56190.46,"liquido":1041771.18,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2744,"emissao":"11/03/2026","contrato":"27/2025","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":228251.54,"inss":3766.15,"ir":2739.01,"iss":11412.57,"liquido":210333.81,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2742,"emissao":"10/03/2026","contrato":"033/2025","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"JARAGUARI","tipo":"PRINCIPAL","bruto":439346.75,"inss":10923.74,"ir":5272.16,"iss":21967.33,"liquido":401183.52,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2741,"emissao":"10/03/2026","contrato":"79.325/2022-02","orgao":"AGETRAN - AGENCIA MUNICIPAL DE TRANSPORTE E TRANSITO","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":22088.37,"inss":242.97,"ir":265.06,"iss":1104.41,"liquido":20475.93,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2739,"emissao":"09/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"SANTA RITA DO PARDO","tipo":"REAJUSTE","bruto":585934.68,"inss":11165.34,"ir":7031.21,"iss":17578.04,"liquido":550160.09,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2738,"emissao":"06/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"TRES LAGOAS","tipo":"REAJUSTE","bruto":28166.45,"inss":430.73,"ir":337.99,"iss":563.32,"liquido":26834.41,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2737,"emissao":"06/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BRASILANDIA","tipo":"REAJUSTE","bruto":60595.38,"inss":914.71,"ir":727.14,"iss":3029.76,"liquido":55923.77,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2735,"emissao":"06/03/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"REAJUSTE","bruto":438533.27,"inss":7475.19,"ir":5262.39,"iss":21926.66,"liquido":403869.03,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2734,"emissao":"04/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"REAJUSTE","bruto":6587.23,"inss":99.71,"ir":79.04,"iss":329.36,"liquido":6079.12,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2733,"emissao":"04/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"CAMAPUA","tipo":"REAJUSTE","bruto":44819.49,"inss":678.0,"ir":537.83,"iss":1344.58,"liquido":42259.08,"recebido":false,"dataRecebimento":""},{"mes":"MARÇO","nr":2732,"emissao":"04/03/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BANDEIRANTES","tipo":"REAJUSTE","bruto":570894.27,"inss":8639.47,"ir":6850.73,"iss":28544.71,"liquido":526859.36,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2794,"emissao":"17/04/2026","contrato":"27/2025","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":260750.15,"inss":4302.38,"ir":3129.0,"iss":13037.5,"liquido":240281.27,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2793,"emissao":"15/04/2026","contrato":"79.325/2022-02","orgao":"AGETRAN - AGENCIA MUNICIPAL DE TRANSPORTE E TRANSITO","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":70733.22,"inss":778.06,"ir":848.79,"iss":3536.66,"liquido":65569.71,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2792,"emissao":"15/04/2026","contrato":"033/2025","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"JARAGUARI","tipo":"PRINCIPAL","bruto":1457392.61,"inss":51583.13,"ir":17488.71,"iss":72869.63,"liquido":1315451.14,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2791,"emissao":"14/04/2026","contrato":"02/2026","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":195272.51,"inss":2148.0,"ir":2343.27,"iss":9763.62,"liquido":181017.62,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2790,"emissao":"14/04/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"SANTA RITA DO PARDO","tipo":"REAJUSTE","bruto":154667.35,"inss":3544.74,"ir":1856.0,"iss":7733.36,"liquido":141533.25,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2789,"emissao":"14/04/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"REAJUSTE","bruto":19049.13,"inss":568.59,"ir":228.58,"iss":952.45,"liquido":17299.51,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2788,"emissao":"14/04/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BRASILANDIA","tipo":"REAJUSTE","bruto":183695.87,"inss":2803.09,"ir":2204.35,"iss":9184.79,"liquido":169503.64,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2787,"emissao":"14/04/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"SANTA RITA DO PARDO","tipo":"PRINCIPAL","bruto":297387.3,"inss":6725.97,"ir":3568.64,"iss":14869.36,"liquido":272223.33,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2786,"emissao":"14/04/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO DO PARDO","tipo":"PRINCIPAL","bruto":35631.54,"inss":984.82,"ir":427.57,"iss":1781.57,"liquido":32437.58,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2785,"emissao":"14/04/2026","contrato":"037/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"BRASILANDIA","tipo":"PRINCIPAL","bruto":348707.94,"inss":5218.54,"ir":4184.49,"iss":17435.39,"liquido":321869.52,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2783,"emissao":"10/04/2026","contrato":"281/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":290553.1,"inss":3196.08,"ir":3486.63,"iss":14527.65,"liquido":269342.74,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2782,"emissao":"10/04/2026","contrato":"280/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":294623.71,"inss":3240.86,"ir":3535.48,"iss":14731.18,"liquido":273116.19,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2781,"emissao":"10/04/2026","contrato":"279/2022.","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"REAJUSTE","bruto":442040.47,"inss":4862.44,"ir":5304.48,"iss":22102.02,"liquido":409771.53,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2780,"emissao":"10/04/2026","contrato":"02/2026","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":662299.97,"inss":7285.3,"ir":7947.59,"iss":33114.99,"liquido":613952.09,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2779,"emissao":"10/04/2026","contrato":"281/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":985460.31,"inss":10840.06,"ir":11825.52,"iss":49273.01,"liquido":913521.72,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2778,"emissao":"10/04/2026","contrato":"280/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":999266.38,"inss":10991.93,"ir":11991.19,"iss":49963.31,"liquido":926319.95,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2777,"emissao":"10/04/2026","contrato":"279/2022","orgao":"MUNICIPIO DE CAMPO GRANDE","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":1499255.39,"inss":16491.81,"ir":17991.06,"iss":74962.76,"liquido":1389809.76,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2775,"emissao":"09/04/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"REAJUSTE","bruto":280952.67,"inss":4035.09,"ir":3371.43,"iss":14047.63,"liquido":259498.52,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2774,"emissao":"09/04/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"CAMAPUA","tipo":"REAJUSTE","bruto":80952.42,"inss":1162.8,"ir":971.42,"iss":4047.62,"liquido":74770.58,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2773,"emissao":"09/04/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"RIBAS DO RIO PARDO","tipo":"PRINCIPAL","bruto":540761.73,"inss":7512.17,"ir":6489.14,"iss":27038.08,"liquido":499722.34,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2772,"emissao":"09/04/2026","contrato":"023/2021","orgao":"AGENCIA ESTADUAL DE GESTAO DE EMPREENDIMENTOS","municipio":"CAMAPUA","tipo":"PRINCIPAL","bruto":155808.21,"inss":2164.8,"ir":1869.69,"iss":7790.41,"liquido":143983.31,"recebido":false,"dataRecebimento":""},{"mes":"ABRIL","nr":2771,"emissao":"02/04/2026","contrato":"148/2025","orgao":"AGUAS GUARIROBA S.A.","municipio":"CAMPO GRANDE","tipo":"PRINCIPAL","bruto":141774.94,"inss":1559.52,"ir":1701.29,"iss":7088.74,"liquido":131425.39,"recebido":false,"dataRecebimento":""}];
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────── HELPERS ─────────────
 const fmt = (v) => v ? v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '0,00';
 const fmtM = (v) => 'R$ ' + fmt(v);
 const COLORS = ['#3b82f6','#10b981','#f59e0b','#8b5cf6'];
 const BADGE = {JANEIRO:'badge-jan',FEVEREIRO:'badge-fev','MARÇO':'badge-mar',ABRIL:'badge-abr'};
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ TETO LUCRO PRESUMIDO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────── TETO LUCRO PRESUMIDO ─────────────
 const TETO_ANUAL   = 78_000_000;
 const TETO_MENSAL  = TETO_ANUAL / 12;
 const MESES_COUNT  = SUMMARY.length;
@@ -590,7 +590,7 @@ const ACIMA_TETO   = PROJ_ANUAL > TETO_ANUAL;
 
 document.getElementById('alertBox').innerHTML = ACIMA_TETO ? `
   <div class="alert-box alert-danger">
-    <span class="alert-icon">ðŸš¨</span>
+    <span class="alert-icon">🚨</span>
     <div class="alert-text">
       <strong>Projeção anual ultrapassa o teto do Lucro Presumido!</strong>
       Com a média de ${fmtM(MEDIA_MENSAL)}/mês, a projeção de ${fmtM(PROJ_ANUAL)} supera o limite em
@@ -598,7 +598,7 @@ document.getElementById('alertBox').innerHTML = ACIMA_TETO ? `
     </div>
   </div>` : `
   <div class="alert-box alert-warning">
-    <span class="alert-icon">âš¡</span>
+    <span class="alert-icon">⚡</span>
     <div class="alert-text">
       <strong>Atenção: monitorar ritmo de faturamento.</strong>
       Projeção anual em ${fmtM(PROJ_ANUAL)} — ${(100-PCT_PROJ).toFixed(1)}% abaixo do teto.
@@ -606,10 +606,10 @@ document.getElementById('alertBox').innerHTML = ACIMA_TETO ? `
   </div>`;
 
 document.getElementById('tetoGrid').innerHTML = [
-  { label: 'Média Mensal (Jan€“Abr)', value: fmtM(MEDIA_MENSAL), sub: `Teto mensal: ${fmtM(TETO_MENSAL)}`, color: MEDIA_MENSAL > TETO_MENSAL ? '#ef4444' : '#10b981' },
-  { label: 'Projeção Anual (12Ã—média)', value: fmtM(PROJ_ANUAL), sub: `${PCT_PROJ.toFixed(1)}% do teto anual`, color: ACIMA_TETO ? '#ef4444' : '#f59e0b' },
-  { label: 'Acumulado Jan€“Abr', value: fmtM(ACUMULADO), sub: `${PCT_ACUM.toFixed(1)}% do teto utilizado`, color: '#3b82f6' },
-  { label: 'Saldo Disponível no Teto', value: fmtM(Math.max(0, SALDO)), sub: SALDO < 0 ? 'âš ï¸ Teto já ultrapassado' : `Restam ${12-MESES_COUNT} meses no ano`, color: SALDO < 0 ? '#ef4444' : '#10b981' },
+  { label: 'Média Mensal (Jan–Abr)', value: fmtM(MEDIA_MENSAL), sub: `Teto mensal: ${fmtM(TETO_MENSAL)}`, color: MEDIA_MENSAL > TETO_MENSAL ? '#ef4444' : '#10b981' },
+  { label: 'Projeção Anual (12×média)', value: fmtM(PROJ_ANUAL), sub: `${PCT_PROJ.toFixed(1)}% do teto anual`, color: ACIMA_TETO ? '#ef4444' : '#f59e0b' },
+  { label: 'Acumulado Jan–Abr', value: fmtM(ACUMULADO), sub: `${PCT_ACUM.toFixed(1)}% do teto utilizado`, color: '#3b82f6' },
+  { label: 'Saldo Disponível no Teto', value: fmtM(Math.max(0, SALDO)), sub: SALDO < 0 ? '⚠️ Teto já ultrapassado' : `Restam ${12-MESES_COUNT} meses no ano`, color: SALDO < 0 ? '#ef4444' : '#10b981' },
 ].map(k=>`<div class="teto-kpi" style="--kpi-color:${k.color}">
   <div class="teto-kpi-label">${k.label}</div>
   <div class="teto-kpi-value" style="color:${k.color}">${k.value}</div>
@@ -621,7 +621,7 @@ document.getElementById('progressFill').style.cssText = `width:${Math.min(PCT_AC
 document.getElementById('progressTeto').style.left = '100%';
 document.getElementById('progressLabel').textContent = `${fmtM(ACUMULADO)} de ${fmtM(TETO_ANUAL)} (${PCT_ACUM.toFixed(1)}%)`;
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ KPIs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────── KPIs ─────────────
 const totalBruto = SUMMARY.reduce((a,m)=>a+m.bruto,0);
 const totalLiquido = SUMMARY.reduce((a,m)=>a+m.liquido,0);
 const totalInss = SUMMARY.reduce((a,m)=>a+m.inss,0);
@@ -630,7 +630,7 @@ const totalIss = SUMMARY.reduce((a,m)=>a+m.iss,0);
 const totalNotas = SUMMARY.reduce((a,m)=>a+m.notas,0);
 
 const kpis = [
-  {label:'Faturamento Bruto Acum.', value: fmtM(totalBruto), sub:'Jan€“Abr 2026', color:'#3b82f6'},
+  {label:'Faturamento Bruto Acum.', value: fmtM(totalBruto), sub:'Jan–Abr 2026', color:'#3b82f6'},
   {label:'Valor Líquido Acum.', value: fmtM(totalLiquido), sub:`${((totalLiquido/totalBruto)*100).toFixed(1)}% do bruto`, color:'#10b981'},
   {label:'Total INSS', value: fmtM(totalInss), sub:`${((totalInss/totalBruto)*100).toFixed(2)}% do bruto`, color:'#f59e0b'},
   {label:'Total IR', value: fmtM(totalIr), sub:`${((totalIr/totalBruto)*100).toFixed(2)}% do bruto`, color:'#ef4444'},
@@ -645,7 +645,7 @@ document.getElementById('kpiGrid').innerHTML = kpis.map(k=>`
   <div class="kpi-sub">${k.sub}</div>
 </div>`).join('');
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ CHART 1: Bruto por mês â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────── CHART 1: Bruto por mês ─────────────
 const tetoLinePlugin = {
   id: 'tetoLine',
   afterDraw(chart) {
@@ -705,7 +705,7 @@ new Chart(document.getElementById('chartBruto'), {
   }
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ CHART 2: Pizza deduções â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────── CHART 2: Pizza deduções ─────────────
 new Chart(document.getElementById('chartPizza'), {
   type: 'doughnut',
   data: {
@@ -727,7 +727,7 @@ new Chart(document.getElementById('chartPizza'), {
   }
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ CHART 3: INSS IR ISS por mês â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────── CHART 3: INSS IR ISS por mês ─────────────
 new Chart(document.getElementById('chartDeducoes'), {
   type: 'bar',
   data: {
@@ -751,9 +751,9 @@ new Chart(document.getElementById('chartDeducoes'), {
   }
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ CHART 4: Por Órgão Abril â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────── CHART 4: Por Órgão Abril ─────────────
 const orgaos = Object.keys(ORGAO_ABRIL);
-const orgaoLabels = orgaos.map(o => o.length > 30 ? o.slice(0,28)+'€¦' : o);
+const orgaoLabels = orgaos.map(o => o.length > 30 ? o.slice(0,28)+'…' : o);
 new Chart(document.getElementById('chartOrgao'), {
   type: 'bar',
   indexAxis: 'y',
@@ -778,7 +778,7 @@ new Chart(document.getElementById('chartOrgao'), {
   }
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ PAINEL CONFERÃŠNCIA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────── PAINEL CONFERÊNCIA ─────────────
 const selecionadas = new Set();
 
 function toggleSelecao(nr) {
@@ -800,7 +800,7 @@ function abrirPainelConf() {
 }
 function fecharPainelConf() { document.getElementById('painelConf').classList.remove('aberto'); }
 
-// â”€â”€ Drag do painel â”€â”€
+// ── Drag do painel ──
 (function() {
   let dragging = false, ox = 0, oy = 0;
 
@@ -860,7 +860,7 @@ function renderPainelConf() {
       <span class="painel-conf-nf">NF ${n.nr}</span>
       <span class="painel-conf-org" title="${n.orgao}">${n.orgao.split(' ').slice(0,3).join(' ')}</span>
       <span class="painel-conf-val">${fmtM(n.liquido)}</span>
-      <button class="painel-conf-remove" onclick="toggleSelecao(${n.nr})" title="Remover">âœ•</button>
+      <button class="painel-conf-remove" onclick="toggleSelecao(${n.nr})" title="Remover">✕</button>
     </div>`).join('');
 
   const totBruto = notas.reduce((a,n) => a + n.bruto, 0);
@@ -882,12 +882,12 @@ function renderPainelConf() {
       <span class="painel-conf-tot-val" style="color:#f87171">- ${fmtM(totInss+totIr+totIss)}</span>
     </div>
     <div class="painel-conf-tot-row">
-      <span class="painel-conf-tot-label" style="font-weight:700;color:#f1f5f9">ðŸ’° Líquido total</span>
+      <span class="painel-conf-tot-label" style="font-weight:700;color:#f1f5f9">💰 Líquido total</span>
       <span class="painel-conf-tot-val painel-conf-tot-liq">${fmtM(totLiq)}</span>
     </div>`;
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ TABLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────── TABLE ─────────────
 function toggleRecebido(nr, checked) {
   const nota = NOTES.find(n => n.nr === nr);
   if (!nota) return;
@@ -902,7 +902,7 @@ function atualizarData(nr, valor) {
   if (nota) { nota.dataRecebimento = valor; gravarJson(); }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ PAINEL RECEBIMENTOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────── PAINEL RECEBIMENTOS ─────────────
 function renderRecebimentos() {
   const pagas    = NOTES.filter(n => n.recebido);
   const pendentes = NOTES.filter(n => !n.recebido);
@@ -921,9 +921,9 @@ function renderRecebimentos() {
 
   document.getElementById('recBarraPago').style.width     = pct.toFixed(2) + '%';
   document.getElementById('recBarraLabelPago').textContent =
-    `âœ… Recebido: ${fmtM(liqPago)} (${pagas.length} NF)`;
+    `✅ Recebido: ${fmtM(liqPago)} (${pagas.length} NF)`;
   document.getElementById('recBarraLabelPendente').textContent =
-    `â³ Pendente: ${fmtM(liqPendente)} (${pendentes.length} NF)`;
+    `⏳ Pendente: ${fmtM(liqPendente)} (${pendentes.length} NF)`;
 
   const overlay = document.getElementById('recOverlay');
   if (overlay) overlay.style.display = 'none';
@@ -958,7 +958,7 @@ function renderTable() {
     const sel      = selecionadas.has(n.nr);
     const rowClass = [n.recebido ? 'row-recebido' : '', sel ? 'row-selecionada' : ''].join(' ').trim();
     const status   = n.recebido
-      ? `<span class="badge badge-recebido">âœ“ Recebido</span>`
+      ? `<span class="badge badge-recebido">✓ Recebido</span>`
       : `<span class="badge badge-pendente">Pendente</span>`;
     const dataVis  = n.recebido ? 'visible' : '';
     const dataVal  = n.dataRecebimento || '';
@@ -999,10 +999,10 @@ function renderTable() {
   document.getElementById('tbodyNotas').innerHTML = rows + totalRow;
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ JSON COMPARTILHADO (File System Access API) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ───────────── JSON COMPARTILHADO (File System Access API) ─────────────
 let jsonFileHandle = null;
 
-// â”€â”€ IndexedDB: persiste o FileHandle entre sessões â”€â”€
+// ── IndexedDB: persiste o FileHandle entre sessões ──
 const IDB_NAME  = 'faturamento_rial_db';
 const IDB_STORE = 'handles';
 const IDB_KEY   = 'recebimentos_json';
@@ -1034,7 +1034,7 @@ async function recuperarHandleDB() {
   });
 }
 
-// â”€â”€ Lê o JSON e aplica nas notas â”€â”€
+// ── Lê o JSON e aplica nas notas ──
 async function carregarDoHandle(handle) {
   const file  = await handle.getFile();
   const dados = JSON.parse(await file.text());
@@ -1049,14 +1049,14 @@ async function carregarDoHandle(handle) {
   document.getElementById('dotStatus').className      = 'dot dot-on';
   document.getElementById('conexaoTexto').textContent = `Conectado: ${handle.name}`;
   document.getElementById('conexaoInfo').innerHTML    =
-    `âœ… ${count} notas sincronizadas. Alterações são gravadas automaticamente.`;
+    `✅ ${count} notas sincronizadas. Alterações são gravadas automaticamente.`;
   document.getElementById('btnReconectar').style.display = 'none';
   document.getElementById('btnConectar').style.display   = 'none';
   renderTable();
   renderRecebimentos();
 }
 
-// â”€â”€ Auto-connect ao abrir â”€â”€
+// ── Auto-connect ao abrir ──
 // queryPermission não exige clique — se já tiver permissão, conecta sozinho.
 // Só mostra botão "Reconectar" se precisar pedir permissão ao usuário.
 async function tentarAutoConectar() {
@@ -1075,7 +1075,7 @@ async function tentarAutoConectar() {
       document.getElementById('btnReconectar').style.display = '';
       document.getElementById('btnConectar').style.display   = 'none';
       document.getElementById('conexaoInfo').innerHTML =
-        `ðŸ“ Arquivo lembrado: <strong>${handle.name}</strong> — clique em <strong>ðŸ” Reconectar</strong>.`;
+        `📁 Arquivo lembrado: <strong>${handle.name}</strong> — clique em <strong>🔁 Reconectar</strong>.`;
       // Guarda handle para o botão usar
       window._handleSalvo = handle;
     }
@@ -1084,7 +1084,7 @@ async function tentarAutoConectar() {
   }
 }
 
-// â”€â”€ Botão Reconectar (requer clique — pedido de permissão) â”€â”€
+// ── Botão Reconectar (requer clique — pedido de permissão) ──
 async function reconectarJson() {
   const handle = window._handleSalvo;
   if (!handle) return;
@@ -1092,7 +1092,7 @@ async function reconectarJson() {
     const perm = await handle.requestPermission({ mode: 'readwrite' });
     if (perm !== 'granted') {
       document.getElementById('conexaoInfo').innerHTML =
-        'âš ï¸ Permissão negada. Use <strong>ðŸ“‚ Conectar arquivo</strong>.';
+        '⚠️ Permissão negada. Use <strong>📂 Conectar arquivo</strong>.';
       document.getElementById('btnReconectar').style.display = 'none';
       document.getElementById('btnConectar').style.display   = '';
       return;
@@ -1104,7 +1104,7 @@ async function reconectarJson() {
   }
 }
 
-// â”€â”€ Conectar manualmente â”€â”€
+// ── Conectar manualmente ──
 async function conectarJson() {
   try {
     const [handle] = await window.showOpenFilePicker({
@@ -1119,7 +1119,7 @@ async function conectarJson() {
   }
 }
 
-// â”€â”€ Grava alterações no JSON â”€â”€
+// ── Grava alterações no JSON ──
 async function gravarJson() {
   if (!jsonFileHandle) return;
   try {
@@ -1135,7 +1135,7 @@ async function gravarJson() {
     await writable.close();
 
     const hora = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-    document.getElementById('conexaoInfo').innerHTML = `âœ… Salvo automaticamente às ${hora}`;
+    document.getElementById('conexaoInfo').innerHTML = `✅ Salvo automaticamente às ${hora}`;
 
     renderRecebimentos();
 
@@ -1150,7 +1150,7 @@ async function gravarJson() {
 renderTable();
 tentarAutoConectar();
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â• TABS â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════ TABS ══════════════
 function switchTab(id, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1159,7 +1159,7 @@ function switchTab(id, btn) {
   if (id === 'medicoes') renderMedicoes();
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â• ABA MEDIÇÕES 037/2021 â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════ ABA MEDIÇÕES 037/2021 ══════════════
 const NOTAS_037 = NOTES.filter(n => n.contrato && n.contrato.replace(/\s/g,'') === '037/2021');
 
 function renderMedicoes() {

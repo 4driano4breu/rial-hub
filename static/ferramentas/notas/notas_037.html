@@ -37,7 +37,7 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,sans-serif;min-height:100vh;font-size:14px;}
 
-/* â”€â”€ HEADER â”€â”€ */
+/* ── HEADER ── */
 header{background:var(--hdr);padding:0 32px;height:64px;display:flex;align-items:center;gap:20px;box-shadow:0 2px 8px #00000030;}
 .logo-wrap{display:flex;align-items:center;gap:12px;flex-shrink:0;}
 .logo-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--acc-r),#ea580c);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;box-shadow:0 2px 6px #00000040;}
@@ -48,7 +48,7 @@ header h1{font-size:.82rem;font-weight:500;color:var(--hdr-h1);flex:1;letter-spa
 .theme-btn{background:transparent;border:1px solid #334155;color:var(--hdr-h1);padding:6px 12px;border-radius:7px;font-size:.75rem;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .15s;flex-shrink:0;}
 .theme-btn:hover{border-color:var(--acc-r);color:var(--hdr-text);}
 
-/* â”€â”€ NAV TABS â”€â”€ */
+/* ── NAV TABS ── */
 .mode-nav{display:flex;align-items:center;gap:0;background:var(--surface);border-bottom:2px solid var(--border);padding:0 32px;}
 .mode-btn{padding:14px 26px;font-size:.8rem;font-weight:600;color:var(--text-2);background:transparent;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;transition:all .15s;letter-spacing:.01em;}
 .mode-btn:hover{color:var(--text);background:var(--surface-2);}
@@ -58,7 +58,7 @@ header h1{font-size:.82rem;font-weight:500;color:var(--hdr-h1);flex:1;letter-spa
 .panel{display:none;}.panel.active{display:block;}
 .main{padding:24px 32px;max-width:1400px;margin:0 auto;}
 
-/* â”€â”€ DROP ZONES â”€â”€ */
+/* ── DROP ZONES ── */
 .drop-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
 .drop-row.single{grid-template-columns:1fr;}
 .drop-zone{border:2px dashed var(--border-2);border-radius:10px;padding:26px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface);box-shadow:var(--shadow);}
@@ -69,14 +69,14 @@ header h1{font-size:.82rem;font-weight:500;color:var(--hdr-h1);flex:1;letter-spa
 .drop-sub{font-size:.73rem;color:var(--text-2);}
 input[type=file]{display:none;}
 
-/* â”€â”€ KPI CARDS â”€â”€ */
+/* ── KPI CARDS ── */
 .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-bottom:20px;}
 .kpi{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
 .kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--kpi-c,var(--accent));}
 .kpi-label{font-size:.63rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
 .kpi-value{font-size:1.05rem;font-weight:700;color:var(--text);}
 
-/* â”€â”€ PAINEL COEFICIENTES â”€â”€ */
+/* ── PAINEL COEFICIENTES ── */
 .coef-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:18px;box-shadow:var(--shadow);}
 .coef-panel h2{font-size:.65rem;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .coef-panel h2::after{content:'';flex:1;height:1px;background:var(--border);}
@@ -96,7 +96,7 @@ input[type=file]{display:none;}
 .verif-ok{background:var(--green-bg);color:var(--green-text);border:1px solid #bbf7d0;}
 .verif-diff{background:var(--amber-bg);color:var(--amber-text);border:1px solid #fde68a;}
 
-/* â”€â”€ CITY CARDS â”€â”€ */
+/* ── CITY CARDS ── */
 .city-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;border-top:3px solid var(--cc);box-shadow:var(--shadow-md);}
 .city-header{padding:12px 20px;display:flex;align-items:center;gap:12px;background:var(--surface-2);border-bottom:1px solid var(--border);}
 .city-num{width:24px;height:24px;border-radius:6px;background:var(--cc);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;color:#fff;flex-shrink:0;}
@@ -128,7 +128,7 @@ input[type=file]{display:none;}
 .btn-copy.ok{background:#15803d!important;color:#fff!important;}
 .err-box{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;color:#b91c1c;font-size:.8rem;margin-bottom:16px;}
 
-/* â”€â”€ CONTRATOS PANEL â”€â”€ */
+/* ── CONTRATOS PANEL ── */
 .ct-layout{display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:start;}
 .ct-sidebar{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:var(--shadow);}
 .ct-sidebar-hdr{padding:14px 18px;border-bottom:1px solid var(--border);background:var(--surface-2);display:flex;align-items:center;justify-content:space-between;}
@@ -196,32 +196,32 @@ input[type=file]{display:none;}
 <body>
 <nav style="background:#0f172a;border-bottom:1px solid #334155;padding:0 20px;height:54px;display:flex;align-items:center;gap:0;font-family:'Segoe UI',system-ui,sans-serif;position:sticky;top:0;z-index:9999;box-shadow:0 1px 3px #00000040">
   <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none;padding-right:16px;border-right:1px solid #334155;margin-right:16px;flex-shrink:0">
-    <div style="width:28px;height:28px;background:#3b82f6;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">ðŸ—</div>
+    <div style="width:28px;height:28px;background:#3b82f6;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🏗</div>
     <span style="font-size:.83rem;font-weight:700;color:#3b82f6">OBRIA</span>
   </a>
   <a href="/ferramentas/" style="font-size:.75rem;color:#64748b;text-decoration:none;white-space:nowrap">Ferramentas</a>
-  <span style="color:#475569;margin:0 8px;font-size:.85rem">€º</span>
-  <span id="hLogo" style="font-size:.85rem;margin-right:5px">ðŸ“‹</span>
+  <span style="color:#475569;margin:0 8px;font-size:.85rem">›</span>
+  <span id="hLogo" style="font-size:.85rem;margin-right:5px">📋</span>
   <span style="font-size:.82rem;font-weight:600;color:#f1f5f9;white-space:nowrap">Notas de Medição</span>
   <span id="hSub" style="font-size:.73rem;color:#64748b;margin-left:12px;padding-left:12px;border-left:1px solid #334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0">Carregue o arquivo .xlsx — contrato identificado automaticamente</span>
   <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;padding-left:12px">
-    <button id="themeBtn" onclick="toggleTheme()" style="background:transparent;border:1px solid #334155;color:#94a3b8;padding:4px 10px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:inherit">â˜€ï¸ Claro</button>
-    <a href="/ferramentas/" style="font-size:.75rem;color:#94a3b8;text-decoration:none;padding:4px 12px;border:1px solid #334155;border-radius:6px;white-space:nowrap">â† Ferramentas</a>
+    <button id="themeBtn" onclick="toggleTheme()" style="background:transparent;border:1px solid #334155;color:#94a3b8;padding:4px 10px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:inherit">☀️ Claro</button>
+    <a href="/ferramentas/" style="font-size:.75rem;color:#94a3b8;text-decoration:none;padding:4px 12px;border:1px solid #334155;border-radius:6px;white-space:nowrap">← Ferramentas</a>
   </div>
 </nav>
 <nav class="mode-nav">
-  <button class="mode-btn p active" onclick="setMode('principal',this)">ðŸ“‹ Medição Principal</button>
-  <button class="mode-btn r" onclick="setMode('reajuste',this)">âš–ï¸ Reajuste</button>
-  <button class="mode-btn g" onclick="setMode('contratos',this)">âš™ï¸ Contratos</button>
+  <button class="mode-btn p active" onclick="setMode('principal',this)">📋 Medição Principal</button>
+  <button class="mode-btn r" onclick="setMode('reajuste',this)">⚖️ Reajuste</button>
+  <button class="mode-btn g" onclick="setMode('contratos',this)">⚙️ Contratos</button>
 </nav>
 
-<!-- â”€â”€ MEDIÇÃƒO PRINCIPAL â”€â”€ -->
+<!-- ── MEDIÇÃO PRINCIPAL ── -->
 <div id="panel-principal" class="panel active">
 <div class="main">
   <div class="drop-row single">
     <div class="drop-zone" id="pDrop" onclick="document.getElementById('pFile').click()"
          ondragover="ev(event,'pDrop','drag-over',true)" ondragleave="ev(event,'pDrop','drag-over',false)" ondrop="onDrop(event,'p')">
-      <div class="drop-icon">ðŸ“‚</div>
+      <div class="drop-icon">📂</div>
       <div class="drop-title" id="pTitle">Arraste ou clique — arquivo de medição (.xlsx)</div>
       <div class="drop-sub">Ex: 68ª_Med_TL REV.xlsx</div>
       <input type="file" id="pFile" accept=".xlsx,.xls" onchange="onFileChange(event,'p')">
@@ -231,20 +231,20 @@ input[type=file]{display:none;}
 </div>
 </div>
 
-<!-- â”€â”€ REAJUSTE â”€â”€ -->
+<!-- ── REAJUSTE ── -->
 <div id="panel-reajuste" class="panel">
 <div class="main">
   <div class="drop-row">
     <div class="drop-zone" id="rDropX" onclick="document.getElementById('rFileX').click()"
          ondragover="ev(event,'rDropX','drag-over',true)" ondragleave="ev(event,'rDropX','drag-over',false)" ondrop="onDrop(event,'rX')">
-      <div class="drop-icon">ðŸ“Š</div>
+      <div class="drop-icon">📊</div>
       <div class="drop-title" id="rTitleX">Medição (.xlsx)</div>
       <div class="drop-sub">Aba Cidades — valores por cidade e serviço</div>
       <input type="file" id="rFileX" accept=".xlsx,.xls" onchange="onFileChange(event,'rX')">
     </div>
     <div class="drop-zone" id="rDropP" onclick="document.getElementById('rFileP').click()"
          ondragover="ev(event,'rDropP','drag-over',true)" ondragleave="ev(event,'rDropP','drag-over',false)" ondrop="onDrop(event,'rP')">
-      <div class="drop-icon">ðŸ“„</div>
+      <div class="drop-icon">📄</div>
       <div class="drop-title" id="rTitleP">Boletim de Reajuste (.pdf)</div>
       <div class="drop-sub">Página 7 — tabela FGV de coeficientes</div>
       <input type="file" id="rFileP" accept=".pdf" onchange="onFileChange(event,'rP')">
@@ -254,16 +254,16 @@ input[type=file]{display:none;}
     <h2>Coeficientes FGV — extraídos do PDF ou ajuste manual</h2>
     <div class="coef-grid">
       <div class="coef-item"><label>Administração Local (%)</label><input class="coef-input" id="cAdm" type="number" step="0.001" value="42.586"><div class="coef-note">ISENTO para INSS</div></div>
-      <div class="coef-item"><label>Terraplenagem (%)</label><input class="coef-input" id="cTerra" type="number" step="0.001" value="53.714"><div class="coef-note">INSS: 15% Ã— 11%</div></div>
-      <div class="coef-item"><label>Canteiro — INCC (%)</label><input class="coef-input" id="cCant" type="number" step="0.001" value="57.735"><div class="coef-note">INSS: 35% Ã— 11%</div></div>
-      <div class="coef-item"><label>Conservação / Roçada (%)</label><input class="coef-input" id="cRoc" type="number" step="0.001" value="52.030"><div class="coef-note">INSS: 35% Ã— 11%</div></div>
-      <div class="coef-item"><label>Pavimentação (%)</label><input class="coef-input" id="cPav" type="number" step="0.001" value="69.492"><div class="coef-note">INSS: 10% Ã— 11%</div></div>
+      <div class="coef-item"><label>Terraplenagem (%)</label><input class="coef-input" id="cTerra" type="number" step="0.001" value="53.714"><div class="coef-note">INSS: 15% × 11%</div></div>
+      <div class="coef-item"><label>Canteiro — INCC (%)</label><input class="coef-input" id="cCant" type="number" step="0.001" value="57.735"><div class="coef-note">INSS: 35% × 11%</div></div>
+      <div class="coef-item"><label>Conservação / Roçada (%)</label><input class="coef-input" id="cRoc" type="number" step="0.001" value="52.030"><div class="coef-note">INSS: 35% × 11%</div></div>
+      <div class="coef-item"><label>Pavimentação (%)</label><input class="coef-input" id="cPav" type="number" step="0.001" value="69.492"><div class="coef-note">INSS: 10% × 11%</div></div>
     </div>
     <div class="verif-row">
       <label>Total do PDF (última pág.):</label>
       <input class="verif-input" id="totalPDF" type="text" placeholder="315.154,14" oninput="limparV()">
-      <button class="btn-calc" onclick="calcR()">âš–ï¸ Calcular Reajuste</button>
-      <span class="verif-badge verif-ok" id="vOK">âœ… Total confere</span>
+      <button class="btn-calc" onclick="calcR()">⚖️ Calcular Reajuste</button>
+      <span class="verif-badge verif-ok" id="vOK">✅ Total confere</span>
       <span class="verif-badge verif-diff" id="vDiff"></span>
     </div>
   </div>
@@ -272,7 +272,7 @@ input[type=file]{display:none;}
 </div>
 </div>
 
-<!-- â”€â”€ CONTRATOS â”€â”€ -->
+<!-- ── CONTRATOS ── -->
 <div id="panel-contratos" class="panel">
 <div class="main">
   <div class="ct-layout">
@@ -281,7 +281,7 @@ input[type=file]{display:none;}
         <span>Contratos cadastrados</span>
         <div style="display:flex;gap:6px">
           <button class="btn-sm btn-primary" onclick="novoContrato()">+ Novo</button>
-          <button class="btn-sm btn-secondary" onclick="importarJSON()" style="padding:6px 8px" title="Importar JSON">ðŸ“¥</button>
+          <button class="btn-sm btn-secondary" onclick="importarJSON()" style="padding:6px 8px" title="Importar JSON">📥</button>
           <input type="file" id="importFile" class="ct-import-hidden" accept=".json" onchange="onImport(event)">
         </div>
       </div>
@@ -290,7 +290,7 @@ input[type=file]{display:none;}
 
     <div class="ct-form-wrap" id="ctFormWrap">
       <div class="ct-no-sel" id="ctNoSel">
-        <div class="icon">ðŸ“‹</div>
+        <div class="icon">📋</div>
         <p>Selecione um contrato para editar</p>
         <p style="font-size:.72rem">ou clique em <strong>+ Novo</strong> para cadastrar</p>
       </div>
@@ -303,9 +303,9 @@ input[type=file]{display:none;}
             </div>
           </div>
           <div class="ct-form-actions">
-            <button class="btn-sm btn-secondary" onclick="exportarContrato()">ðŸ“¤ Exportar</button>
-            <button class="btn-sm btn-danger" id="ctBtnDel" onclick="deletarContrato()" style="display:none">ðŸ—‘ï¸ Excluir</button>
-            <button class="btn-sm btn-primary" onclick="salvarContrato()">ðŸ’¾ Salvar</button>
+            <button class="btn-sm btn-secondary" onclick="exportarContrato()">📤 Exportar</button>
+            <button class="btn-sm btn-danger" id="ctBtnDel" onclick="deletarContrato()" style="display:none">🗑️ Excluir</button>
+            <button class="btn-sm btn-primary" onclick="salvarContrato()">💾 Salvar</button>
           </div>
         </div>
         <div class="ct-form-body">
@@ -332,20 +332,20 @@ input[type=file]{display:none;}
             </div>
             <div class="ct-field">
               <label>Cabeçalho — Medição Principal</label>
-              <textarea class="ct-textarea" id="fMedH" rows="4" placeholder="MANUTENÇÃƒO E CONSERVAÇÃƒO... MUNICÃPIO DE {c} - MS."></textarea>
+              <textarea class="ct-textarea" id="fMedH" rows="4" placeholder="MANUTENÇÃO E CONSERVAÇÃO... MUNICÍPIO DE {c} - MS."></textarea>
             </div>
             <div class="ct-field">
               <label>Cabeçalho — Reajuste</label>
-              <textarea class="ct-textarea" id="fReajH" rows="4" placeholder="REAJUSTAMENTO... MUNICÃPIO DE {c} - MS."></textarea>
+              <textarea class="ct-textarea" id="fReajH" rows="4" placeholder="REAJUSTAMENTO... MUNICÍPIO DE {c} - MS."></textarea>
             </div>
             <div class="ct-grid-2">
               <div class="ct-field">
                 <label>Linha de medição</label>
-                <input class="ct-input" id="fMedLn" placeholder="{num} MEDIÇÃƒO PARCIAL, PERÃODO: {per} €“ R$ {tot}">
+                <input class="ct-input" id="fMedLn" placeholder="{num} MEDIÇÃO PARCIAL, PERÍODO: {per} – R$ {tot}">
               </div>
               <div class="ct-field">
                 <label>Linha de reajuste</label>
-                <input class="ct-input" id="fReajLn" placeholder="{num} MEDIÇÃƒO DE REAJUSTAMENTO, PERÃODO: {per}. €“ R$ {tot}">
+                <input class="ct-input" id="fReajLn" placeholder="{num} MEDIÇÃO DE REAJUSTAMENTO, PERÍODO: {per}. – R$ {tot}">
               </div>
             </div>
             <div class="ct-grid-2">
@@ -363,7 +363,7 @@ input[type=file]{display:none;}
           <div class="ct-section">
             <div class="ct-section-title">Estrutura da Aba "Cidades" (Excel)</div>
             <div class="placeholder-note">
-              Ãndice da coluna: 0 = coluna A, 1 = B, 2 = C€¦ Deixe em branco para serviços não utilizados.
+              Índice da coluna: 0 = coluna A, 1 = B, 2 = C… Deixe em branco para serviços não utilizados.
             </div>
             <div class="ct-cols-grid">
               <div class="ct-field">
@@ -394,7 +394,7 @@ input[type=file]{display:none;}
           <div class="ct-section">
             <div class="ct-section-title">Mapeamento de Cidades</div>
             <div class="placeholder-note">
-              Chave = nome <strong>exato</strong> como aparece no Excel (maiúsculas) â†’ Valor = nome que aparece na nota
+              Chave = nome <strong>exato</strong> como aparece no Excel (maiúsculas) → Valor = nome que aparece na nota
             </div>
             <table class="ct-city-table">
               <thead><tr><th>Nome no Excel</th><th>Nome na nota</th><th></th></tr></thead>
@@ -423,16 +423,16 @@ const SVC_ALL=[
 const SVC={pav:"Pavimentação",canteiro:"Canteiro",rocada:"Roçada",terra:"Terraplenagem"};
 const CORES=["#3b82f6","#10b981","#f59e0b","#8b5cf6","#ef4444"];
 const INSS_ISO="INSS ISENTO CONFORME ART.130 PARÁGRAFO 1 IN RFB 2110 DE 17/10/2022";
-const FGV_N={adm:["Administração Local"],terra:["Terraplenagem"],canteiro:["Ãndice Nacional","INCC"],rocada:["Conservação Rodoviária"],pav:["Pavimentação"]};
+const FGV_N={adm:["Administração Local"],terra:["Terraplenagem"],canteiro:["Índice Nacional","INCC"],rocada:["Conservação Rodoviária"],pav:["Pavimentação"]};
 const CID={adm:"cAdm",terra:"cTerra",canteiro:"cCant",rocada:"cRoc",pav:"cPav"};
 
 const DEFAULT_CONTRATOS={
   '037/2021':{
     nome:'037/2021 — 3ª RR Três Lagoas',
-    medH:"MANUTENÇÃƒO E CONSERVAÇÃƒO DAS RODOVIAS PAVIMENTADAS E NÃƒO PAVIMENTADAS, DA MALHA RODOVIÁRIA DA 3ª RESIDÃŠNCIA REGIONAL DE TRÃŠS LAGOAS/MS €“ SETOR B, PROCESSO Nº 57/101.086/2020 €“ CONTRATO Nº 037/2021 €“ CADASTRO NACIONAL DE OBRAS Nº 90.006.16075/77, SERVIÇOS REALIZADOS NO MUNICÃPIO DE {c} - MS. ",
-    reajH:"REAJUSTAMENTO MANUTENÇÃƒO E CONSERVAÇÃƒO DAS RODOVIAS PAVIMENTADAS E NÃƒO PAVIMENTADAS, DA MALHA RODOVIÁRIA DA 3ª RESIDÃŠNCIA REGIONAL DE TRÃŠS LAGOAS/MS €“ SETOR B, PROCESSO Nº 57/003.871/2021 €“ CONTRATO Nº 037/2021 €“ CADASTRO NACIONAL DE OBRA €“ CNO Nº 90.006.16075/77, SERVIÇOS REALIZADOS NO MUNICÃPIO DE {c} - MS. ",
-    medLn:"{num} MEDIÇÃƒO PARCIAL, PERÃODO: {per} €“ R$ {tot}",
-    reajLn:"{num} MEDIÇÃƒO DE REAJUSTAMENTO, PERÃODO: {per}. €“ R$ {tot}",
+    medH:"MANUTENÇÃO E CONSERVAÇÃO DAS RODOVIAS PAVIMENTADAS E NÃO PAVIMENTADAS, DA MALHA RODOVIÁRIA DA 3ª RESIDÊNCIA REGIONAL DE TRÊS LAGOAS/MS – SETOR B, PROCESSO Nº 57/101.086/2020 – CONTRATO Nº 037/2021 – CADASTRO NACIONAL DE OBRAS Nº 90.006.16075/77, SERVIÇOS REALIZADOS NO MUNICÍPIO DE {c} - MS. ",
+    reajH:"REAJUSTAMENTO MANUTENÇÃO E CONSERVAÇÃO DAS RODOVIAS PAVIMENTADAS E NÃO PAVIMENTADAS, DA MALHA RODOVIÁRIA DA 3ª RESIDÊNCIA REGIONAL DE TRÊS LAGOAS/MS – SETOR B, PROCESSO Nº 57/003.871/2021 – CONTRATO Nº 037/2021 – CADASTRO NACIONAL DE OBRA – CNO Nº 90.006.16075/77, SERVIÇOS REALIZADOS NO MUNICÍPIO DE {c} - MS. ",
+    medLn:"{num} MEDIÇÃO PARCIAL, PERÍODO: {per} – R$ {tot}",
+    reajLn:"{num} MEDIÇÃO DE REAJUSTAMENTO, PERÍODO: {per}. – R$ {tot}",
     totalMedP:"TOTAL DAS MEDIÇÕES: R$ {tot}",
     totalMedR:"TOTAL DAS MEDIÇÕES: R$ {tot}",
     svcs:['pav','canteiro','rocada','terra'],
@@ -442,14 +442,14 @@ const DEFAULT_CONTRATOS={
   },
   '023/2021':{
     nome:'023/2021 — 15ª RR Camapuã',
-    medH:"MANUTENÇÃƒO E CONSERVAÇÃƒO DAS RODOVIAS PAVIMENTADAS E NÃƒO PAVIMENTADAS, DA MALHA RODOVIÁRIA DA 15ª RESIDÃŠNCIA REGIONAL DE CAMAPUÃƒ - MS, SETOR B, COM EXTENSÃƒO TOTAL DE 417,800 KM, PROCESSO Nº 57/101.261/2020 €“ CONTRATO Nº 023/2021 €“ CADASTRO NACIONAL DE OBRAS - CNO Nº 90.005.90015/71, SERVIÇOS REALIZADOS NO MUNICÃPIO DE {c} - MS. ",
-    reajH:"REAJUSTAMENTO DO PROCESSO DE MANUTENÇÃƒO E CONSERVAÇÃƒO DAS RODOVIAS PAVIMENTADAS E NÃƒO PAVIMENTADAS, DA MALHA RODOVIÁRIA DA 15ª RESIDÃŠNCIA REGIONAL DE CAMAPUÃƒ - MS, SETOR B, COM EXTENSÃƒO TOTAL DE 417,800 KM, PROCESSO NO 57/002.240/2022 €“ CONTRATO Nº 023/2021 €“ CADASTRO NACIONAL DE OBRAS CNO Nº 90.005.90015/71, SERVIÇOS REALIZADOS NO MUNICÃPIO DE {c} - MS. ",
-    medLn:"{num} MEDIÇÃƒO PARCIAL, PERÃODO: {per} €“ R$ {tot}",
-    reajLn:"{num} MEDIÇÃƒO DE REAJUSTE, PERÃODO: {per}. €“ R$ {tot}",
+    medH:"MANUTENÇÃO E CONSERVAÇÃO DAS RODOVIAS PAVIMENTADAS E NÃO PAVIMENTADAS, DA MALHA RODOVIÁRIA DA 15ª RESIDÊNCIA REGIONAL DE CAMAPUÃ - MS, SETOR B, COM EXTENSÃO TOTAL DE 417,800 KM, PROCESSO Nº 57/101.261/2020 – CONTRATO Nº 023/2021 – CADASTRO NACIONAL DE OBRAS - CNO Nº 90.005.90015/71, SERVIÇOS REALIZADOS NO MUNICÍPIO DE {c} - MS. ",
+    reajH:"REAJUSTAMENTO DO PROCESSO DE MANUTENÇÃO E CONSERVAÇÃO DAS RODOVIAS PAVIMENTADAS E NÃO PAVIMENTADAS, DA MALHA RODOVIÁRIA DA 15ª RESIDÊNCIA REGIONAL DE CAMAPUÃ - MS, SETOR B, COM EXTENSÃO TOTAL DE 417,800 KM, PROCESSO NO 57/002.240/2022 – CONTRATO Nº 023/2021 – CADASTRO NACIONAL DE OBRAS CNO Nº 90.005.90015/71, SERVIÇOS REALIZADOS NO MUNICÍPIO DE {c} - MS. ",
+    medLn:"{num} MEDIÇÃO PARCIAL, PERÍODO: {per} – R$ {tot}",
+    reajLn:"{num} MEDIÇÃO DE REAJUSTE, PERÍODO: {per}. – R$ {tot}",
     totalMedP:"TOTAL DAS MEDIÇÕES: R$ {tot}",
     totalMedR:"TOTAL DAS MEDIÇÕES: {tot}",
     svcs:['terra'],
-    disp:{"BANDEIRANTES":"BANDEIRANTES","CAMAPUÃƒ":"CAMAPUA","RIBAS DO RIO PARDO":"RIBAS DO RIO PARDO"},
+    disp:{"BANDEIRANTES":"BANDEIRANTES","CAMAPUÃ":"CAMAPUA","RIBAS DO RIO PARDO":"RIBAS DO RIO PARDO"},
     cols:{hdrCol:32,adm:33,pav:null,canteiro:null,rocada:null,terra:36,total:37,hdrCheck:37},
     nCidades:4,
   },
@@ -470,18 +470,18 @@ const pBR=s=>parseFloat((s||'0').replace(/\./g,'').replace(',','.'))||0;
 function toggleTheme(){
   const d=document.documentElement,dark=d.getAttribute('data-theme')==='dark';
   d.setAttribute('data-theme',dark?'light':'dark');
-  document.getElementById('themeBtn').textContent=dark?'ðŸŒ™ Escuro':'â˜€ï¸ Claro';
+  document.getElementById('themeBtn').textContent=dark?'🌙 Escuro':'☀️ Claro';
   try{localStorage.setItem('rial-theme',dark?'light':'dark');}catch(e){}
 }
-(function(){try{const t=localStorage.getItem('rial-theme');const isDark=t?t==='dark':true;document.documentElement.setAttribute('data-theme',isDark?'dark':'light');document.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById('themeBtn');if(b)b.textContent=isDark?'â˜€ï¸ Claro':'ðŸŒ™ Escuro';});}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+(function(){try{const t=localStorage.getItem('rial-theme');const isDark=t?t==='dark':true;document.documentElement.setAttribute('data-theme',isDark?'dark':'light');document.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById('themeBtn');if(b)b.textContent=isDark?'☀️ Claro':'🌙 Escuro';});}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
 
 function setMode(m,btn){
   document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById('panel-'+m).classList.add('active');
   const L=document.getElementById('hLogo'),S=document.getElementById('hSub');
-  if(m==='principal'){document.documentElement.style.setProperty('--accent','var(--acc-p)');L.textContent='ðŸ—ï¸';S.textContent='Medição principal — textos das notas por cidade';}
-  else if(m==='reajuste'){document.documentElement.style.setProperty('--accent','var(--acc-r)');L.textContent='ðŸ—ï¸';S.textContent='Reajuste de medição — coeficientes de reajustamento';}
-  else{document.documentElement.style.setProperty('--accent','var(--acc-g)');L.textContent='âš™ï¸';S.textContent='Gerenciamento de contratos';renderCtList();}
+  if(m==='principal'){document.documentElement.style.setProperty('--accent','var(--acc-p)');L.textContent='🏗️';S.textContent='Medição principal — textos das notas por cidade';}
+  else if(m==='reajuste'){document.documentElement.style.setProperty('--accent','var(--acc-r)');L.textContent='🏗️';S.textContent='Reajuste de medição — coeficientes de reajustamento';}
+  else{document.documentElement.style.setProperty('--accent','var(--acc-g)');L.textContent='⚙️';S.textContent='Gerenciamento de contratos';renderCtList();}
 }
 
 function ev(e,id,cl,a){e.preventDefault();document.getElementById(id).classList[a?'add':'remove'](cl);}
@@ -494,9 +494,9 @@ function rXls(file,mode){
   rd.onload=e=>{
     try{
       const wb=XLSX.read(e.target.result,{type:'array'});const res=exMed(wb);
-      if(mode==='principal'){ST.p=res;document.getElementById('pDrop').classList.add('loaded');document.getElementById('pTitle').textContent='âœ… '+file.name;renP();}
-      else{ST.r.info=res.info;ST.r.c=res.c;document.getElementById('rDropX').classList.add('loaded');document.getElementById('rTitleX').textContent='âœ… '+file.name;if(ST.r.pdf)calcR();}
-    }catch(err){document.getElementById(mode==='principal'?'pOutput':'rOutput').innerHTML='<div class="err-box">âŒ '+err.message+'</div>';}
+      if(mode==='principal'){ST.p=res;document.getElementById('pDrop').classList.add('loaded');document.getElementById('pTitle').textContent='✅ '+file.name;renP();}
+      else{ST.r.info=res.info;ST.r.c=res.c;document.getElementById('rDropX').classList.add('loaded');document.getElementById('rTitleX').textContent='✅ '+file.name;if(ST.r.pdf)calcR();}
+    }catch(err){document.getElementById(mode==='principal'?'pOutput':'rOutput').innerHTML='<div class="err-box">❌ '+err.message+'</div>';}
   };rd.readAsArrayBuffer(file);
 }
 
@@ -510,7 +510,7 @@ function exMed(wb){
   scan:for(let r=0;r<=6;r++)for(let c=0;c<=30;c++){const cl=wM[XLSX.utils.encode_cell({r,c})];if(cl&&typeof cl.v==='string'){for(const id of ids){if(cl.v.includes(id)){contrato=id;break scan;}}}}
   if(!contrato)contrato=ids[0]||'037/2021';
   ST.contrato=contrato;
-  const cfg=CONTRATOS[contrato];if(!cfg)throw new Error("Contrato '"+contrato+"' não encontrado. Cadastre-o em âš™ï¸ Contratos.");
+  const cfg=CONTRATOS[contrato];if(!cfg)throw new Error("Contrato '"+contrato+"' não encontrado. Cadastre-o em ⚙️ Contratos.");
   const wC=wb.Sheets['Cidades'];if(!wC)throw new Error("Aba 'Cidades' não encontrada.");
   const data=XLSX.utils.sheet_to_json(wC,{header:1,defval:null});
   const hc=cfg.cols.hdrCol,hcheck=cfg.cols.hdrCheck;
@@ -530,7 +530,7 @@ function exMed(wb){
 }
 
 async function rPdf(file){
-  document.getElementById('rTitleP').textContent='â³ Lendo PDF...';
+  document.getElementById('rTitleP').textContent='⏳ Lendo PDF...';
   try{
     const buf=await file.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:buf}).promise;
     let txt='';
@@ -541,17 +541,17 @@ async function rPdf(file){
     ST.r.secReaj=sr;ST.r.pdfTotal=pt;ST.r.pdf=true;
     if(pt){const el=document.getElementById('totalPDF');if(!el.value.trim())el.value=f(pt);}
     document.getElementById('rDropP').classList.add('loaded');
-    document.getElementById('rTitleP').textContent='âœ… '+file.name+(Object.keys(sr).length?' — coefs + '+Object.keys(sr).length+' seções lidas':' — coeficientes extraídos');
+    document.getElementById('rTitleP').textContent='✅ '+file.name+(Object.keys(sr).length?' — coefs + '+Object.keys(sr).length+' seções lidas':' — coeficientes extraídos');
     if(ST.r.c)calcR();
-  }catch(err){document.getElementById('rTitleP').textContent='âš ï¸ '+file.name+' — ajuste manualmente';ST.r.pdf=true;console.error(err);}
+  }catch(err){document.getElementById('rTitleP').textContent='⚠️ '+file.name+' — ajuste manualmente';ST.r.pdf=true;console.error(err);}
 }
-function pFGV(txt){const co={};const re=/FGV\s+([\w\s\-ãõçáéíóúâêÃ®ôÃ»ÃƒÕÇÁÉÃÓÃš]+?)\s+\w+\/\d{4}\s+\w+\/\d{4}\s+[\d,.]+\s+[\d,.]+\s+([\d,]+)%/g;let m;while((m=re.exec(txt))!=null)co[m[1].trim()]=parseFloat(m[2].replace(',','.'))/100;return co;}
+function pFGV(txt){const co={};const re=/FGV\s+([\w\s\-ãõçáéíóúâêîôûÃÕÇÁÉÍÓÚ]+?)\s+\w+\/\d{4}\s+\w+\/\d{4}\s+[\d,.]+\s+[\d,.]+\s+([\d,]+)%/g;let m;while((m=re.exec(txt))!=null)co[m[1].trim()]=parseFloat(m[2].replace(',','.'))/100;return co;}
 function pSecReaj(txt){const sr={};for(const ln of txt.split('\n')){const mc=ln.match(/\b(0[1-5])\.\d{3}/);if(!mc)continue;const sec=mc[1];const ms=[...ln.matchAll(/\b(\d{1,3}(?:\.\d{3})*,\d{2})\b/g)];if(!ms.length)continue;const v=parseFloat(ms[ms.length-1][1].replace(/\./g,'').replace(',','.'));if(v>0)sr[sec]=(sr[sec]||0)+v;}return sr;}
-function pTotal(txt){const m=txt.match(/VALOR DO REAJUSTE NO PER[IÃ]ODO[:\s]+([0-9.]+,[0-9]+)/i);return m?parseFloat(m[1].replace(/\./g,'').replace(',','.')):null;}
+function pTotal(txt){const m=txt.match(/VALOR DO REAJUSTE NO PER[IÍ]ODO[:\s]+([0-9.]+,[0-9]+)/i);return m?parseFloat(m[1].replace(/\./g,'').replace(',','.')):null;}
 
 function limparV(){document.getElementById('vOK').style.display='none';document.getElementById('vDiff').style.display='none';document.getElementById('ajPanel').innerHTML='';}
 function calcR(){
-  const{info,c}=ST.r;if(!info||!c){document.getElementById('rOutput').innerHTML='<div class="err-box">âš ï¸ Carregue o arquivo .xlsx primeiro.</div>';return;}
+  const{info,c}=ST.r;if(!info||!c){document.getElementById('rOutput').innerHTML='<div class="err-box">⚠️ Carregue o arquivo .xlsx primeiro.</div>';return;}
   const co={adm:parseFloat(document.getElementById('cAdm').value)/100,terra:parseFloat(document.getElementById('cTerra').value)/100,canteiro:parseFloat(document.getElementById('cCant').value)/100,rocada:parseFloat(document.getElementById('cRoc').value)/100,pav:parseFloat(document.getElementById('cPav').value)/100};
   const catSec={adm:'03',terra:'02',canteiro:'04',rocada:'01',pav:'05'};const sr=ST.r.secReaj||{};
   const catReaj={};
@@ -571,7 +571,7 @@ function renP(){
   const{info,c}=ST.p;if(!info||!c)return;
   const cfg=CONTRATOS[info.contrato||ST.contrato]||Object.values(CONTRATOS)[0];
   const ns=Object.keys(c),tB=ns.reduce((a,n)=>a+c[n].total,0),tI=ns.reduce((a,n)=>{const v=c[n];return a+(['pav','canteiro','rocada','terra'].reduce((s,k)=>s+(v[k]>0?v[k]*ALIQ[k]:0),0))*ALIQ.inss;},0);
-  document.getElementById('hSub').textContent='ðŸ“‹ Medição — Contrato '+cfg.nome;
+  document.getElementById('hSub').textContent='📋 Medição — Contrato '+cfg.nome;
   let h=kpi([{l:'Contrato',v:info.contrato,c:'#6366f1',sm:1},{l:'Medição',v:info.numMed,c:'#3b82f6'},{l:'Período',v:info.periodo,c:'#64748b',sm:1},{l:'Total Bruto',v:'R$ '+f(tB),c:'#10b981'},{l:'Total INSS',v:'R$ '+f(tI),c:'#f59e0b'}]);
   ns.forEach((n,i)=>{h+=card(i,n,c[n],info.numMed,info.periodo,'p');});
   document.getElementById('pOutput').innerHTML=h;
@@ -580,7 +580,7 @@ function renR(reaj,tot){
   if(!RI)return;const ns=Object.keys(reaj);
   const cfg=CONTRATOS[RI.contrato||ST.contrato]||Object.values(CONTRATOS)[0];
   const tI=ns.reduce((a,n)=>{const r=reaj[n];return a+(['pav','canteiro','rocada','terra'].reduce((s,k)=>s+(r[k]>0?r[k]*ALIQ[k]:0),0))*ALIQ.inss;},0);
-  document.getElementById('hSub').textContent='âš–ï¸ Reajuste — Contrato '+cfg.nome;
+  document.getElementById('hSub').textContent='⚖️ Reajuste — Contrato '+cfg.nome;
   let h=kpi([{l:'Contrato',v:RI.contrato,c:'#6366f1',sm:1},{l:'Medição',v:RI.numMed,c:'#f59e0b'},{l:'Período',v:RI.periodo,c:'#64748b',sm:1},{l:'Total Reajuste',v:'R$ '+f(tot),c:'#10b981'},{l:'Total INSS',v:'R$ '+f(tI),c:'#f59e0b'}]);
   ns.forEach((n,i)=>{h+=card(i,n,reaj[n],RI.numMed,RI.periodo,'r',RC[n],RCo);});
   document.getElementById('rOutput').innerHTML=h;
@@ -612,23 +612,23 @@ function card(idx,nome,vals,num,per,mode,mv,co){
     if(isR&&mv&&co)sr+='<tr class="isento"><td>Administração '+ajBadge+'</td><td class="r">R$ '+f(mv.adm)+'</td><td class="r">'+((co.adm||0)*100).toFixed(3)+'%</td><td class="r">R$ '+f(vals.adm)+'</td><td class="r">—</td><td class="r"><span class="badge-isento">ISENTO</span></td></tr>';
     else sr+='<tr class="isento"><td>Administração</td><td class="r">R$ '+f(vals.adm)+'</td><td class="r">—</td><td class="r"><span class="badge-isento">ISENTO</span></td></tr>';
   }
-  const ajNota=ajInfo?'<div class="ajuste-nota">âš ï¸ Ajuste de arredondamento: <strong>'+(ajInfo.diff>0?'+':'')+f(ajInfo.diff)+'</strong> — diferença entre cálculo por coeficiente e total do PDF.</div>':'';
+  const ajNota=ajInfo?'<div class="ajuste-nota">⚠️ Ajuste de arredondamento: <strong>'+(ajInfo.diff>0?'+':'')+f(ajInfo.diff)+'</strong> — diferença entre cálculo por coeficiente e total do PDF.</div>':'';
   const th=isR?'<tr><th>Serviço</th><th class="r">Medição</th><th class="r">Coef.</th><th class="r">Reajuste</th><th class="r">Alíq.</th><th class="r">Base INSS</th></tr>':'<tr><th>Serviço</th><th class="r">Valor</th><th class="r">Alíq.</th><th class="r">Base INSS</th></tr>';
   const bc=isR?'background:#f59e0b;color:#000':'background:#3b82f6;color:#fff';
   const uid='t_'+mode+'_'+idx;
-  return '<div class="city-card" style="--cc:'+cor+'"><div class="city-header"><div class="city-num">'+(idx+1)+'</div><span class="city-name">'+cd+'</span><span class="city-total">R$ '+f(vals.total)+'</span></div><div class="city-body"><div class="breakdown-col"><div class="col-title">Composição</div><table class="svc-table"><thead>'+th+'</thead><tbody>'+sr+'</tbody></table><div class="inss-box"><span>Base INSS: <strong>R$ '+f(bt)+'</strong></span><span class="inss-val">INSS 11%: R$ '+f(bt*ALIQ.inss)+'</span></div>'+ajNota+'</div><div class="text-col"><div class="text-header"><span class="col-title">Texto da nota</span><button class="btn-copy" style="'+bc+'" onclick="cp(\''+uid+'\',this)">ðŸ“‹ Copiar</button></div><textarea id="'+uid+'" class="nota-text" readonly>'+tx+'</textarea></div></div></div>';
+  return '<div class="city-card" style="--cc:'+cor+'"><div class="city-header"><div class="city-num">'+(idx+1)+'</div><span class="city-name">'+cd+'</span><span class="city-total">R$ '+f(vals.total)+'</span></div><div class="city-body"><div class="breakdown-col"><div class="col-title">Composição</div><table class="svc-table"><thead>'+th+'</thead><tbody>'+sr+'</tbody></table><div class="inss-box"><span>Base INSS: <strong>R$ '+f(bt)+'</strong></span><span class="inss-val">INSS 11%: R$ '+f(bt*ALIQ.inss)+'</span></div>'+ajNota+'</div><div class="text-col"><div class="text-header"><span class="col-title">Texto da nota</span><button class="btn-copy" style="'+bc+'" onclick="cp(\''+uid+'\',this)">📋 Copiar</button></div><textarea id="'+uid+'" class="nota-text" readonly>'+tx+'</textarea></div></div></div>';
 }
 function kpi(items){return'<div class="kpi-row">'+items.map(k=>'<div class="kpi" style="--kpi-c:'+k.c+'"><div class="kpi-label">'+k.l+'</div><div class="kpi-value"'+(k.sm?' style="font-size:.9rem"':'')+'>'+k.v+'</div></div>').join('')+'</div>';}
-function cp(id,btn){navigator.clipboard.writeText(document.getElementById(id).value).then(()=>{const o=btn.textContent;btn.textContent='âœ… Copiado!';btn.classList.add('ok');setTimeout(()=>{btn.textContent=o;btn.classList.remove('ok');},2000);});}
+function cp(id,btn){navigator.clipboard.writeText(document.getElementById(id).value).then(()=>{const o=btn.textContent;btn.textContent='✅ Copiado!';btn.classList.add('ok');setTimeout(()=>{btn.textContent=o;btn.classList.remove('ok');},2000);});}
 
-// â”€â”€ Gerenciamento de Contratos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Gerenciamento de Contratos ────────────────────────────────────────────────
 function renderCtList(){
   const list=document.getElementById('ctList');
   const ids=Object.keys(CONTRATOS);
   if(!ids.length){list.innerHTML='<div class="ct-empty">Nenhum contrato cadastrado</div>';return;}
   list.innerHTML=ids.map(id=>{
     const c=CONTRATOS[id],active=EDIT_ID===id?'active':'';
-    return`<div class="ct-item ${active}" onclick="editarContrato('${id}')"><div style="flex:1;min-width:0"><div class="ct-item-id">${id}</div><div class="ct-item-nome">${c.nome||'—'}</div></div><button class="ct-item-del" onclick="event.stopPropagation();confirmarDeletar('${id}')" title="Excluir">âœ•</button></div>`;
+    return`<div class="ct-item ${active}" onclick="editarContrato('${id}')"><div style="flex:1;min-width:0"><div class="ct-item-id">${id}</div><div class="ct-item-nome">${c.nome||'—'}</div></div><button class="ct-item-del" onclick="event.stopPropagation();confirmarDeletar('${id}')" title="Excluir">✕</button></div>`;
   }).join('');
 }
 
@@ -683,7 +683,7 @@ function editarContrato(id){
 function addCityRow(k='',v=''){
   const tbody=document.getElementById('fCityBody');
   const tr=document.createElement('tr');
-  tr.innerHTML=`<td><input class="ct-city-input city-key" placeholder="NOME NO EXCEL" value="${escHtml(k)}"></td><td><input class="ct-city-input city-val" placeholder="Nome na nota" value="${escHtml(v)}"></td><td><button class="ct-city-del" onclick="this.closest('tr').remove()">âœ•</button></td>`;
+  tr.innerHTML=`<td><input class="ct-city-input city-key" placeholder="NOME NO EXCEL" value="${escHtml(k)}"></td><td><input class="ct-city-input city-val" placeholder="Nome na nota" value="${escHtml(v)}"></td><td><button class="ct-city-del" onclick="this.closest('tr').remove()">✕</button></td>`;
   tbody.appendChild(tr);
 }
 function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -718,7 +718,7 @@ function salvarContrato(){
     document.getElementById('ctBtnDel').style.display='flex';
     renderCtList();
     const btn=document.querySelector('.ct-form-actions .btn-primary');
-    const orig=btn.textContent;btn.textContent='âœ… Salvo!';setTimeout(()=>btn.textContent=orig,1500);
+    const orig=btn.textContent;btn.textContent='✅ Salvo!';setTimeout(()=>btn.textContent=orig,1500);
   }catch(e){alert('Erro ao salvar: '+e.message);}
 }
 
