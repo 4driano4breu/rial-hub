@@ -33,6 +33,7 @@
 | Usinagem | **Gestão de Insumos** | `/insumos` |
 | Viário | **Inspeção Viária** | `/viario` |
 | *(novo)* | **Coleta de Campo** | `/formularios` |
+| *(novo)* | **Gestão de Equipamentos** | `/equipamentos` |
 
 ### Painéis — Módulo Genérico de Dashboards
 
@@ -140,7 +141,10 @@ Modules por org:
 ├── UsinagemRegistro (ticket, data, placa, motorista, peso, regiao)
 ├── VIarioInspecao (rodovia, km_ini, km_fim, fotos_url[], relatorio_url)
 ├── FormularioTemplate (slug, nome, campos JSON)        ← Coleta de Campo
-└── FormularioResposta (template_id, dados JSON, lat/lon)
+├── FormularioResposta (template_id, dados JSON, lat/lon)
+├── ChecklistTemplate (nome, itens JSON)                ← Gestão de Equipamentos
+├── Equipamento (nome, tipo, modelo, foto_url, template_id)
+└── ChecklistExecucao (equipamento_id, data, respostas JSON, status)
 ```
 
 ---
@@ -522,6 +526,126 @@ QR code colado no painel do caminhão → motorista escaneia → preenche em 30 
 
 Admin pode criar um Painel com `modulo_fonte: 'formularios'` + `filtros: {"template_slug": "abastecimento-diario"}` para visualizar as respostas como dashboard com KPIs, gráficos e exportação Excel — usando a mesma infraestrutura de Painéis.
 
+#### 2.7 — Gestão de Equipamentos (Checklist Diário)
+
+**Objetivo:** Substituir controles manuais (papel, WhatsApp, planilha) por checklist digital diário para operadores de máquinas pesadas.
+
+**Clientes-alvo:** RIAL (uso interno) + clientes externos de construção e locação de equipamentos. Template inicial: retroescavadeira.
+
+**Fluxo completo:**
+
+```
+Admin (OBRIA web)
+├── Cadastra máquina (nome, tipo, modelo, foto)
+├── Cria/seleciona template de checklist (itens por categoria)
+└── Imprime QR code para colar no painel da máquina
+            ↓
+Operador (celular) abre URL → preenche checklist → envia
+            ↓
+Admin vê:
+├── Galeria de cards (Em dia / Atenção / Crítico)
+├── Streak de dias consecutivos por máquina
+├── Calendário heatmap (verde = feito, vermelho = faltou)
+└── Histórico completo por máquina + export Excel
+```
+
+**Rotas:**
+
+```
+/equipamentos/                        ← admin: galeria de cards
+/equipamentos/{id}                    ← admin: detalhe + calendário + histórico
+/equipamentos/novo                    ← admin: cadastrar máquina
+/equipamentos/templates/              ← admin: gerenciar templates
+/equipamentos/templates/{id}/editar   ← admin: editar itens do checklist
+/m/equipamentos/{id}                  ← mobile: preencher checklist (PWA, offline)
+/api/equipamentos/{id}/status         ← JSON: streak, última data, status
+/api/equipamentos/{id}/historico      ← JSON: datas + status para o calendário
+```
+
+**Modelos no banco:**
+
+```python
+class ChecklistTemplate(db.Model):
+    id, org_id, nome           # ex: "Retroescavadeira JCB 3CX"
+    itens = JSON               # lista de ItemDefinicao
+    criado_em
+
+# Estrutura de cada item no JSON:
+# { "id": "oleo_motor", "categoria": "Fluidos", "descricao": "Nível de óleo",
+#   "tipo": "ok_nao_ok",  # ok_nao_ok | numero | texto | foto
+#   "obrigatorio": True, "unidade": None }
+
+class Equipamento(db.Model):
+    id, org_id
+    nome, tipo, modelo, ano
+    numero_serie, placa        # placa opcional
+    foto_url                   # Cloudflare R2
+    template_id                # FK → ChecklistTemplate
+    ativo, criado_em
+
+class ChecklistExecucao(db.Model):
+    id, org_id, equipamento_id, template_id
+    operador_id                # FK → User, nullable (aceita anônimo)
+    data_execucao              # date — 1 checklist por dia por máquina
+    respostas = JSON           # {item_id: {valor, foto_url, obs}}
+    status                     # COMPLETO | COM_PENDENCIA
+    latitude, longitude        # GPS no momento do envio
+    criado_em
+```
+
+**Lógica de status e streak:**
+
+```python
+def calcular_status(equipamento_id, org_id) -> dict:
+    ultima = ChecklistExecucao.query.filter_by(
+        equipamento_id=equipamento_id, org_id=org_id
+    ).order_by(desc("data_execucao")).first()
+
+    dias_atraso = (date.today() - ultima.data_execucao).days if ultima else 999
+    streak = _calcular_streak(equipamento_id, org_id)  # dias consecutivos
+
+    return {
+        "status":      "EM_DIA"   if dias_atraso == 0
+                  else "ATENCAO"  if dias_atraso <= 2
+                  else "CRITICO",
+        "streak":      streak,
+        "ultima":      ultima.data_execucao if ultima else None,
+        "dias_atraso": dias_atraso
+    }
+```
+
+**Cores dos cards:** `EM_DIA` → `#16a34a` | `ATENCAO` → `#d97706` | `CRITICO` → `#dc2626`
+
+**Calendar Heatmap — puro HTML/CSS (sem biblioteca):**
+
+Grid de células por dia do ano. Cores: verde (feito), vermelho (dia útil sem check), cinza (fim de semana / folga), branco (sem dados). Sem dependências externas — CSS Grid + Jinja2.
+
+**Template inicial — Retroescavadeira:**
+
+| Categoria | Item | Tipo |
+|-----------|------|------|
+| Fluidos | Nível de óleo do motor | ok_nao_ok |
+| Fluidos | Nível do fluido hidráulico | ok_nao_ok |
+| Fluidos | Nível de combustível | numero (%) |
+| Fluidos | Nível da água do radiador | ok_nao_ok |
+| Pneus | Pressão dianteira esq./dir. | numero (bar) |
+| Pneus | Pressão traseira esq./dir. | numero (bar) |
+| Segurança | Freios funcionando | ok_nao_ok |
+| Segurança | Sinal sonoro de ré | ok_nao_ok |
+| Segurança | Extintor de incêndio | ok_nao_ok |
+| Segurança | Cinto de segurança | ok_nao_ok |
+| Iluminação | Faróis dianteiros | ok_nao_ok |
+| Iluminação | Luz de ré | ok_nao_ok |
+| Visual | Vazamentos visíveis | ok_nao_ok |
+| Visual | Condição da caçamba | ok_nao_ok |
+| Visual | Espelhos retrovisores | ok_nao_ok |
+| Registro | Foto geral da máquina | foto (opcional) |
+| Registro | Observações do operador | texto (opcional) |
+
+**PWA Offline:** Reutiliza a infraestrutura de Service Worker da Coleta de Campo (2.6). Arquivos adicionais: `static/equipamentos/sw.js`, `static/equipamentos/manifest.json`. O formulário mobile é standalone (não extende `base.html`) — otimizado para celular com campos grandes, botão "Enviar" fixo no rodapé.
+
+**Integração com Painéis:** Admin configura Painel com `modulo_fonte: 'equipamentos'` + `filtros: {"tipo": "retroescavadeira"}` para exibir % de compliance mensal, streak médio da frota e máquinas em atraso.
+
 ---
 
 ### FASE 3 — Módulo Viário
@@ -598,6 +722,7 @@ Jun 2026   Jul 2026    Ago 2026    Set 2026    Out 2026    Nov 2026    Dez 2026
 │          │                      │ Onboarding                         │
 │          │                      │ Landing page                       │
 │          │                      │ Coleta de Campo (PWA)              │
+│          │                      │ Gestão de Equipamentos             │
 │          │                      │                    ├─ FASE 3 ──────┤
 │          │                      │                    │ Viário OCR    │
 │          │                      │                    │ GPS + Mapa    │
