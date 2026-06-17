@@ -1,3 +1,5 @@
+import click
+import os
 from pathlib import Path
 from flask import Flask, render_template, redirect, url_for
 from flask_login import current_user
@@ -67,17 +69,16 @@ def create_app() -> Flask:
             if not current_user.is_authenticated:
                 return redirect(url_for("auth.login"))
 
-    # Comando CLI para seed inicial
+    # Comandos CLI
     app.cli.add_command(_seed_command)
+    app.cli.add_command(_seed_auto_command)
 
     return app
 
 
-import click
-
 @click.command("seed")
 def _seed_command():
-    """Cria organização RIAL e usuário admin no primeiro boot."""
+    """Cria organização RIAL e usuário admin interativamente."""
     from app.extensions import bcrypt
     from app.models import Organization, User
 
@@ -103,3 +104,37 @@ def _seed_command():
     db.session.add(admin)
     db.session.commit()
     click.echo(f"✓ Organização '{rial.name}' e usuário '{admin_email}' criados.")
+
+
+@click.command("seed-auto")
+def _seed_auto_command():
+    """Seed automático via variáveis de ambiente ADMIN_EMAIL e ADMIN_PASSWORD."""
+    from app.extensions import bcrypt
+    from app.models import Organization, User
+
+    if Organization.query.first():
+        click.echo("Seed-auto: banco já possui dados, pulando.")
+        return
+
+    admin_email = os.environ.get("ADMIN_EMAIL", "admin@rial.com.br")
+    admin_senha = os.environ.get("ADMIN_PASSWORD")
+    admin_nome  = os.environ.get("ADMIN_NOME", "Administrador RIAL")
+
+    if not admin_senha:
+        click.echo("ERRO: variável ADMIN_PASSWORD não definida. Seed abortado.")
+        raise SystemExit(1)
+
+    rial = Organization(slug="rial", name="RIAL Construtora", plan="pro")
+    db.session.add(rial)
+    db.session.flush()
+
+    admin = User(
+        org_id        = rial.id,
+        email         = admin_email.lower(),
+        nome          = admin_nome,
+        password_hash = bcrypt.generate_password_hash(admin_senha, rounds=12).decode("utf-8"),
+        role          = "ADMIN",
+    )
+    db.session.add(admin)
+    db.session.commit()
+    click.echo(f"✓ Seed-auto: organização 'RIAL Construtora' e usuário '{admin_email}' criados.")
