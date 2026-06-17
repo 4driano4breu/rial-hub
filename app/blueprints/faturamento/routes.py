@@ -6,6 +6,15 @@ from flask import render_template, request, send_from_directory, current_app, fl
 
 from app.blueprints.faturamento import faturamento_bp
 
+_R2_XLSX = "faturamento/Faturamento_2026.xlsx"
+_R2_DASH = "faturamento/dashboard.html"
+
+
+def _xlsx_path() -> Path:
+    d = Path(current_app.instance_path) / "faturamento"
+    d.mkdir(parents=True, exist_ok=True)
+    return d / "Faturamento 2026.xlsx"
+
 
 @faturamento_bp.route("/")
 def index():
@@ -24,7 +33,7 @@ def regenerar_dashboard(notas_novas):
     import json
     import re
     from collections import defaultdict
-    from pathlib import Path
+    import app.storage as r2
 
     dash_path = Path(current_app.static_folder) / "ferramentas" / "faturamento" / "dashboard.html"
     if not dash_path.exists():
@@ -35,10 +44,8 @@ def regenerar_dashboard(notas_novas):
 
     html = dash_path.read_text(encoding="utf-8")
 
-    # Extract existing NOTES array from HTML
     m = re.search(r'const NOTES = (\[.*?\]);', html, re.DOTALL)
     existing = json.loads(m.group(1)) if m else []
-
     existing_nrs = {n["nr"] for n in existing}
 
     for n in notas_novas:
@@ -61,11 +68,10 @@ def regenerar_dashboard(notas_novas):
             })
 
     def sort_key(n):
-        d = n["emissao"].split("/")  # dd/mm/yyyy
+        d = n["emissao"].split("/")
         return (int(d[2]), int(d[1]), -n["nr"])
     existing.sort(key=sort_key)
 
-    # Recompute SUMMARY
     month_data = defaultdict(lambda: {"notas": 0, "bruto": 0, "inss": 0, "ir": 0, "iss": 0, "liquido": 0})
     for n in existing:
         k = n["mes"]
@@ -95,38 +101,43 @@ def regenerar_dashboard(notas_novas):
     html = re.sub(r'const SUMMARY = \[.*?\];', f'const SUMMARY = {summary_js};', html, flags=re.DOTALL)
 
     dash_path.write_text(html, encoding="utf-8")
+    r2.upload(_R2_DASH, dash_path.read_bytes(), "text/html; charset=utf-8")
 
 
 @faturamento_bp.route("/atualizar", methods=["POST"])
 def atualizar():
+    import app.storage as r2
+
     xml_file = request.files.get("xml")
     xlsx_file = request.files.get("xlsx")
     if not xml_file or not xml_file.filename.endswith(".xml"):
         flash("Envie um arquivo .xml de NFS-e.", "error")
         return redirect(url_for("faturamento.index"))
 
-    # Salva XML em temp
     xml_tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".xml")
     xml_tmp.write(xml_file.read())
     xml_tmp.close()
     xml_path = Path(xml_tmp.name)
 
-    # Resolve caminho do xlsx
-    instance_dir = Path(current_app.instance_path) / "faturamento"
-    instance_dir.mkdir(parents=True, exist_ok=True)
-    xlsx_path = instance_dir / "Faturamento 2026.xlsx"
+    xlsx_path = _xlsx_path()
 
     if xlsx_file and xlsx_file.filename.endswith(".xlsx"):
-        xlsx_path.write_bytes(xlsx_file.read())
+        xlsx_bytes = xlsx_file.read()
+        xlsx_path.write_bytes(xlsx_bytes)
+        r2.upload(_R2_XLSX, xlsx_bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     elif not xlsx_path.exists():
-        flash("Envie também a planilha .xlsx de faturamento (primeira vez).", "error")
-        xml_path.unlink(missing_ok=True)
-        return redirect(url_for("faturamento.index"))
+        # Tenta recuperar do R2 antes de falhar
+        xlsx_bytes = r2.download(_R2_XLSX)
+        if xlsx_bytes:
+            xlsx_path.write_bytes(xlsx_bytes)
+        else:
+            flash("Envie também a planilha .xlsx de faturamento (primeira vez).", "error")
+            xml_path.unlink(missing_ok=True)
+            return redirect(url_for("faturamento.index"))
 
     try:
         from app.blueprints.faturamento.updater import parse_xml, criar_aba_mes, atualizar_resumo
         from openpyxl import load_workbook
-        import re as _re
 
         notas = parse_xml(str(xml_path))
         if not notas:
@@ -145,6 +156,11 @@ def atualizar():
         subtotal_row, col_map = criar_aba_mes(wb, notas, mes, ano, nome_aba, template_aba)
         atualizar_resumo(wb, mes, subtotal_row, col_map, nome_aba)
         wb.save(str(xlsx_path))
+
+        # Persiste xlsx atualizado no R2
+        r2.upload(_R2_XLSX, xlsx_path.read_bytes(),
+                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
         from core.timestamps import salvar_timestamp
         salvar_timestamp("faturamento")
 

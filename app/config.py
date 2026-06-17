@@ -34,3 +34,10 @@ class Config:
     UPLOAD_FOLDER         = str(_BASE / "uploads")
     MAX_CONTENT_LENGTH    = 32 * 1024 * 1024  # 32 MB
     ALLOWED_EXTENSIONS    = {"xlsx", "pdf"}
+
+    # Cloudflare R2 (Fase 0.3)
+    R2_ACCOUNT_ID        = os.environ.get("R2_ACCOUNT_ID", "")
+    R2_ACCESS_KEY_ID     = os.environ.get("R2_ACCESS_KEY_ID", "")
+    R2_SECRET_ACCESS_KEY = os.environ.get("R2_SECRET_ACCESS_KEY", "")
+    R2_BUCKET_NAME       = os.environ.get("R2_BUCKET_NAME", "obria-storage")
+    R2_PUBLIC_URL        = os.environ.get("R2_PUBLIC_URL", "")

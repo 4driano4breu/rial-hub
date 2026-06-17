@@ -26,8 +26,16 @@ jobs:
         env:
           SECRET_KEY: ci-test-secret-key
           FLASK_APP: app
+          ADMIN_EMAIL: ci@test.com
+          ADMIN_PASSWORD: ci-password-test
+          R2_ACCOUNT_ID: ""
+          R2_ACCESS_KEY_ID: ""
+          R2_SECRET_ACCESS_KEY: ""
+          R2_BUCKET_NAME: ""
         run: |
           flask db upgrade
+          flask seed-auto
+          flask r2-pull
           python -c "from app import create_app; app = create_app(); print('App OK')"
 
       - name: Check for secrets in code

@@ -4,10 +4,19 @@ from flask import render_template, request, send_from_directory, current_app, fl
 
 from app.blueprints.usinagem import usinagem_bp
 
+_R2_FILES = {
+    "geral":      "usinagem/geral.html",
+    "aegea":      "usinagem/aegea.html",
+    "guariroba":  "usinagem/guariroba.html",
+}
+
+
+def _dashboard_folder() -> Path:
+    return Path(current_app.static_folder) / "ferramentas" / "usinagem"
+
 
 def _dashboard(filename: str):
-    folder = Path(current_app.static_folder) / "ferramentas" / "usinagem"
-    return send_from_directory(folder, filename)
+    return send_from_directory(_dashboard_folder(), filename)
 
 
 @usinagem_bp.route("/")
@@ -34,6 +43,8 @@ def guariroba():
 
 @usinagem_bp.route("/atualizar", methods=["POST"])
 def atualizar():
+    import app.storage as r2
+
     csv_file = request.files.get("csv")
     if not csv_file or not csv_file.filename.endswith(".csv"):
         flash("Envie um arquivo .csv exportado do Google Sheets.", "error")
@@ -47,7 +58,7 @@ def atualizar():
     try:
         from app.blueprints.usinagem import updater as _upd
         import importlib
-        importlib.reload(_upd)  # garante paths atualizados
+        importlib.reload(_upd)
 
         linhas_raw = _upd.ler_csv(str(csv_path))
         linhas = _upd.deduplicar(linhas_raw)
@@ -58,6 +69,13 @@ def atualizar():
         _upd.atualizar_aegea(aegea)
         _upd.atualizar_guariroba(guariroba)
         _upd.atualizar_geral(todas)
+
+        # Persiste dashboards atualizados no R2
+        folder = _dashboard_folder()
+        for name, r2_key in _R2_FILES.items():
+            local = folder / f"{name}.html"
+            if local.exists():
+                r2.upload(r2_key, local.read_bytes(), "text/html; charset=utf-8")
 
         from core.timestamps import salvar_timestamp
         salvar_timestamp("usinagem")

@@ -72,6 +72,7 @@ def create_app() -> Flask:
     # Comandos CLI
     app.cli.add_command(_seed_command)
     app.cli.add_command(_seed_auto_command)
+    app.cli.add_command(_r2_pull_command)
 
     return app
 
@@ -138,3 +139,37 @@ def _seed_auto_command():
     db.session.add(admin)
     db.session.commit()
     click.echo(f"✓ Seed-auto: organização 'RIAL Construtora' e usuário '{admin_email}' criados.")
+
+
+@click.command("r2-pull")
+def _r2_pull_command():
+    """Restaura arquivos do Cloudflare R2 para o filesystem local (idempotente)."""
+    from pathlib import Path
+    from flask import current_app
+    import app.storage as r2
+
+    if not r2._ready():
+        click.echo("R2-pull: R2 não configurado — pulando.")
+        return
+
+    static = Path(current_app.static_folder)
+    instance_faturamento = Path(current_app.instance_path) / "faturamento"
+    instance_faturamento.mkdir(parents=True, exist_ok=True)
+
+    targets = {
+        "usinagem/geral.html":              static / "ferramentas" / "usinagem" / "geral.html",
+        "usinagem/aegea.html":              static / "ferramentas" / "usinagem" / "aegea.html",
+        "usinagem/guariroba.html":          static / "ferramentas" / "usinagem" / "guariroba.html",
+        "faturamento/dashboard.html":       static / "ferramentas" / "faturamento" / "dashboard.html",
+        "faturamento/Faturamento_2026.xlsx": instance_faturamento / "Faturamento 2026.xlsx",
+    }
+
+    pulled = 0
+    for key, local_path in targets.items():
+        data = r2.download(key)
+        if data:
+            local_path.write_bytes(data)
+            pulled += 1
+            click.echo(f"  ✓ {key}")
+
+    click.echo(f"R2-pull: {pulled}/{len(targets)} arquivo(s) restaurado(s).")
