@@ -20,7 +20,7 @@
 
 ## Nomenclatura das Ferramentas (Tom: Técnico/Descritivo)
 
-Nomes oficiais dentro do OBRIA — substituem os nomes provisórios:
+### Módulos do Sistema (fixos, toda organização tem acesso conforme plano)
 
 | Nome Atual | Nome OBRIA | URL |
 |---|---|---|
@@ -29,11 +29,48 @@ Nomes oficiais dentro do OBRIA — substituem os nomes provisórios:
 | Dashboard Abastecimento | **Controle de Combustível** | `/ferramentas/combustivel` |
 | Notas 037 (standalone) | **Notas de Medição (offline)** | `/ferramentas/notas` |
 | Notas (blueprint) | **Gerador de Notas de Medição** | `/notas` |
-| Dashboard Usinagem Geral | **Controle de Usinagem CBUQ** | `/usinagem/geral` |
-| Dashboard Guariroba | **Medição — Águas Guariroba** | `/usinagem/guariroba` |
-| Dashboard AEGEA | **Medição — AEGEA** | `/usinagem/aegea` |
 | Faturamento | **Gestão de Notas Fiscais** | `/faturamento` |
+| Usinagem | **Gestão de Insumos** | `/insumos` |
 | Viário | **Inspeção Viária** | `/viario` |
+
+### Painéis — Módulo Genérico de Dashboards
+
+**Conceito:** Dashboards não são mais vinculados a um módulo específico por nome. Toda organização tem uma seção **Painéis** (`/paineis`) que exibe os dashboards que ela configurou — com os nomes, cores e dados que fazem sentido para o seu contexto.
+
+```
+/paineis/                    ← galeria de painéis da organização
+/paineis/{slug}              ← painel individual (ex: /paineis/acompanhamento-aegea)
+/paineis/novo                ← ADMIN: criar novo painel
+/paineis/{slug}/configurar   ← ADMIN: editar painel
+```
+
+**Para a RIAL, os painéis configurados seriam:**
+
+| Slug | Nome do Painel | Fonte de Dados |
+|---|---|---|
+| `acompanhamento-aegea` | Acompanhamento AEGEA | Módulo Gestão de Insumos (filtro: AEGEA) |
+| `medicao-guariroba` | Medição Águas Guariroba | Módulo Gestão de Insumos (filtro: GUARIROBA) |
+| `controle-cbuq` | Controle Geral CBUQ | Módulo Gestão de Insumos (todos) |
+| `notas-fiscais` | Acompanhamento de Faturamento | Módulo Gestão de Notas Fiscais |
+
+**Para outra empresa (ex: construtora de pontes), os painéis seriam diferentes:**
+
+| Slug | Nome do Painel | Fonte de Dados |
+|---|---|---|
+| `consumo-aco` | Consumo de Aço | Módulo Gestão de Insumos |
+| `contratos-ativos` | Contratos Ativos | Módulo Gestão de Notas Fiscais |
+
+**Modelo no banco:**
+```python
+class Painel(db.Model):
+    id, org_id, slug, nome, descricao
+    modulo_fonte  # 'insumos' | 'faturamento' | 'viario' | 'producao'
+    filtros       # JSON: {"tipo": "AEGEA", "contrato": "..."} — filtra dados do módulo
+    config_visual # JSON: {"cor": "#003366", "icone": "📊", "ordem": 1}
+    ativo, criado_em, atualizado_em
+```
+
+**Regra:** A plataforma não sabe o que é "AEGEA" ou "Guariroba". Ela sabe que há dados de insumos com campo `regiao`. O admin da organização cria um painel, escolhe o módulo-fonte e define os filtros. O nome é livre.
 
 ---
 
