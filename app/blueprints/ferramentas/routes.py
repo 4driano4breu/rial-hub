@@ -1,6 +1,6 @@
 from datetime import date
 from flask import send_from_directory, current_app, render_template, jsonify, request
-from flask_login import current_user
+from flask_login import current_user, login_required
 from pathlib import Path
 from app.blueprints.ferramentas import ferramentas_bp
 from app.extensions import db, csrf
@@ -37,13 +37,14 @@ def notas_html():
 
 
 @csrf.exempt
+@login_required
 @ferramentas_bp.route("/api/producao", methods=["POST"])
 def api_producao():
     from app.models import OperacaoProducao, RegistroProducao
 
     payload = request.get_json(force=True, silent=True) or {}
     action = payload.get("action")
-    org_id = current_user.org_id if current_user.is_authenticated else 1
+    org_id = current_user.org_id
 
     if action == "ultimoTicket":
         last = (
@@ -76,7 +77,7 @@ def api_producao():
             ticket_inicio=ticket_ini,
             ticket_fim=ticket_fim,
             total_caminhoes=total,
-            criado_por=current_user.id if current_user.is_authenticated else None,
+            criado_por=current_user.id,
         )
         db.session.add(op)
         db.session.flush()

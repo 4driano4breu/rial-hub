@@ -2,7 +2,7 @@ import os
 import tempfile
 from pathlib import Path
 from flask import render_template, request, send_from_directory, current_app, flash, redirect, url_for
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from app.blueprints.faturamento import faturamento_bp
 from app.extensions import db
@@ -105,6 +105,7 @@ def regenerar_dashboard(notas_novas):
     r2.upload(_R2_DASH, dash_path.read_bytes(), "text/html; charset=utf-8")
 
 
+@login_required
 @faturamento_bp.route("/atualizar", methods=["POST"])
 def atualizar():
     import app.storage as r2

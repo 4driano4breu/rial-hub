@@ -3,7 +3,7 @@ import io
 import tempfile
 from pathlib import Path
 from flask import render_template, request, send_file, flash, redirect, url_for, session
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from app.blueprints.notas import notas_bp
 from app.blueprints.notas.logic import calcular_reajuste
@@ -49,6 +49,7 @@ def index():
     return redirect(url_for("ferramentas.notas_html"))
 
 
+@login_required
 @notas_bp.route("/gerar-medicao", methods=["POST"])
 def gerar_medicao():
     xlsx_file = request.files.get("xlsx")
@@ -89,6 +90,7 @@ def gerar_medicao():
                 pass
 
 
+@login_required
 @notas_bp.route("/gerar-reajuste", methods=["POST"])
 def gerar_reajuste():
     xlsx_file = request.files.get("xlsx")
