@@ -97,6 +97,10 @@ def create_app() -> Flask:
             return redirect(url_for("auth.login"))
         return render_template("index.html")
 
+    @app.route("/landing")
+    def landing():
+        return render_template("landing.html")
+
     # Proteger todas as rotas exceto auth e static
     @app.errorhandler(403)
     def forbidden(e):
@@ -105,7 +109,7 @@ def create_app() -> Flask:
     @app.before_request
     def require_login():
         from flask import request
-        public = {"auth.login", "auth.logout", "static"}
+        public = {"auth.login", "auth.logout", "static", "landing"}
         if request.endpoint and request.endpoint not in public:
             if not current_user.is_authenticated:
                 return redirect(url_for("auth.login"))
