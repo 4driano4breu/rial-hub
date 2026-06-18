@@ -1,7 +1,9 @@
+import csv
+import io
 import tempfile
 from datetime import date, datetime
 from pathlib import Path
-from flask import render_template, request, send_from_directory, current_app, flash, redirect, url_for, jsonify
+from flask import render_template, request, send_from_directory, current_app, flash, redirect, url_for, jsonify, Response
 from flask_login import current_user, login_required
 
 from app.blueprints.usinagem import usinagem_bp
@@ -20,8 +22,29 @@ def _dashboard_folder() -> Path:
     return Path(current_app.static_folder) / "ferramentas" / "usinagem"
 
 
-def _dashboard(filename: str):
-    return send_from_directory(_dashboard_folder(), filename)
+def _dashboard(name: str):
+    """Serve dashboard: tenta R2 primeiro (persiste entre deploys), fallback para static local."""
+    import app.storage as r2
+    r2_key = _R2_FILES.get(name)
+    if r2_key:
+        data = r2.download(r2_key)
+        if data:
+            return Response(data, content_type="text/html; charset=utf-8")
+    return send_from_directory(_dashboard_folder(), f"{name}.html")
+
+
+def _xlsx_to_csv_path(xlsx_bytes: bytes) -> str:
+    """Converte XLSX em CSV temporário e retorna o caminho."""
+    import openpyxl
+    wb = openpyxl.load_workbook(io.BytesIO(xlsx_bytes), data_only=True)
+    ws = wb.active
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="w",
+                                      encoding="utf-8-sig", newline="")
+    writer = csv.writer(tmp)
+    for row in ws.iter_rows(values_only=True):
+        writer.writerow(["" if v is None else str(v) for v in row])
+    tmp.close()
+    return tmp.name
 
 
 def _parse_data(val: str):
@@ -93,17 +116,17 @@ def index():
 
 @usinagem_bp.route("/geral")
 def geral():
-    return _dashboard("geral.html")
+    return _dashboard("geral")
 
 
 @usinagem_bp.route("/aegea")
 def aegea():
-    return _dashboard("aegea.html")
+    return _dashboard("aegea")
 
 
 @usinagem_bp.route("/guariroba")
 def guariroba():
-    return _dashboard("guariroba.html")
+    return _dashboard("guariroba")
 
 
 @login_required
@@ -162,15 +185,28 @@ def sincronizar():
 def atualizar():
     import app.storage as r2
 
-    csv_file = request.files.get("csv")
-    if not csv_file or not csv_file.filename.endswith(".csv"):
-        flash("Envie um arquivo .csv exportado do Google Sheets.", "error")
+    upload_file = request.files.get("csv")
+    if not upload_file or not upload_file.filename:
+        flash("Selecione um arquivo .csv ou .xlsx.", "error")
         return redirect(url_for("usinagem.index"))
 
-    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".csv")
-    tmp.write(csv_file.read())
-    tmp.close()
-    csv_path = Path(tmp.name)
+    fname = upload_file.filename.lower()
+    raw = upload_file.read()
+
+    if fname.endswith(".xlsx"):
+        try:
+            csv_path = Path(_xlsx_to_csv_path(raw))
+        except Exception as e:
+            flash(f"Erro ao converter XLSX: {e}", "error")
+            return redirect(url_for("usinagem.index"))
+    elif fname.endswith(".csv"):
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".csv")
+        tmp.write(raw)
+        tmp.close()
+        csv_path = Path(tmp.name)
+    else:
+        flash("Formato inválido. Envie um arquivo .csv ou .xlsx.", "error")
+        return redirect(url_for("usinagem.index"))
 
     try:
         from app.blueprints.usinagem import updater as _upd
@@ -187,15 +223,19 @@ def atualizar():
         _upd.atualizar_guariroba(guariroba)
         _upd.atualizar_geral(todas)
 
-        # Persiste dashboards atualizados no R2
+        from core.timestamps import salvar_timestamp
+        salvar_timestamp("usinagem")
+
+        # Persiste dashboards no R2 (ignorado se R2 não configurado ou sem permissão)
+        r2_ok = True
         folder = _dashboard_folder()
         for name, r2_key in _R2_FILES.items():
             local = folder / f"{name}.html"
             if local.exists():
-                r2.upload(r2_key, local.read_bytes(), "text/html; charset=utf-8")
-
-        from core.timestamps import salvar_timestamp
-        salvar_timestamp("usinagem")
+                try:
+                    r2.upload(r2_key, local.read_bytes(), "text/html; charset=utf-8")
+                except Exception:
+                    r2_ok = False
 
         # Persiste registros no banco também
         try:
@@ -213,7 +253,8 @@ def atualizar():
                     "contrato":    "",
                 })
             novos = _salvar_registros_db(linhas_db, org_id)
-            flash(f"Dashboards atualizados: {len(todas)} registros (AEGEA: {len(aegea)}, Guariroba: {len(guariroba)}). {novos} novos no banco.", "ok")
+            r2_aviso = "" if r2_ok else " ⚠ R2 indisponível — dashboards ativos até próximo redeploy."
+            flash(f"Dashboards atualizados: {len(todas)} registros (AEGEA: {len(aegea)}, Guariroba: {len(guariroba)}). {novos} novos no banco.{r2_aviso}", "ok")
         except Exception as db_err:
             flash(f"Dashboards atualizados, mas erro ao salvar no banco: {db_err}", "error")
     except Exception as e:

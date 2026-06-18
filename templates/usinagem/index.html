@@ -67,17 +67,17 @@
 </div>
 {% endif %}
 
-<!-- Atualizar via CSV -->
-<div class="section-title">Atualizar via CSV (fallback)</div>
+<!-- Atualizar via CSV/XLSX -->
+<div class="section-title">Atualizar via planilha</div>
 <div class="upload-card">
   <form method="POST" action="{{ url_for('usinagem.atualizar') }}" enctype="multipart/form-data">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="field">
-      <label for="csv-input">CSV do Google Sheets (File &rarr; Download &rarr; CSV)</label>
-      <input id="csv-input" type="file" name="csv" accept=".csv" required>
+      <label for="csv-input">Planilha CSV ou XLSX (Google Sheets: File &rarr; Download)</label>
+      <input id="csv-input" type="file" name="csv" accept=".csv,.xlsx" required>
     </div>
     <div class="hint">
-      O upload regenera os 3 dashboards e salva os registros no banco automaticamente.
+      Aceita <strong>.csv</strong> e <strong>.xlsx</strong>. Regenera os 3 dashboards e salva no banco automaticamente.
     </div>
     <div>
       <button type="submit" class="btn btn-success">&#11014; Atualizar</button>
