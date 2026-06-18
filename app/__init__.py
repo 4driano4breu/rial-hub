@@ -82,14 +82,16 @@ def create_app() -> Flask:
     from app.blueprints.faturamento import faturamento_bp
     from app.blueprints.usinagem import usinagem_bp
     from app.blueprints.ferramentas import ferramentas_bp
+    from app.blueprints.equipamentos import equipamentos_bp
 
     from app.blueprints.admin import admin_bp
 
-    app.register_blueprint(notas_bp,       url_prefix="/notas")
-    app.register_blueprint(faturamento_bp, url_prefix="/faturamento")
-    app.register_blueprint(usinagem_bp,    url_prefix="/usinagem")
-    app.register_blueprint(ferramentas_bp, url_prefix="/ferramentas")
-    app.register_blueprint(admin_bp,       url_prefix="/admin")
+    app.register_blueprint(notas_bp,        url_prefix="/notas")
+    app.register_blueprint(faturamento_bp,  url_prefix="/faturamento")
+    app.register_blueprint(usinagem_bp,     url_prefix="/usinagem")
+    app.register_blueprint(ferramentas_bp,  url_prefix="/ferramentas")
+    app.register_blueprint(equipamentos_bp, url_prefix="/equipamentos")
+    app.register_blueprint(admin_bp,        url_prefix="/admin")
 
     @app.route("/")
     def index():
@@ -109,7 +111,8 @@ def create_app() -> Flask:
     @app.before_request
     def require_login():
         from flask import request
-        public = {"auth.login", "auth.logout", "static", "landing"}
+        public = {"auth.login", "auth.logout", "static", "landing",
+                  "equipamentos.mobile_checklist", "equipamentos.mobile_obrigado"}
         if request.endpoint and request.endpoint not in public:
             if not current_user.is_authenticated:
                 return redirect(url_for("auth.login"))
@@ -151,6 +154,7 @@ def _seed_command():
     )
     db.session.add(admin)
     db.session.commit()
+    _seed_template_retro(rial.id)
     click.echo(f"✓ Organização '{rial.name}' e usuário '{admin_email}' criados.")
 
 
@@ -187,7 +191,38 @@ def _seed_auto_command():
     )
     db.session.add(admin)
     db.session.commit()
+    _seed_template_retro(rial.id)
     click.echo(f"✓ Seed-auto: organização 'RIAL Construtora' e usuário '{admin_email}' criados.")
+
+
+def _seed_template_retro(org_id):
+    """Cria o template de checklist da Retroescavadeira JCB 3CX se não existir."""
+    from app.models import ChecklistTemplate
+
+    if ChecklistTemplate.query.filter_by(org_id=org_id).first():
+        return
+
+    tmpl = ChecklistTemplate(org_id=org_id, nome="Retroescavadeira JCB 3CX", itens=[
+        {"id": "oleo_motor", "categoria": "Fluidos", "descricao": "Nível de óleo do motor", "tipo": "ok_nao_ok", "obrigatorio": True},
+        {"id": "fluido_hidra", "categoria": "Fluidos", "descricao": "Nível do fluido hidráulico", "tipo": "ok_nao_ok", "obrigatorio": True},
+        {"id": "combustivel", "categoria": "Fluidos", "descricao": "Nível de combustível (%)", "tipo": "numero", "obrigatorio": True, "unidade": "%"},
+        {"id": "agua_radiador", "categoria": "Fluidos", "descricao": "Nível da água do radiador", "tipo": "ok_nao_ok", "obrigatorio": True},
+        {"id": "pressao_diant", "categoria": "Pneus", "descricao": "Pressão dianteira esq./dir. (bar)", "tipo": "numero", "obrigatorio": False, "unidade": "bar"},
+        {"id": "pressao_tras", "categoria": "Pneus", "descricao": "Pressão traseira esq./dir. (bar)", "tipo": "numero", "obrigatorio": False, "unidade": "bar"},
+        {"id": "freios", "categoria": "Segurança", "descricao": "Freios funcionando", "tipo": "ok_nao_ok", "obrigatorio": True},
+        {"id": "sinal_re", "categoria": "Segurança", "descricao": "Sinal sonoro de ré", "tipo": "ok_nao_ok", "obrigatorio": True},
+        {"id": "extintor", "categoria": "Segurança", "descricao": "Extintor de incêndio", "tipo": "ok_nao_ok", "obrigatorio": True},
+        {"id": "cinto", "categoria": "Segurança", "descricao": "Cinto de segurança", "tipo": "ok_nao_ok", "obrigatorio": True},
+        {"id": "farois", "categoria": "Iluminação", "descricao": "Faróis dianteiros", "tipo": "ok_nao_ok", "obrigatorio": True},
+        {"id": "luz_re", "categoria": "Iluminação", "descricao": "Luz de ré", "tipo": "ok_nao_ok", "obrigatorio": True},
+        {"id": "vazamentos", "categoria": "Visual", "descricao": "Vazamentos visíveis", "tipo": "ok_nao_ok", "obrigatorio": True},
+        {"id": "cacamba", "categoria": "Visual", "descricao": "Condição da caçamba", "tipo": "ok_nao_ok", "obrigatorio": False},
+        {"id": "espelhos", "categoria": "Visual", "descricao": "Espelhos retrovisores", "tipo": "ok_nao_ok", "obrigatorio": True},
+        {"id": "foto_geral", "categoria": "Registro", "descricao": "Foto geral da máquina", "tipo": "foto", "obrigatorio": False},
+        {"id": "obs", "categoria": "Registro", "descricao": "Observações do operador", "tipo": "texto", "obrigatorio": False},
+    ])
+    db.session.add(tmpl)
+    db.session.commit()
 
 
 @click.command("r2-pull")

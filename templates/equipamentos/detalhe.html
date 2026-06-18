@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}OBRIA — {{ equip.nome }}{% endblock %}
+{% block nav_cur %}{{ equip.nome }}{% endblock %}
+
+{% block head %}
+<style>
+.eq-pill { display:inline-flex; align-items:center; gap:5px; font-size:.78rem; font-weight:600; padding:4px 12px; border-radius:20px; }
+.eq-pill.st-EM_DIA   { background:#16a34a20; color:#4ade80; border:1px solid #16a34a40; }
+.eq-pill.st-ATENCAO  { background:#d9770620; color:#fbbf24; border:1px solid #d9770640; }
+.eq-pill.st-CRITICO  { background:#dc262620; color:#f87171; border:1px solid #dc262640; }
+.heatmap { display:grid; grid-template-columns:repeat(auto-fill, 14px); gap:3px; max-width:max-content; }
+.hm-cell { width:12px; height:12px; border-radius:2px; background:#334155; }
+.hm-cell.feito { background:#16a34a; }
+.hm-cell.fds   { background:#1e293b; border:1px solid #334155; }
+.hm-cell.falta { background:#dc2626; }
+.hm-legend { display:flex; gap:16px; flex-wrap:wrap; margin-top:12px; font-size:.74rem; color:var(--muted); }
+.hm-legend span { display:inline-flex; align-items:center; gap:6px; }
+.hm-dot { width:11px; height:11px; border-radius:2px; display:inline-block; }
+.streak-big { font-size:2.2rem; font-weight:800; color:var(--text); line-height:1; }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('equipamentos.index') }}" class="btn btn-ghost btn-sm mb-lg">← Equipamentos</a>
+
+<div class="flex-between mb-lg" style="flex-wrap:wrap; gap:14px">
+  <div>
+    <h1>{{ equip.nome }}</h1>
+    <div class="text-muted text-sm">{{ equip.tipo or '—' }}{% if equip.modelo %} · {{ equip.modelo }}{% endif %}</div>
+  </div>
+  <div class="flex gap-sm">
+    <a href="{{ url_for('equipamentos.mobile_checklist', equip_id=equip.id) }}" class="btn btn-success" target="_blank">📋 Preencher Checklist</a>
+    <form method="post" action="{{ url_for('equipamentos.excluir', equip_id=equip.id) }}" onsubmit="return confirm('Excluir esta máquina e todo o histórico? Esta ação não pode ser desfeita.');" style="display:inline">
+      <button type="submit" class="btn btn-danger">Excluir</button>
+    </form>
+  </div>
+</div>
+
+<div class="grid-2 mb-xl">
+  <div class="card">
+    <div class="card-body">
+      <div class="card-title-sm">Dados do equipamento</div>
+      <div class="info-row" style="margin-bottom:0">
+        <div class="info-item"><div class="info-label">Tipo</div><div class="info-val">{{ equip.tipo or '—' }}</div></div>
+        <div class="info-item"><div class="info-label">Modelo</div><div class="info-val">{{ equip.modelo or '—' }}</div></div>
+        <div class="info-item"><div class="info-label">Ano</div><div class="info-val">{{ equip.ano or '—' }}</div></div>
+        <div class="info-item"><div class="info-label">Placa</div><div class="info-val">{{ equip.placa or '—' }}</div></div>
+        <div class="info-item"><div class="info-label">Nº de série</div><div class="info-val">{{ equip.numero_serie or '—' }}</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body flex" style="align-items:center; gap:24px; height:100%">
+      <div>
+        <div class="card-title-sm">Status atual</div>
+        <span class="eq-pill st-{{ status.status }}">● {{ status.status.replace('_',' ')|title }}</span>
+      </div>
+      <div>
+        <div class="card-title-sm">Streak</div>
+        <div class="streak-big">{{ status.streak }}</div>
+        <div class="text-xs text-muted">dias seguidos</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-xl">
+  <div class="card-body">
+    <div class="card-title-sm">Últimos 90 dias</div>
+    <div class="heatmap">
+      {% for d in dias %}
+      <div class="hm-cell {% if d.feito %}feito{% elif d.fim_semana %}fds{% else %}falta{% endif %}" title="{{ d.data.isoformat() }}{% if d.feito %} — feito{% elif d.fim_semana %} — fim de semana{% else %} — sem checklist{% endif %}"></div>
+      {% endfor %}
+    </div>
+    <div class="hm-legend">
+      <span><i class="hm-dot" style="background:#16a34a"></i> Feito</span>
+      <span><i class="hm-dot" style="background:#dc2626"></i> Dia útil sem checklist</span>
+      <span><i class="hm-dot" style="background:#1e293b;border:1px solid #334155"></i> Fim de semana</span>
+    </div>
+  </div>
+</div>
+
+<div class="section-title">Histórico (últimos 30)</div>
+{% if historico %}
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr><th>Data</th><th>Status</th><th>Operador</th></tr>
+    </thead>
+    <tbody>
+      {% for h in historico %}
+      <tr>
+        <td>{{ h.data.strftime('%d/%m/%Y') if h.data else '—' }}</td>
+        <td>{% if h.status %}<span class="eq-pill st-{{ h.status }}">{{ h.status.replace('_',' ')|title }}</span>{% else %}—{% endif %}</td>
+        <td>{{ h.operador or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="info-box">Nenhum checklist preenchido ainda.</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}OBRIA — Nova Máquina{% endblock %}
+{% block nav_cur %}Nova Máquina{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('equipamentos.index') }}" class="btn btn-ghost btn-sm mb-lg">← Equipamentos</a>
+
+<h1 class="mb-lg">Nova Máquina</h1>
+
+<form method="post" action="{{ url_for('equipamentos.novo') }}">
+  <div class="form-card" style="max-width:640px">
+    <div class="field">
+      <label for="nome">Nome *</label>
+      <input type="text" id="nome" name="nome" required placeholder="Ex: Retro 01">
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="tipo">Tipo</label>
+        <input type="text" id="tipo" name="tipo" placeholder="Ex: Retroescavadeira">
+      </div>
+      <div class="field">
+        <label for="modelo">Modelo</label>
+        <input type="text" id="modelo" name="modelo" placeholder="Ex: JCB 3CX">
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="ano">Ano</label>
+        <input type="number" id="ano" name="ano" min="1900" max="2100" placeholder="Ex: 2021">
+      </div>
+      <div class="field">
+        <label for="numero_serie">Número de série</label>
+        <input type="text" id="numero_serie" name="numero_serie">
+      </div>
+    </div>
+    <div class="field">
+      <label for="placa">Placa <span class="text-muted">(opcional)</span></label>
+      <input type="text" id="placa" name="placa">
+    </div>
+    <div class="field">
+      <label for="template_id">Template de checklist</label>
+      <select id="template_id" name="template_id">
+        <option value="">— Sem template —</option>
+        {% for t in templates %}
+        <option value="{{ t.id }}">{{ t.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">Salvar</button>
+      <a href="{{ url_for('equipamentos.index') }}" class="btn btn-ghost">Cancelar</a>
+    </div>
+  </div>
+</form>
+{% endblock %}

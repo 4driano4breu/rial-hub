@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}OBRIA — Gestão de Equipamentos{% endblock %}
+{% block nav_cur %}Equipamentos{% endblock %}
+
+{% block head %}
+<style>
+.eq-card { border-left: 3px solid var(--border); }
+.eq-card.st-EM_DIA   { border-left-color: #16a34a; }
+.eq-card.st-ATENCAO  { border-left-color: #d97706; }
+.eq-card.st-CRITICO  { border-left-color: #dc2626; }
+.eq-pill { display:inline-flex; align-items:center; gap:5px; font-size:.7rem; font-weight:600; padding:3px 9px; border-radius:20px; }
+.eq-pill.st-EM_DIA   { background:#16a34a20; color:#4ade80; border:1px solid #16a34a40; }
+.eq-pill.st-ATENCAO  { background:#d9770620; color:#fbbf24; border:1px solid #d9770640; }
+.eq-pill.st-CRITICO  { background:#dc262620; color:#f87171; border:1px solid #dc262640; }
+.eq-meta { font-size:.78rem; color:var(--muted); }
+.eq-streak { font-size:1.4rem; font-weight:800; color:var(--text); line-height:1; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="module-header">
+  <div class="module-icon">🚜</div>
+  <div>
+    <div class="module-title">Gestão de Equipamentos</div>
+    <div class="module-sub">Checklists diários e saúde da frota</div>
+  </div>
+</div>
+
+<div class="flex gap-sm mb-xl">
+  <a href="{{ url_for('equipamentos.novo') }}" class="btn btn-primary">+ Nova Máquina</a>
+  <a href="{{ url_for('equipamentos.templates_lista') }}" class="btn btn-ghost">Templates</a>
+</div>
+
+{% if cards %}
+<div class="grid-3">
+  {% for c in cards %}
+  <div class="dash-card eq-card st-{{ c.status }}">
+    <div class="flex-between">
+      <span class="eq-pill st-{{ c.status }}">● {{ c.status.replace('_',' ')|title }}</span>
+      <div style="text-align:right">
+        <div class="eq-streak">{{ c.streak }}</div>
+        <div class="text-xs text-muted">dias seguidos</div>
+      </div>
+    </div>
+    <h3>{{ c.equip.nome }}</h3>
+    <div class="eq-meta">
+      {% if c.equip.tipo %}{{ c.equip.tipo }}{% endif %}
+      {% if c.equip.modelo %} · {{ c.equip.modelo }}{% endif %}
+    </div>
+    <div class="eq-meta">
+      Última: {% if c.ultima %}{{ c.ultima.strftime('%d/%m/%Y') }}{% else %}—{% endif %}
+      {% if c.dias_atraso and c.dias_atraso > 0 %}<span style="color:#f87171"> · {{ c.dias_atraso }}d atraso</span>{% endif %}
+    </div>
+    <div class="flex gap-sm" style="margin-top:auto">
+      <a href="{{ url_for('equipamentos.detalhe', equip_id=c.equip.id) }}" class="btn btn-ghost btn-sm">Ver detalhe →</a>
+      <a href="{{ url_for('equipamentos.mobile_checklist', equip_id=c.equip.id) }}" class="btn btn-success btn-sm" target="_blank">📋 Checklist</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="info-box info-box-accent">
+  <strong>Nenhuma máquina cadastrada.</strong><br>
+  Crie a primeira clicando em <strong>+ Nova Máquina</strong>.
+</div>
+{% endif %}
+{% endblock %}

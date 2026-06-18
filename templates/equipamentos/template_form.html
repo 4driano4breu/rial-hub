@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}OBRIA — Template de Checklist{% endblock %}
+{% block nav_cur %}{{ template.nome if template else 'Novo Template' }}{% endblock %}
+
+{% block head %}
+<style>
+.item-row { display:grid; grid-template-columns: 1fr 2fr 140px 80px 36px; gap:10px; align-items:end; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-md); padding:12px; margin-bottom:10px; }
+.item-row .field { margin-bottom:0; }
+.item-row label { font-size:.72rem; }
+.item-chk { display:flex; align-items:center; justify-content:center; padding-bottom:9px; }
+.item-del { background:transparent; border:1px solid var(--border); color:#f87171; border-radius:8px; height:40px; cursor:pointer; font-size:1rem; }
+.item-del:hover { border-color:#dc2626; }
+@media (max-width: 760px) { .item-row { grid-template-columns: 1fr 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('equipamentos.templates_lista') }}" class="btn btn-ghost btn-sm mb-lg">← Templates</a>
+
+<h1 class="mb-lg">{{ template.nome if template else 'Novo Template' }}</h1>
+
+<form method="post" id="tplForm">
+  <div class="form-card mb-lg" style="max-width:760px">
+    <div class="field">
+      <label for="nome">Nome do template *</label>
+      <input type="text" id="nome" name="nome" required value="{{ template.nome if template else '' }}" placeholder="Ex: Checklist Retroescavadeira">
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title" style="border:0; margin:0; padding:0">Itens do checklist</div>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="addItem()">+ Adicionar Item</button>
+  </div>
+
+  <div id="itensWrap"></div>
+  <div id="itensEmpty" class="info-box" style="display:none">Nenhum item ainda. Clique em <strong>+ Adicionar Item</strong>.</div>
+
+  <input type="hidden" name="itens_json" id="itens_json">
+
+  <div class="actions">
+    <button type="submit" class="btn btn-primary" onclick="serialize()">Salvar</button>
+    <a href="{{ url_for('equipamentos.templates_lista') }}" class="btn btn-ghost">Cancelar</a>
+  </div>
+</form>
+
+<template id="rowTpl">
+  <div class="item-row">
+    <div class="field">
+      <label>Categoria</label>
+      <input type="text" class="i-cat" placeholder="Ex: Motor">
+    </div>
+    <div class="field">
+      <label>Descrição</label>
+      <input type="text" class="i-desc" placeholder="Ex: Nível do óleo">
+    </div>
+    <div class="field">
+      <label>Tipo</label>
+      <select class="i-tipo">
+        <option value="ok_nao_ok">OK / Não OK</option>
+        <option value="numero">Número</option>
+        <option value="texto">Texto</option>
+        <option value="foto">Foto</option>
+      </select>
+    </div>
+    <div class="item-chk">
+      <label class="toggle-row" style="margin:0"><input type="checkbox" class="i-obr" checked> <span style="font-size:.72rem">Obrig.</span></label>
+    </div>
+    <button type="button" class="item-del" onclick="this.closest('.item-row').remove();refreshEmpty()" title="Remover">✕</button>
+  </div>
+</template>
+
+<script>
+const existing = {{ (template.itens if template and template.itens else [])|tojson }};
+
+function addItem(data) {
+  const tpl = document.getElementById('rowTpl').content.cloneNode(true);
+  if (data) {
+    tpl.querySelector('.i-cat').value  = data.categoria || '';
+    tpl.querySelector('.i-desc').value = data.descricao || '';
+    tpl.querySelector('.i-tipo').value = data.tipo || 'ok_nao_ok';
+    tpl.querySelector('.i-obr').checked = data.obrigatorio !== false;
+  }
+  document.getElementById('itensWrap').appendChild(tpl);
+  refreshEmpty();
+}
+
+function refreshEmpty() {
+  const has = document.querySelectorAll('#itensWrap .item-row').length > 0;
+  document.getElementById('itensEmpty').style.display = has ? 'none' : 'block';
+}
+
+function serialize() {
+  const itens = [];
+  document.querySelectorAll('#itensWrap .item-row').forEach(row => {
+    const desc = row.querySelector('.i-desc').value.trim();
+    if (!desc) return;
+    itens.push({
+      categoria:   row.querySelector('.i-cat').value.trim(),
+      descricao:   desc,
+      tipo:        row.querySelector('.i-tipo').value,
+      obrigatorio: row.querySelector('.i-obr').checked
+    });
+  });
+  document.getElementById('itens_json').value = JSON.stringify(itens);
+}
+
+document.getElementById('tplForm').addEventListener('submit', serialize);
+(existing || []).forEach(addItem);
+refreshEmpty();
+</script>
+{% endblock %}

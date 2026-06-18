@@ -124,3 +124,54 @@ class RegistroProducao(db.Model):
     tara        = db.Column(db.Numeric(10, 3))
     peso        = db.Column(db.Numeric(10, 3))
     regiao      = db.Column(db.String(80))
+
+
+class ChecklistTemplate(db.Model):
+    __tablename__ = "checklist_template"
+
+    id           = db.Column(db.Integer, primary_key=True)
+    org_id       = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=False)
+    nome         = db.Column(db.String(120), nullable=False)
+    itens        = db.Column(db.JSON, nullable=False, default=list)
+    criado_em    = db.Column(db.DateTime, default=datetime.utcnow)
+
+    equipamentos = db.relationship("Equipamento", backref="template", lazy=True)
+
+
+class Equipamento(db.Model):
+    __tablename__ = "equipamento"
+
+    id           = db.Column(db.Integer, primary_key=True)
+    org_id       = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=False)
+    nome         = db.Column(db.String(120), nullable=False)
+    tipo         = db.Column(db.String(60))
+    modelo       = db.Column(db.String(120))
+    ano          = db.Column(db.Integer)
+    numero_serie = db.Column(db.String(80))
+    placa        = db.Column(db.String(20))
+    foto_url     = db.Column(db.String(500))
+    template_id  = db.Column(db.Integer, db.ForeignKey("checklist_template.id"), nullable=True)
+    ativo        = db.Column(db.Boolean, default=True)
+    criado_em    = db.Column(db.DateTime, default=datetime.utcnow)
+
+    execucoes    = db.relationship("ChecklistExecucao", backref="equipamento", lazy=True)
+
+
+class ChecklistExecucao(db.Model):
+    __tablename__ = "checklist_execucao"
+
+    id             = db.Column(db.Integer, primary_key=True)
+    org_id         = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=False)
+    equipamento_id = db.Column(db.Integer, db.ForeignKey("equipamento.id"), nullable=False)
+    template_id    = db.Column(db.Integer, db.ForeignKey("checklist_template.id"), nullable=False)
+    operador_id    = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    data_execucao  = db.Column(db.Date, nullable=False)
+    respostas      = db.Column(db.JSON, nullable=False, default=dict)
+    status         = db.Column(db.String(20), default="COMPLETO")  # COMPLETO | COM_PENDENCIA
+    latitude       = db.Column(db.Float, nullable=True)
+    longitude      = db.Column(db.Float, nullable=True)
+    criado_em      = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint("equipamento_id", "data_execucao", name="uq_checklist_por_dia"),
+    )

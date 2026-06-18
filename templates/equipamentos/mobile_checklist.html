@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Checklist — {{ equip.nome }}</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  body { background:#0f172a; color:#f1f5f9; font-family:"Segoe UI",system-ui,sans-serif; padding:18px 16px 96px; line-height:1.5; }
+  .head { margin-bottom:20px; }
+  .mname { font-size:1.6rem; font-weight:800; }
+  .msub { color:#94a3b8; font-size:.95rem; margin-top:4px; }
+  .cat { font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:#94a3b8; font-weight:700; margin:24px 0 10px; border-bottom:1px solid #334155; padding-bottom:6px; }
+  .item { background:#1e293b; border:1px solid #334155; border-radius:12px; padding:16px; margin-bottom:12px; }
+  .item-label { font-size:1rem; font-weight:600; margin-bottom:12px; }
+  .item-label .req { color:#f87171; }
+  .okrow { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .okbtn { padding:16px; border-radius:10px; border:2px solid #334155; background:#0f172a; color:#f1f5f9; font-size:1rem; font-weight:700; cursor:pointer; text-align:center; }
+  .okbtn.sel-ok  { border-color:#16a34a; background:#16a34a25; color:#4ade80; }
+  .okbtn.sel-nok { border-color:#dc2626; background:#dc262625; color:#f87171; }
+  input[type=number], textarea { width:100%; background:#0f172a; border:1px solid #334155; border-radius:10px; color:#f1f5f9; padding:14px; font-size:16px; font-family:inherit; }
+  input[type=file] { width:100%; background:#0f172a; border:1px solid #334155; border-radius:10px; color:#f1f5f9; padding:14px; font-size:16px; }
+  textarea { resize:vertical; min-height:80px; }
+  .unit { color:#94a3b8; font-size:.85rem; margin-top:6px; }
+  .submit-bar { position:fixed; left:0; right:0; bottom:0; padding:14px 16px; background:#0f172a; border-top:1px solid #334155; }
+  .submit-btn { width:100%; padding:18px; border:none; border-radius:12px; background:#16a34a; color:#fff; font-size:1.1rem; font-weight:800; cursor:pointer; }
+  .submit-btn:active { background:#15803d; }
+  .geo { font-size:.78rem; color:#64748b; margin-top:8px; text-align:center; }
+</style>
+</head>
+<body>
+<form method="post" action="{{ url_for('equipamentos.mobile_checklist', equip_id=equip.id) }}" enctype="multipart/form-data">
+  <div class="head">
+    <div class="mname">{{ equip.nome }}</div>
+    <div class="msub">{{ equip.tipo or '' }}{% if equip.modelo %} · {{ equip.modelo }}{% endif %}</div>
+    <div class="msub" id="hoje"></div>
+  </div>
+
+  {% if not tmpl %}
+  <div style="background:#1e293b;border:1px solid #475569;border-radius:12px;padding:24px;text-align:center;color:#94a3b8;">
+    Nenhum template de checklist configurado para esta máquina.<br>
+    <a href="/" style="color:#3b82f6">Voltar ao início</a>
+  </div>
+  {% else %}
+  {% set ns = namespace(cat=None) %}
+  {% for item in tmpl.itens %}
+    {% if item.categoria and item.categoria != ns.cat %}
+      {% set ns.cat = item.categoria %}
+      <div class="cat">{{ item.categoria }}</div>
+    {% endif %}
+    <div class="item">
+      <div class="item-label">{{ item.descricao }}{% if item.obrigatorio %} <span class="req">*</span>{% endif %}</div>
+
+      {% if item.tipo == 'ok_nao_ok' %}
+        <input type="hidden" name="item_{{ item.id }}" id="inp_{{ item.id }}" {% if item.obrigatorio %}required{% endif %}>
+        <div class="okrow">
+          <div class="okbtn" data-target="inp_{{ item.id }}" data-val="OK" onclick="pick(this)">✅ OK</div>
+          <div class="okbtn" data-target="inp_{{ item.id }}" data-val="NAO_OK" onclick="pick(this)">❌ Não OK</div>
+        </div>
+      {% elif item.tipo == 'numero' %}
+        <input type="number" step="any" name="item_{{ item.id }}" {% if item.obrigatorio %}required{% endif %} inputmode="decimal">
+        {% if item.unidade %}<div class="unit">{{ item.unidade }}</div>{% endif %}
+      {% elif item.tipo == 'foto' %}
+        <input type="file" name="item_{{ item.id }}" accept="image/*" capture="environment" {% if item.obrigatorio %}required{% endif %}>
+      {% else %}
+        <textarea name="item_{{ item.id }}" {% if item.obrigatorio %}required{% endif %} placeholder="Observação..."></textarea>
+      {% endif %}
+    </div>
+  {% endfor %}
+  {% endif %}
+
+  <input type="hidden" name="lat" id="lat">
+  <input type="hidden" name="lon" id="lon">
+  <div class="geo" id="geoMsg">📍 Obtendo localização...</div>
+
+  <div class="submit-bar">
+    <button type="submit" class="submit-btn">Enviar Checklist</button>
+  </div>
+</form>
+
+<script>
+document.getElementById('hoje').textContent = new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
+
+function pick(el) {
+  const target = document.getElementById(el.dataset.target);
+  const val = el.dataset.val;
+  target.value = val;
+  el.parentElement.querySelectorAll('.okbtn').forEach(b => b.classList.remove('sel-ok','sel-nok'));
+  el.classList.add(val === 'OK' ? 'sel-ok' : 'sel-nok');
+}
+
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    p => {
+      document.getElementById('lat').value = p.coords.latitude;
+      document.getElementById('lon').value = p.coords.longitude;
+      document.getElementById('geoMsg').textContent = '📍 Localização registrada';
+    },
+    () => { document.getElementById('geoMsg').textContent = '📍 Localização indisponível'; },
+    { timeout: 8000 }
+  );
+} else {
+  document.getElementById('geoMsg').textContent = '';
+}
+</script>
+</body>
+</html>

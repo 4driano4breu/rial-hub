@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}OBRIA — Templates de Checklist{% endblock %}
+{% block nav_cur %}Templates{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('equipamentos.index') }}" class="btn btn-ghost btn-sm mb-lg">← Equipamentos</a>
+
+<div class="flex-between mb-lg">
+  <h1>Templates de Checklist</h1>
+  <a href="{{ url_for('equipamentos.template_novo') }}" class="btn btn-primary">+ Novo Template</a>
+</div>
+
+{% if templates %}
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr><th>Nome</th><th>Itens</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for t in templates %}
+      <tr>
+        <td><strong>{{ t.nome }}</strong></td>
+        <td>{{ t.itens|length if t.itens is not none else 0 }} {{ 'item' if (t.itens|length if t.itens is not none else 0) == 1 else 'itens' }}</td>
+        <td style="text-align:right">
+          <a href="{{ url_for('equipamentos.template_editar', template_id=t.id) }}" class="btn btn-ghost btn-sm">Editar</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="info-box info-box-accent">
+  <strong>Nenhum template ainda.</strong><br>
+  Templates definem os itens que o operador verifica no checklist (níveis, pneus, vazamentos, etc).
+  Crie o primeiro em <strong>+ Novo Template</strong>.
+</div>
+{% endif %}
+{% endblock %}
