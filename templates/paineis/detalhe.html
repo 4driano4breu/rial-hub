@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ painel.nome }} — Painéis{% endblock %}
+{% block nav_cur %}Painéis{% endblock %}
+
+{% block content %}
+{% set icone = (painel.config_visual or {}).get('icone', '📊') %}
+{% set cor = (painel.config_visual or {}).get('cor', '#3b82f6') %}
+
+<a href="{{ url_for('paineis.index') }}" class="btn btn-ghost btn-sm mb-lg">← Painéis</a>
+
+<div class="module-header">
+  <div class="module-icon">{{ icone }}</div>
+  <div>
+    <div class="module-title">{{ painel.nome }}</div>
+    {% if painel.descricao %}
+    <div class="module-sub">{{ painel.descricao }}</div>
+    {% endif %}
+  </div>
+  {% if current_user.has_role("ADMIN","SUPERADMIN") %}
+  <a href="{{ url_for('paineis.configurar', slug=painel.slug) }}" class="btn btn-ghost btn-sm" style="margin-left:auto">Configurar</a>
+  {% endif %}
+</div>
+
+<div class="card" style="padding:40px;text-align:center;color:var(--muted)">
+  <div style="font-size:2.5rem;margin-bottom:12px">🚧</div>
+  <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px;color:var(--text)">Dashboard em construção</div>
+  <div style="font-size:.9rem">Módulo: <strong style="color:var(--text)">{{ painel.modulo_fonte }}</strong></div>
+  {% if painel.filtros %}
+  <div style="font-size:.85rem;margin-top:8px;font-family:monospace">Filtros: {{ painel.filtros | tojson }}</div>
+  {% endif %}
+</div>
+{% endblock %}

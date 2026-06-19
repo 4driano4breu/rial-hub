@@ -246,3 +246,23 @@ class InviteToken(db.Model):
     expires_at = db.Column(db.DateTime, nullable=False)
     criado_por = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     criado_em  = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class Painel(db.Model):
+    __tablename__ = "paineis"
+
+    id            = db.Column(db.Integer, primary_key=True)
+    org_id        = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=False)
+    slug          = db.Column(db.String(80), nullable=False)
+    nome          = db.Column(db.String(120), nullable=False)
+    descricao     = db.Column(db.String(255))
+    modulo_fonte  = db.Column(db.String(40), nullable=False)
+    filtros       = db.Column(db.JSON, default=dict)
+    config_visual = db.Column(db.JSON, default=dict)
+    ativo         = db.Column(db.Boolean, default=True)
+    criado_em     = db.Column(db.DateTime, default=datetime.utcnow)
+    atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint("org_id", "slug", name="uq_painel_org_slug"),
+    )

@@ -88,6 +88,7 @@ def create_app() -> Flask:
     from app.blueprints.dados import dados_bp
     from app.blueprints.formularios import formularios_bp
     from app.blueprints.ajuda import ajuda_bp
+    from app.blueprints.paineis import paineis_bp
 
     app.register_blueprint(notas_bp,        url_prefix="/notas")
     app.register_blueprint(faturamento_bp,  url_prefix="/faturamento")
@@ -98,6 +99,7 @@ def create_app() -> Flask:
     app.register_blueprint(dados_bp)
     app.register_blueprint(formularios_bp)
     app.register_blueprint(ajuda_bp)
+    app.register_blueprint(paineis_bp)
 
     @app.route("/")
     def index():

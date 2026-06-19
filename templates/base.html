@@ -16,6 +16,7 @@
   <span class="nav-sep">/</span>
   <span class="nav-cur">{% block nav_cur %}{% endblock %}</span>
   <div class="nav-links">
+    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('paineis') %}active{% endif %}" href="{{ url_for('paineis.index') }}">📊 Painéis</a>
     <a class="nav-link {% if request.endpoint and request.endpoint.startswith('notas') %}active{% endif %}" href="{{ url_for('notas.index') }}">📋 Notas</a>
     <a class="nav-link {% if request.endpoint and request.endpoint.startswith('faturamento') %}active{% endif %}" href="{{ url_for('faturamento.index') }}">💰 Faturamento</a>
     <a class="nav-link {% if request.endpoint and request.endpoint.startswith('usinagem') %}active{% endif %}" href="{{ url_for('usinagem.index') }}">⚙ Usinagem</a>

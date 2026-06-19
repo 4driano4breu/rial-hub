@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} — Painéis{% endblock %}
+{% block nav_cur %}Painéis{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('paineis.index') }}" class="btn btn-ghost btn-sm mb-lg">← Painéis</a>
+<div class="module-header">
+  <div class="module-icon">📊</div>
+  <div><div class="module-title">{{ titulo }}</div></div>
+</div>
+
+<div class="card" style="padding:28px;max-width:560px">
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div style="margin-bottom:16px">
+      <label style="font-size:.82rem;color:var(--muted);display:block;margin-bottom:6px">Nome do painel *</label>
+      <input type="text" name="nome" required value="{{ form.get('nome','') }}"
+             placeholder="Ex: Acompanhamento AEGEA"
+             style="width:100%;background:#0f172a;border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 14px;font-size:1rem">
+    </div>
+
+    {% if not painel %}
+    <div style="margin-bottom:16px">
+      <label style="font-size:.82rem;color:var(--muted);display:block;margin-bottom:6px">Slug (URL) *</label>
+      <input type="text" name="slug" required value="{{ form.get('slug','') }}"
+             placeholder="acompanhamento-aegea"
+             style="width:100%;background:#0f172a;border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 14px;font-size:1rem">
+      <div style="font-size:.78rem;color:var(--muted);margin-top:4px">Usado na URL: /paineis/<strong>slug</strong></div>
+    </div>
+    {% endif %}
+
+    <div style="margin-bottom:16px">
+      <label style="font-size:.82rem;color:var(--muted);display:block;margin-bottom:6px">Descrição</label>
+      <input type="text" name="descricao" value="{{ form.get('descricao','') }}"
+             placeholder="Ex: Acompanhamento mensal de tonelagem AEGEA"
+             style="width:100%;background:#0f172a;border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 14px;font-size:1rem">
+    </div>
+
+    {% if not painel %}
+    <div style="margin-bottom:16px">
+      <label style="font-size:.82rem;color:var(--muted);display:block;margin-bottom:6px">Módulo de dados *</label>
+      <select name="modulo_fonte" style="width:100%;background:#0f172a;border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 14px;font-size:1rem">
+        {% for val, label in modulos %}
+        <option value="{{ val }}" {% if form.get('modulo_fonte') == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div>
+        <label style="font-size:.82rem;color:var(--muted);display:block;margin-bottom:6px">Ícone (emoji)</label>
+        <input type="text" name="icone" value="{{ form.get('icone','📊') }}"
+               style="background:#0f172a;border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 14px;font-size:1.5rem;width:100%">
+      </div>
+      <div>
+        <label style="font-size:.82rem;color:var(--muted);display:block;margin-bottom:6px">Cor de destaque</label>
+        <input type="color" name="cor" value="{{ form.get('cor','#3b82f6') }}"
+               style="background:#0f172a;border:1px solid var(--border);border-radius:10px;padding:8px;width:100%;height:48px;cursor:pointer">
+      </div>
+    </div>
+
+    <div style="margin-bottom:24px">
+      <label style="font-size:.82rem;color:var(--muted);display:block;margin-bottom:6px">Filtros (JSON)</label>
+      <textarea name="filtros" rows="3"
+                placeholder='{"regiao": "AEGEA"}'
+                style="width:100%;background:#0f172a;border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 14px;font-size:.9rem;font-family:monospace;resize:vertical">{{ form.get('filtros','{}') }}</textarea>
+      <div style="font-size:.78rem;color:var(--muted);margin-top:4px">Filtros aplicados ao módulo de dados. Deixe {} para sem filtro.</div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar painel</button>
+  </form>
+</div>
+{% endblock %}
