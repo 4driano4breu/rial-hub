@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Dados / Formulários — OBRIA{% endblock %}
+{% block nav_cur %}Admin / Dados / Formulários{% endblock %}
+
+{% block head %}
+<style>
+.pager { display:flex; gap:6px; align-items:center; justify-content:center; margin-top:18px; }
+.pager a, .pager span { padding:5px 11px; border-radius:6px; font-size:.8rem; border:1px solid var(--border); color:var(--muted); text-decoration:none; }
+.pager a:hover { color:var(--text); border-color:#475569; }
+.pager .cur { background:var(--accent); color:#fff; border-color:var(--accent); }
+.fbar { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:18px; }
+.fbar .field { margin-bottom:0; }
+.fbar input, .fbar select { min-width:130px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="module-header">
+  <div class="module-icon">📝</div>
+  <div>
+    <div class="module-title">Respostas de Formulários</div>
+    <div class="module-sub">{{ pg.total }} resposta(s)</div>
+  </div>
+</div>
+
+<form method="GET" class="fbar">
+  <div class="field"><label>Formulário</label>
+    <select name="template_id">
+      <option value="">Todos</option>
+      {% for t in templates %}
+      <option value="{{ t.id }}" {% if filtros.template_id == t.id|string %}selected{% endif %}>{{ t.nome }}</option>
+      {% endfor %}
+    </select></div>
+  <div class="field"><label>De</label>
+    <input type="date" name="de" value="{{ filtros.de }}"></div>
+  <div class="field"><label>Até</label>
+    <input type="date" name="ate" value="{{ filtros.ate }}"></div>
+  <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+  <a href="{{ url_for('dados.formularios_lista') }}" class="btn btn-ghost btn-sm">Limpar</a>
+</form>
+
+<div class="card card-body">
+<table class="table">
+  <thead>
+    <tr>
+      <th>Data</th><th>Formulário</th><th>Campos</th><th>Dispositivo</th><th>Local</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in pg.items %}
+    <tr>
+      <td>{{ r.criado_em.strftime('%d/%m/%Y %H:%M') if r.criado_em else '—' }}</td>
+      <td>{{ nomes_tpl.get(r.template_id, '—') }}</td>
+      <td style="max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        {% for k, v in (r.dados or {}).items() %}<strong>{{ k }}:</strong> {{ v }}{% if not loop.last %} · {% endif %}{% endfor %}
+      </td>
+      <td>{{ r.dispositivo or '—' }}</td>
+      <td>{% if r.latitude is not none and r.longitude is not none %}{{ '%.5f'|format(r.latitude) }}, {{ '%.5f'|format(r.longitude) }}{% else %}—{% endif %}</td>
+      <td style="white-space:nowrap">
+        <form method="POST" action="{{ url_for('dados.formularios_excluir', id=r.id) }}" style="display:inline"
+              onsubmit="return confirm('Excluir esta resposta? Esta ação não pode ser desfeita.')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger btn-sm">🗑</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="table-muted" style="text-align:center;padding:24px">Nenhuma resposta encontrada.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if pg.pages > 1 %}
+{% set qs = {'de': filtros.de, 'ate': filtros.ate, 'template_id': filtros.template_id} %}
+<div class="pager">
+  {% if pg.has_prev %}<a href="{{ url_for('dados.formularios_lista', p=pg.prev_num, **qs) }}">←</a>{% endif %}
+  <span class="cur">{{ pg.page }} / {{ pg.pages }}</span>
+  {% if pg.has_next %}<a href="{{ url_for('dados.formularios_lista', p=pg.next_num, **qs) }}">→</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

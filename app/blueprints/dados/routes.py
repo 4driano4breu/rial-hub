@@ -10,6 +10,7 @@ from app.blueprints.dados import dados_bp
 from app.extensions import db
 from app.models import (
     UsinagemRegistro, FaturamentoNota, ChecklistExecucao, AuditLog,
+    OperacaoProducao, RegistroProducao, FormularioResposta, FormularioTemplate, Equipamento,
 )
 
 PER_PAGE = 50
@@ -93,6 +94,8 @@ def index():
         "usinagem_lixeira": UsinagemRegistro.query.filter_by(org_id=org_id, excluido=True).count(),
         "faturamento": FaturamentoNota.query.filter_by(org_id=org_id, excluido=False).count(),
         "faturamento_lixeira": FaturamentoNota.query.filter_by(org_id=org_id, excluido=True).count(),
+        "producao": OperacaoProducao.query.filter_by(org_id=org_id).count(),
+        "formularios": FormularioResposta.query.filter_by(org_id=org_id).count(),
         "checklist": ChecklistExecucao.query.filter_by(org_id=org_id).count(),
         "auditoria": AuditLog.query.filter_by(org_id=org_id).count(),
     }
@@ -332,6 +335,186 @@ def faturamento_restaurar(id):
         db.session.rollback()
         flash("Erro ao restaurar nota.", "error")
     return redirect(url_for("dados.faturamento_lista", lixeira=1))
+
+
+# ── Produção ───────────────────────────────────────────────────────────────────
+
+@dados_bp.route("/producao/")
+@_require_admin
+def producao_lista():
+    org_id = current_user.org_id
+    de = _parse_date(request.args.get("de"))
+    ate = _parse_date(request.args.get("ate"))
+    modo = request.args.get("modo", "").strip()
+
+    query = OperacaoProducao.query.filter_by(org_id=org_id)
+    if de:
+        query = query.filter(OperacaoProducao.data_operacao >= de)
+    if ate:
+        query = query.filter(OperacaoProducao.data_operacao <= ate)
+    if modo in ("tb", "qm"):
+        query = query.filter(OperacaoProducao.modo == modo)
+
+    pg = query.order_by(OperacaoProducao.data_operacao.desc().nullslast(),
+                        OperacaoProducao.id.desc()).paginate(
+        page=_page(), per_page=PER_PAGE, error_out=False)
+
+    return render_template("dados/producao_lista.html",
+                           pg=pg,
+                           filtros={"de": request.args.get("de", ""),
+                                    "ate": request.args.get("ate", ""), "modo": modo})
+
+
+@dados_bp.route("/producao/<int:id>/editar", methods=["GET", "POST"])
+@_require_admin
+def producao_editar(id):
+    org_id = current_user.org_id
+    op = OperacaoProducao.query.filter_by(id=id, org_id=org_id).first_or_404()
+
+    if request.method == "POST":
+        def _parse_int(v):
+            v = (v or "").strip()
+            if v == "":
+                return None
+            try:
+                return int(v)
+            except ValueError:
+                return None
+
+        campos = {}
+        for nome, valor in [
+            ("data_operacao", _parse_date(request.form.get("data_operacao")) or op.data_operacao),
+            ("modo", request.form.get("modo", "").strip()),
+            ("ticket_inicio", _parse_int(request.form.get("ticket_inicio"))),
+            ("ticket_fim", _parse_int(request.form.get("ticket_fim"))),
+            ("total_caminhoes", _parse_int(request.form.get("total_caminhoes"))),
+        ]:
+            d = _diff(op, nome, valor)
+            if d:
+                campos[nome] = d
+
+        try:
+            if campos:
+                _log_audit(org_id, current_user.id, "EDIT", "producao", op.id, campos)
+            db.session.commit()
+            flash("Operação de produção atualizada." if campos else "Nenhuma alteração feita.", "ok")
+        except Exception:
+            db.session.rollback()
+            flash("Erro ao salvar alterações.", "error")
+        return redirect(url_for("dados.producao_lista"))
+
+    return render_template("dados/producao_editar.html", op=op)
+
+
+@dados_bp.route("/producao/<int:id>/excluir", methods=["POST"])
+@_require_admin
+def producao_excluir(id):
+    org_id = current_user.org_id
+    op = OperacaoProducao.query.filter_by(id=id, org_id=org_id).first_or_404()
+    try:
+        _log_audit(org_id, current_user.id, "DELETE", "producao", op.id)
+        db.session.delete(op)
+        db.session.commit()
+        flash(f"Operação de {op.data_operacao.strftime('%d/%m/%Y') if op.data_operacao else op.id} excluída.", "ok")
+    except Exception:
+        db.session.rollback()
+        flash("Erro ao excluir operação.", "error")
+    return redirect(url_for("dados.producao_lista"))
+
+
+# ── Formulários ──────────────────────────────────────────────────────────────────
+
+@dados_bp.route("/formularios/")
+@_require_admin
+def formularios_lista():
+    org_id = current_user.org_id
+    de = _parse_date(request.args.get("de"))
+    ate = _parse_date(request.args.get("ate"))
+    template_raw = request.args.get("template_id", "").strip()
+
+    query = FormularioResposta.query.filter_by(org_id=org_id)
+    if de:
+        query = query.filter(FormularioResposta.criado_em >= datetime.combine(de, datetime.min.time()))
+    if ate:
+        query = query.filter(FormularioResposta.criado_em <= datetime.combine(ate, datetime.max.time()))
+    if template_raw.isdigit():
+        query = query.filter(FormularioResposta.template_id == int(template_raw))
+
+    pg = query.order_by(FormularioResposta.criado_em.desc()).paginate(
+        page=_page(), per_page=PER_PAGE, error_out=False)
+
+    templates = FormularioTemplate.query.filter_by(org_id=org_id).order_by(FormularioTemplate.nome).all()
+    nomes_tpl = {t.id: t.nome for t in templates}
+
+    return render_template("dados/formularios_lista.html",
+                           pg=pg, templates=templates, nomes_tpl=nomes_tpl,
+                           filtros={"de": request.args.get("de", ""),
+                                    "ate": request.args.get("ate", ""),
+                                    "template_id": template_raw})
+
+
+@dados_bp.route("/formularios/<int:id>/excluir", methods=["POST"])
+@_require_admin
+def formularios_excluir(id):
+    org_id = current_user.org_id
+    resp = FormularioResposta.query.filter_by(id=id, org_id=org_id).first_or_404()
+    try:
+        _log_audit(org_id, current_user.id, "DELETE", "formularios", resp.id)
+        db.session.delete(resp)
+        db.session.commit()
+        flash(f"Resposta {resp.id} excluída.", "ok")
+    except Exception:
+        db.session.rollback()
+        flash("Erro ao excluir resposta.", "error")
+    return redirect(url_for("dados.formularios_lista"))
+
+
+# ── Equipamentos (checklists) ──────────────────────────────────────────────────
+
+@dados_bp.route("/equipamentos/")
+@_require_admin
+def equipamentos_checklists():
+    org_id = current_user.org_id
+    de = _parse_date(request.args.get("de"))
+    ate = _parse_date(request.args.get("ate"))
+    equip_raw = request.args.get("equipamento_id", "").strip()
+
+    query = ChecklistExecucao.query.filter_by(org_id=org_id)
+    if de:
+        query = query.filter(ChecklistExecucao.data_execucao >= de)
+    if ate:
+        query = query.filter(ChecklistExecucao.data_execucao <= ate)
+    if equip_raw.isdigit():
+        query = query.filter(ChecklistExecucao.equipamento_id == int(equip_raw))
+
+    pg = query.order_by(ChecklistExecucao.data_execucao.desc().nullslast(),
+                        ChecklistExecucao.id.desc()).paginate(
+        page=_page(), per_page=PER_PAGE, error_out=False)
+
+    equipamentos = Equipamento.query.filter_by(org_id=org_id).order_by(Equipamento.nome).all()
+    nomes_eq = {e.id: e.nome for e in equipamentos}
+
+    return render_template("dados/equipamentos_lista.html",
+                           pg=pg, equipamentos=equipamentos, nomes_eq=nomes_eq,
+                           filtros={"de": request.args.get("de", ""),
+                                    "ate": request.args.get("ate", ""),
+                                    "equipamento_id": equip_raw})
+
+
+@dados_bp.route("/equipamentos/<int:id>/excluir", methods=["POST"])
+@_require_admin
+def equipamentos_checklist_excluir(id):
+    org_id = current_user.org_id
+    exe = ChecklistExecucao.query.filter_by(id=id, org_id=org_id).first_or_404()
+    try:
+        _log_audit(org_id, current_user.id, "DELETE", "equipamentos", exe.id)
+        db.session.delete(exe)
+        db.session.commit()
+        flash(f"Execução de checklist {exe.id} excluída.", "ok")
+    except Exception:
+        db.session.rollback()
+        flash("Erro ao excluir execução.", "error")
+    return redirect(url_for("dados.equipamentos_checklists"))
 
 
 # ── Auditoria ──────────────────────────────────────────────────────────────────

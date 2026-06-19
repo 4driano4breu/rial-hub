@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Dados / Equipamentos — OBRIA{% endblock %}
+{% block nav_cur %}Admin / Dados / Equipamentos{% endblock %}
+
+{% block head %}
+<style>
+.pager { display:flex; gap:6px; align-items:center; justify-content:center; margin-top:18px; }
+.pager a, .pager span { padding:5px 11px; border-radius:6px; font-size:.8rem; border:1px solid var(--border); color:var(--muted); text-decoration:none; }
+.pager a:hover { color:var(--text); border-color:#475569; }
+.pager .cur { background:var(--accent); color:#fff; border-color:var(--accent); }
+.fbar { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:18px; }
+.fbar .field { margin-bottom:0; }
+.fbar input, .fbar select { min-width:130px; }
+.badge-ok { color:#4ade80; }
+.badge-pend { color:#fbbf24; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="module-header">
+  <div class="module-icon">🚜</div>
+  <div>
+    <div class="module-title">Checklists de Equipamentos</div>
+    <div class="module-sub">{{ pg.total }} execução(ões)</div>
+  </div>
+</div>
+
+<form method="GET" class="fbar">
+  <div class="field"><label>Equipamento</label>
+    <select name="equipamento_id">
+      <option value="">Todos</option>
+      {% for e in equipamentos %}
+      <option value="{{ e.id }}" {% if filtros.equipamento_id == e.id|string %}selected{% endif %}>{{ e.nome }}</option>
+      {% endfor %}
+    </select></div>
+  <div class="field"><label>De</label>
+    <input type="date" name="de" value="{{ filtros.de }}"></div>
+  <div class="field"><label>Até</label>
+    <input type="date" name="ate" value="{{ filtros.ate }}"></div>
+  <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+  <a href="{{ url_for('dados.equipamentos_checklists') }}" class="btn btn-ghost btn-sm">Limpar</a>
+</form>
+
+<div class="card card-body">
+<table class="table">
+  <thead>
+    <tr>
+      <th>Data</th><th>Equipamento</th><th>Status</th><th>Itens</th><th>Local</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for x in pg.items %}
+    <tr>
+      <td>{{ x.data_execucao.strftime('%d/%m/%Y') if x.data_execucao else '—' }}</td>
+      <td>{{ nomes_eq.get(x.equipamento_id, '—') }}</td>
+      <td>
+        {% if x.status == 'COM_PENDENCIA' %}<span class="badge-pend">Com pendência</span>
+        {% else %}<span class="badge-ok">Completo</span>{% endif %}
+      </td>
+      <td>{{ (x.respostas or {})|length }}</td>
+      <td>{% if x.latitude is not none and x.longitude is not none %}{{ '%.5f'|format(x.latitude) }}, {{ '%.5f'|format(x.longitude) }}{% else %}—{% endif %}</td>
+      <td style="white-space:nowrap">
+        <form method="POST" action="{{ url_for('dados.equipamentos_checklist_excluir', id=x.id) }}" style="display:inline"
+              onsubmit="return confirm('Excluir esta execução de checklist? Esta ação não pode ser desfeita.')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger btn-sm">🗑</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="table-muted" style="text-align:center;padding:24px">Nenhuma execução encontrada.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if pg.pages > 1 %}
+{% set qs = {'de': filtros.de, 'ate': filtros.ate, 'equipamento_id': filtros.equipamento_id} %}
+<div class="pager">
+  {% if pg.has_prev %}<a href="{{ url_for('dados.equipamentos_checklists', p=pg.prev_num, **qs) }}">←</a>{% endif %}
+  <span class="cur">{{ pg.page }} / {{ pg.pages }}</span>
+  {% if pg.has_next %}<a href="{{ url_for('dados.equipamentos_checklists', p=pg.next_num, **qs) }}">→</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

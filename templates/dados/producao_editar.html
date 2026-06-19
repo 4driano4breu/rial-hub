@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Editar Produção — OBRIA{% endblock %}
+{% block nav_cur %}Admin / Dados / Produção / Editar{% endblock %}
+
+{% block content %}
+<h1>Editar Operação de Produção</h1>
+<p class="subtitle">Operação {{ op.id }} · alterações são registradas na auditoria</p>
+
+<div class="form-card">
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+      <div class="field">
+        <label>Data da operação</label>
+        <input type="date" name="data_operacao"
+               value="{{ op.data_operacao.isoformat() if op.data_operacao else '' }}">
+      </div>
+      <div class="field">
+        <label>Modo</label>
+        <select name="modo">
+          <option value="tb" {% if op.modo == 'tb' %}selected{% endif %}>TB</option>
+          <option value="qm" {% if op.modo == 'qm' %}selected{% endif %}>QM</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Ticket início</label>
+        <input type="number" name="ticket_inicio"
+               value="{{ op.ticket_inicio if op.ticket_inicio is not none else '' }}">
+      </div>
+      <div class="field">
+        <label>Ticket fim</label>
+        <input type="number" name="ticket_fim"
+               value="{{ op.ticket_fim if op.ticket_fim is not none else '' }}">
+      </div>
+      <div class="field">
+        <label>Total de caminhões</label>
+        <input type="number" name="total_caminhoes"
+               value="{{ op.total_caminhoes if op.total_caminhoes is not none else '' }}">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">Salvar</button>
+      <a href="{{ url_for('dados.producao_lista') }}" class="btn btn-ghost">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

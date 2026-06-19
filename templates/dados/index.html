@@ -43,11 +43,29 @@
   </div>
 
   <div class="dash-card">
+    <h3>🏭 Produção</h3>
+    <div class="stat-num" style="margin:8px 0">{{ stats.producao }}</div>
+    <div class="stat-label">operações registradas</div>
+    <div class="flex gap-sm" style="margin-top:14px">
+      <a href="{{ url_for('dados.producao_lista') }}" class="btn btn-primary btn-sm">Gerenciar →</a>
+    </div>
+  </div>
+
+  <div class="dash-card">
+    <h3>📝 Formulários</h3>
+    <div class="stat-num" style="margin:8px 0">{{ stats.formularios }}</div>
+    <div class="stat-label">respostas recebidas</div>
+    <div class="flex gap-sm" style="margin-top:14px">
+      <a href="{{ url_for('dados.formularios_lista') }}" class="btn btn-primary btn-sm">Gerenciar →</a>
+    </div>
+  </div>
+
+  <div class="dash-card">
     <h3>🚜 Checklists</h3>
     <div class="stat-num" style="margin:8px 0">{{ stats.checklist }}</div>
     <div class="stat-label">execuções registradas</div>
     <div class="flex gap-sm" style="margin-top:14px">
-      <a href="{{ url_for('equipamentos.index') }}" class="btn btn-ghost btn-sm">Ver módulo →</a>
+      <a href="{{ url_for('dados.equipamentos_checklists') }}" class="btn btn-primary btn-sm">Gerenciar →</a>
     </div>
   </div>
 

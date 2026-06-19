@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Dados / Produção — OBRIA{% endblock %}
+{% block nav_cur %}Admin / Dados / Produção{% endblock %}
+
+{% block head %}
+<style>
+.pager { display:flex; gap:6px; align-items:center; justify-content:center; margin-top:18px; }
+.pager a, .pager span { padding:5px 11px; border-radius:6px; font-size:.8rem; border:1px solid var(--border); color:var(--muted); text-decoration:none; }
+.pager a:hover { color:var(--text); border-color:#475569; }
+.pager .cur { background:var(--accent); color:#fff; border-color:var(--accent); }
+.fbar { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:18px; }
+.fbar .field { margin-bottom:0; }
+.fbar input, .fbar select { min-width:130px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="module-header">
+  <div class="module-icon">🏭</div>
+  <div>
+    <div class="module-title">Operações de Produção</div>
+    <div class="module-sub">{{ pg.total }} operação(ões)</div>
+  </div>
+</div>
+
+<form method="GET" class="fbar">
+  <div class="field"><label>De</label>
+    <input type="date" name="de" value="{{ filtros.de }}"></div>
+  <div class="field"><label>Até</label>
+    <input type="date" name="ate" value="{{ filtros.ate }}"></div>
+  <div class="field"><label>Modo</label>
+    <select name="modo">
+      <option value="">Todos</option>
+      <option value="tb" {% if filtros.modo == 'tb' %}selected{% endif %}>TB</option>
+      <option value="qm" {% if filtros.modo == 'qm' %}selected{% endif %}>QM</option>
+    </select></div>
+  <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+  <a href="{{ url_for('dados.producao_lista') }}" class="btn btn-ghost btn-sm">Limpar</a>
+</form>
+
+<div class="card card-body">
+<table class="table">
+  <thead>
+    <tr>
+      <th>Data</th><th>Modo</th><th>Ticket Início</th><th>Ticket Fim</th>
+      <th>Caminhões</th><th>Registros</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for o in pg.items %}
+    <tr>
+      <td>{{ o.data_operacao.strftime('%d/%m/%Y') if o.data_operacao else '—' }}</td>
+      <td>{{ o.modo|upper if o.modo else '—' }}</td>
+      <td>{{ o.ticket_inicio if o.ticket_inicio is not none else '—' }}</td>
+      <td>{{ o.ticket_fim if o.ticket_fim is not none else '—' }}</td>
+      <td>{{ o.total_caminhoes if o.total_caminhoes is not none else '—' }}</td>
+      <td>{{ o.registros|length }}</td>
+      <td style="white-space:nowrap">
+        <a href="{{ url_for('dados.producao_editar', id=o.id) }}" class="btn btn-ghost btn-sm">✏️</a>
+        <form method="POST" action="{{ url_for('dados.producao_excluir', id=o.id) }}" style="display:inline"
+              onsubmit="return confirm('Excluir esta operação e todos os seus registros? Esta ação não pode ser desfeita.')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger btn-sm">🗑</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="table-muted" style="text-align:center;padding:24px">Nenhuma operação encontrada.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if pg.pages > 1 %}
+{% set qs = {'de': filtros.de, 'ate': filtros.ate, 'modo': filtros.modo} %}
+<div class="pager">
+  {% if pg.has_prev %}<a href="{{ url_for('dados.producao_lista', p=pg.prev_num, **qs) }}">←</a>{% endif %}
+  <span class="cur">{{ pg.page }} / {{ pg.pages }}</span>
+  {% if pg.has_next %}<a href="{{ url_for('dados.producao_lista', p=pg.next_num, **qs) }}">→</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}
