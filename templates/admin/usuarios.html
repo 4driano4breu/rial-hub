@@ -10,7 +10,10 @@
 <div class="card card-body">
   <div class="section-header">
     <span style="color:var(--muted);font-size:.85rem">{{ usuarios | length }} usuário(s)</span>
-    <a href="{{ url_for('admin.usuario_novo') }}" class="btn btn-primary">+ Novo usuário</a>
+    <div style="display:flex;gap:10px">
+      <a href="{{ url_for('admin.convidar') }}" class="btn btn-ghost">Convidar por link →</a>
+      <a href="{{ url_for('admin.usuario_novo') }}" class="btn btn-primary">+ Novo usuário</a>
+    </div>
   </div>
 
   <table class="table">

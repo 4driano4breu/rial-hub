@@ -1,10 +1,11 @@
+from datetime import datetime
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, current_user, login_required
 
 from app.blueprints.auth import auth_bp
 from app.blueprints.auth.forms import LoginForm
 from app.extensions import bcrypt, db
-from app.models import User
+from app.models import User, InviteToken
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
@@ -53,3 +54,48 @@ def perfil():
             return redirect(url_for("auth.perfil"))
 
     return render_template("auth/perfil.html")
+
+
+@auth_bp.route("/convite/<token>", methods=["GET", "POST"])
+def aceitar_convite(token):
+    convite = InviteToken.query.filter_by(token=token, usado=False).first_or_404()
+    if convite.expires_at < datetime.utcnow():
+        flash("Este link de convite expirou. Solicite um novo ao administrador.", "error")
+        return redirect(url_for("auth.login"))
+
+    if request.method == "POST":
+        nome     = request.form.get("nome", "").strip()
+        senha    = request.form.get("senha", "").strip()
+        confirma = request.form.get("confirma", "").strip()
+
+        erros = []
+        if not nome:
+            erros.append("Nome obrigatório.")
+        if len(senha) < 8:
+            erros.append("Senha deve ter ao menos 8 caracteres.")
+        if senha != confirma:
+            erros.append("Senhas não conferem.")
+        if User.query.filter_by(email=convite.email).first():
+            erros.append("Este e-mail já tem uma conta.")
+
+        if erros:
+            for e in erros:
+                flash(e, "error")
+            return render_template("auth/convite.html", convite=convite)
+
+        novo = User(
+            org_id=convite.org_id,
+            email=convite.email,
+            nome=nome,
+            role=convite.role,
+            password_hash=bcrypt.generate_password_hash(senha, rounds=12).decode("utf-8"),
+            ativo=True,
+        )
+        db.session.add(novo)
+        convite.usado = True
+        db.session.commit()
+        login_user(novo)
+        flash(f"Bem-vindo(a), {nome}! Sua conta foi criada.", "ok")
+        return redirect(url_for("index"))
+
+    return render_template("auth/convite.html", convite=convite)

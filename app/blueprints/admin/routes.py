@@ -1,10 +1,11 @@
 from functools import wraps
+from datetime import datetime, timedelta
 from flask import render_template, redirect, url_for, flash, request, abort
 from flask_login import current_user, login_required
 
 from app.blueprints.admin import admin_bp
 from app.extensions import db, bcrypt
-from app.models import Organization, User
+from app.models import Organization, User, InviteToken
 
 
 def _require_admin(f):
@@ -154,3 +155,45 @@ def usuario_editar(uid):
 def organizacoes():
     orgs = Organization.query.order_by(Organization.criado_em.desc()).all()
     return render_template("admin/organizacoes.html", orgs=orgs)
+
+
+# ── Convite por link tokenizado ──────────────────────────────────────────────
+
+@admin_bp.route("/convidar", methods=["GET", "POST"])
+@_require_admin
+def convidar():
+    roles_disponiveis = ["VIEWER", "OPERACIONAL", "FINANCEIRO", "ADMIN"]
+    convites_recentes = (InviteToken.query
+        .filter_by(org_id=current_user.org_id, usado=False)
+        .filter(InviteToken.expires_at > datetime.utcnow())
+        .order_by(InviteToken.criado_em.desc())
+        .limit(10).all())
+
+    link_gerado = None
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        role  = request.form.get("role", "VIEWER")
+
+        if not email or "@" not in email:
+            flash("E-mail inválido.", "error")
+        elif role not in roles_disponiveis:
+            flash("Cargo inválido.", "error")
+        elif User.query.filter_by(email=email).first():
+            flash("Esse e-mail já tem uma conta.", "error")
+        else:
+            convite = InviteToken(
+                org_id=current_user.org_id,
+                email=email,
+                role=role,
+                expires_at=datetime.utcnow() + timedelta(hours=48),
+                criado_por=current_user.id,
+            )
+            db.session.add(convite)
+            db.session.commit()
+            link_gerado = request.host_url.rstrip("/") + url_for("auth.aceitar_convite", token=convite.token)
+            flash("Convite gerado! Copie o link abaixo e envie ao convidado.", "ok")
+
+    return render_template("admin/convidar.html",
+                           roles=roles_disponiveis,
+                           convites=convites_recentes,
+                           link_gerado=link_gerado)

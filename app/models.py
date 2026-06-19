@@ -228,3 +228,21 @@ class AuditLog(db.Model):
     registro_id = db.Column(db.Integer)
     campos      = db.Column(db.JSON)         # {"campo": {"de": valor_antigo, "para": valor_novo}}
     criado_em   = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+import secrets as _secrets
+
+
+class InviteToken(db.Model):
+    __tablename__ = "invite_tokens"
+
+    id         = db.Column(db.Integer, primary_key=True)
+    token      = db.Column(db.String(64), unique=True, nullable=False,
+                           default=lambda: _secrets.token_urlsafe(32))
+    org_id     = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=False)
+    email      = db.Column(db.String(120), nullable=False)
+    role       = db.Column(db.String(20), default="VIEWER")
+    usado      = db.Column(db.Boolean, default=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    criado_por = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    criado_em  = db.Column(db.DateTime, default=datetime.utcnow)

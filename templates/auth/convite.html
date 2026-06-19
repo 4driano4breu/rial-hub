@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Criar sua conta — OBRIA</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--accent:#3b82f6;--text:#f1f5f9;--muted:#94a3b8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px;width:100%;max-width:420px}
+.logo{font-size:1.4rem;font-weight:800;color:var(--accent);margin-bottom:8px}
+h1{font-size:1.3rem;font-weight:700;margin-bottom:6px}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:28px}
+label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:6px}
+input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:13px 14px;font-size:1rem;font-family:inherit;margin-bottom:16px}
+input:focus{outline:none;border-color:var(--accent)}
+.flash{padding:10px 14px;border-radius:8px;font-size:.88rem;margin-bottom:16px}
+.flash.error{background:#dc262620;border:1px solid #dc262640;color:#f87171}
+.flash.ok{background:#16a34a20;border:1px solid #16a34a40;color:#4ade80}
+.badge{display:inline-block;background:#3b82f615;border:1px solid #3b82f640;color:var(--accent);padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:600;margin-bottom:20px}
+button{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:4px}
+button:hover{background:#2563eb}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo">OBRIA</div>
+  <h1>Criar sua conta</h1>
+  <p class="sub">Você foi convidado(a) para entrar na plataforma.</p>
+  <div class="badge">{{ convite.role }}</div>
+  <div style="font-size:.88rem;color:var(--muted);margin-bottom:20px">E-mail: <strong style="color:var(--text)">{{ convite.email }}</strong></div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Seu nome</label>
+    <input type="text" name="nome" required placeholder="Como você se chama" autofocus>
+    <label>Senha</label>
+    <input type="password" name="senha" required placeholder="Mínimo 8 caracteres">
+    <label>Confirmar senha</label>
+    <input type="password" name="confirma" required placeholder="Repita a senha">
+    <button type="submit">Criar minha conta</button>
+  </form>
+</div>
+</body>
+</html>
