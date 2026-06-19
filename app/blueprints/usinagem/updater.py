@@ -44,7 +44,7 @@ COL_REGIAO  = 17
 # Arquivos de saída (relativos ao hub)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 import os as _os
-_HUB_ROOT = _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+_HUB_ROOT = _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))))
 ARQ_AEGEA     = _os.path.join(_HUB_ROOT, "static", "ferramentas", "usinagem", "aegea.html")
 ARQ_GUARIROBA = _os.path.join(_HUB_ROOT, "static", "ferramentas", "usinagem", "guariroba.html")
 ARQ_GERAL     = _os.path.join(_HUB_ROOT, "static", "ferramentas", "usinagem", "geral.html")
