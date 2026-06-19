@@ -6,6 +6,16 @@ from flask_login import current_user, login_required
 from app.blueprints.admin import admin_bp
 from app.extensions import db, bcrypt
 from app.models import Organization, User, InviteToken
+from app.org_settings import get_settings
+
+
+def _parse_pos_float(raw):
+    """Converte string em float positivo. Retorna None se inválido."""
+    try:
+        val = float(str(raw).replace(",", "."))
+    except (TypeError, ValueError):
+        return None
+    return val if val >= 0 else None
 
 
 def _require_admin(f):
@@ -155,6 +165,45 @@ def usuario_editar(uid):
 def organizacoes():
     orgs = Organization.query.order_by(Organization.criado_em.desc()).all()
     return render_template("admin/organizacoes.html", orgs=orgs)
+
+
+# ── Configurações por tenant ─────────────────────────────────────────────────
+
+@admin_bp.route("/configuracoes", methods=["GET", "POST"])
+@_require_admin
+def configuracoes():
+    org = Organization.query.get(current_user.org_id)
+    settings = get_settings(org)
+
+    if request.method == "POST":
+        campos_aliq = ["pav", "canteiro", "rocada", "terra", "inss"]
+        campos_cap  = ["cap_aegea", "cap_guariroba", "composicao_cap"]
+
+        aliquotas = {}
+        for c in campos_aliq:
+            val = _parse_pos_float(request.form.get(f"aliq_{c}"))
+            if val is None:
+                flash(f"Valor inválido para alíquota '{c}'.", "error")
+                return render_template("admin/configuracoes.html", settings=settings)
+            aliquotas[c] = round(val / 100, 6)
+
+        usinagem = {}
+        for c in campos_cap:
+            val = _parse_pos_float(request.form.get(c))
+            if val is None:
+                flash(f"Valor inválido para '{c}'.", "error")
+                return render_template("admin/configuracoes.html", settings=settings)
+            usinagem[c] = val
+
+        novas = dict(org.settings or {})
+        novas["aliquotas"] = {**novas.get("aliquotas", {}), **aliquotas}
+        novas["usinagem"]  = {**novas.get("usinagem", {}), **usinagem}
+        org.settings = novas
+        db.session.commit()
+        flash("Configurações salvas com sucesso.", "ok")
+        return redirect(url_for("admin.configuracoes"))
+
+    return render_template("admin/configuracoes.html", settings=settings)
 
 
 # ── Convite por link tokenizado ──────────────────────────────────────────────

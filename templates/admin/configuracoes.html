@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Configurações — OBRIA{% endblock %}
+{% block nav_cur %}Admin{% endblock %}
+
+{% block content %}
+<div class="module-header">
+  <h1>⚙ Configurações da Organização</h1>
+</div>
+<p class="subtitle">Alíquotas de retenção e parâmetros de usinagem por tenant</p>
+
+<form method="POST" action="">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="card card-body">
+    <div class="section-title">Alíquotas de Retenção</div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Pavimentação</label>
+        <input type="number" name="aliq_pav" step="0.01" value="{{ (settings.aliquotas.pav * 100) | round(2) }}">
+      </div>
+      <div class="field">
+        <label>Canteiro / Manutenção</label>
+        <input type="number" name="aliq_canteiro" step="0.01" value="{{ (settings.aliquotas.canteiro * 100) | round(2) }}">
+      </div>
+      <div class="field">
+        <label>Roçada</label>
+        <input type="number" name="aliq_rocada" step="0.01" value="{{ (settings.aliquotas.rocada * 100) | round(2) }}">
+      </div>
+      <div class="field">
+        <label>Terraplenagem</label>
+        <input type="number" name="aliq_terra" step="0.01" value="{{ (settings.aliquotas.terra * 100) | round(2) }}">
+      </div>
+      <div class="field">
+        <label>INSS</label>
+        <input type="number" name="aliq_inss" step="0.01" value="{{ (settings.aliquotas.inss * 100) | round(2) }}">
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-body">
+    <div class="section-title">Usinagem CBUQ — CAP</div>
+    <div class="grid-2">
+      <div class="field">
+        <label>CAP AEGEA (t)</label>
+        <input type="number" name="cap_aegea" step="0.01" value="{{ settings.usinagem.cap_aegea }}">
+      </div>
+      <div class="field">
+        <label>CAP Guariroba (t)</label>
+        <input type="number" name="cap_guariroba" step="0.01" value="{{ settings.usinagem.cap_guariroba }}">
+      </div>
+      <div class="field">
+        <label>Composição CAP no CBUQ</label>
+        <input type="number" name="composicao_cap" step="0.01" value="{{ settings.usinagem.composicao_cap }}">
+      </div>
+    </div>
+  </div>
+
+  <p class="help">Valores de alíquotas são percentuais (ex: 10.5 = 10,5%).</p>
+
+  <div style="display:flex;gap:10px;margin-top:20px">
+    <button type="submit" class="btn btn-primary">Salvar configurações</button>
+    <a href="{{ url_for('admin.index') }}" class="btn btn-ghost">← Voltar</a>
+  </div>
+</form>
+{% endblock %}
