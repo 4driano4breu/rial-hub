@@ -5,7 +5,7 @@ from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 
 from app.blueprints.equipamentos import equipamentos_bp
-from app.extensions import db
+from app.extensions import db, csrf
 from app.models import Equipamento, ChecklistTemplate, ChecklistExecucao
 
 
@@ -166,6 +166,7 @@ def template_editar(tmpl_id):
 
 # ── Mobile: preencher checklist (público com org_slug) ──
 @equipamentos_bp.route("/m/<int:equip_id>", methods=["GET", "POST"])
+@csrf.exempt
 def mobile_checklist(equip_id):
     e = Equipamento.query.filter_by(id=equip_id, ativo=True).first_or_404()
     tmpl = e.template

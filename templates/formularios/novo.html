@@ -8,6 +8,7 @@
 <h1 class="mb-lg">Novo Formulário</h1>
 
 <form method="post" action="{{ url_for('formularios.novo') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="form-card" style="max-width:640px">
     <div class="field">
       <label for="nome">Nome *</label>

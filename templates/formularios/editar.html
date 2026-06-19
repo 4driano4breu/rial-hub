@@ -26,6 +26,7 @@
     <a href="{{ url_for('formularios.respostas', id=tpl.id) }}" class="btn btn-ghost btn-sm">📊 Respostas</a>
     <form method="post" action="{{ url_for('formularios.excluir', id=tpl.id) }}"
           onsubmit="return confirm('Excluir este formulário?')" style="display:inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit" class="btn btn-ghost btn-sm" style="color:#f87171">🗑 Excluir</button>
     </form>
   </div>
@@ -33,6 +34,7 @@
 
 <!-- Dados do formulário -->
 <form method="post" action="{{ url_for('formularios.editar', id=tpl.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <input type="hidden" name="action" value="save">
   <div class="form-card mb-xl" style="max-width:720px">
     <div class="field">
@@ -75,6 +77,7 @@
     {% if c.tipo == 'numero' and c.unidade %}<div class="campo-meta">Unidade: {{ c.unidade }}</div>{% endif %}
   </div>
   <form method="post" action="{{ url_for('formularios.editar', id=tpl.id) }}" style="display:inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="action" value="remove_campo">
     <input type="hidden" name="campo_id" value="{{ c.id }}">
     <button type="submit" class="btn btn-ghost btn-sm" style="color:#f87171"
@@ -89,6 +92,7 @@
 <!-- Adicionar campo -->
 <h2 class="mb-sm" style="margin-top:24px">Adicionar campo</h2>
 <form method="post" action="{{ url_for('formularios.editar', id=tpl.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <input type="hidden" name="action" value="add_campo">
   <div class="form-card" style="max-width:720px">
     <div class="grid-2">

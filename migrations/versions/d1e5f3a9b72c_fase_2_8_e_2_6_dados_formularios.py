@@ -17,12 +17,14 @@ def upgrade():
     # Soft-delete em usinagem_registros
     op.add_column('usinagem_registros', sa.Column('excluido', sa.Boolean(), nullable=False, server_default='false'))
     op.add_column('usinagem_registros', sa.Column('excluido_em', sa.DateTime(), nullable=True))
-    op.add_column('usinagem_registros', sa.Column('excluido_por', sa.Integer(), sa.ForeignKey('users.id'), nullable=True))
+    op.add_column('usinagem_registros', sa.Column('excluido_por', sa.Integer(), nullable=True))
+    op.create_foreign_key('fk_usinagem_excluido_por', 'usinagem_registros', 'users', ['excluido_por'], ['id'])
 
     # Soft-delete em faturamento_notas
     op.add_column('faturamento_notas', sa.Column('excluido', sa.Boolean(), nullable=False, server_default='false'))
     op.add_column('faturamento_notas', sa.Column('excluido_em', sa.DateTime(), nullable=True))
-    op.add_column('faturamento_notas', sa.Column('excluido_por', sa.Integer(), sa.ForeignKey('users.id'), nullable=True))
+    op.add_column('faturamento_notas', sa.Column('excluido_por', sa.Integer(), nullable=True))
+    op.create_foreign_key('fk_faturamento_excluido_por', 'faturamento_notas', 'users', ['excluido_por'], ['id'])
 
     # Tabela formulario_template
     op.create_table('formulario_template',
@@ -71,9 +73,11 @@ def downgrade():
     op.drop_table('audit_log')
     op.drop_table('formulario_resposta')
     op.drop_table('formulario_template')
+    op.drop_constraint('fk_faturamento_excluido_por', 'faturamento_notas', type_='foreignkey')
     op.drop_column('faturamento_notas', 'excluido_por')
     op.drop_column('faturamento_notas', 'excluido_em')
     op.drop_column('faturamento_notas', 'excluido')
+    op.drop_constraint('fk_usinagem_excluido_por', 'usinagem_registros', type_='foreignkey')
     op.drop_column('usinagem_registros', 'excluido_por')
     op.drop_column('usinagem_registros', 'excluido_em')
     op.drop_column('usinagem_registros', 'excluido')

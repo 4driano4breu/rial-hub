@@ -9,7 +9,7 @@ from flask import (
 from flask_login import login_required, current_user
 
 from app.blueprints.formularios import formularios_bp
-from app.extensions import db
+from app.extensions import db, csrf
 from app.models import Organization, FormularioTemplate, FormularioResposta
 
 
@@ -217,6 +217,7 @@ def excluir(id):
 # ── Público (mobile) ──
 
 @formularios_bp.route("/f/<org_slug>/<form_slug>", methods=["GET", "POST"])
+@csrf.exempt
 def form_mobile(org_slug, form_slug):
     org = Organization.query.filter_by(slug=org_slug, ativo=True).first()
     if not org:
