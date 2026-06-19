@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Dados / Usinagem — OBRIA{% endblock %}
+{% block nav_cur %}Admin / Dados / Usinagem{% endblock %}
+
+{% block head %}
+<style>
+.pager { display:flex; gap:6px; align-items:center; justify-content:center; margin-top:18px; }
+.pager a, .pager span { padding:5px 11px; border-radius:6px; font-size:.8rem; border:1px solid var(--border); color:var(--muted); text-decoration:none; }
+.pager a:hover { color:var(--text); border-color:#475569; }
+.pager .cur { background:var(--accent); color:#fff; border-color:var(--accent); }
+.fbar { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:18px; }
+.fbar .field { margin-bottom:0; }
+.fbar input, .fbar select { min-width:130px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="module-header">
+  <div class="module-icon">⚙</div>
+  <div>
+    <div class="module-title">Registros de Usinagem {% if lixeira %}— Lixeira{% endif %}</div>
+    <div class="module-sub">{{ pg.total }} registro(s)</div>
+  </div>
+</div>
+
+{% if lixeira %}
+<div class="info-box" style="border-left:3px solid var(--red);margin-bottom:14px">
+  <strong style="color:#f87171">Lixeira:</strong> exibindo registros excluídos.
+  <a href="{{ url_for('dados.usinagem_lista') }}" style="color:var(--accent)">← Voltar aos ativos</a>
+</div>
+{% else %}
+<div class="flex gap-sm mb-md" style="margin-bottom:14px">
+  <a href="{{ url_for('dados.usinagem_lista', lixeira=1) }}" class="btn btn-ghost btn-sm">🗑 Ver lixeira</a>
+</div>
+{% endif %}
+
+<form method="GET" class="fbar">
+  {% if lixeira %}<input type="hidden" name="lixeira" value="1">{% endif %}
+  <div class="field"><label>Busca</label>
+    <input type="text" name="q" value="{{ filtros.q }}" placeholder="ticket, placa, motorista"></div>
+  <div class="field"><label>De</label>
+    <input type="date" name="de" value="{{ filtros.de }}"></div>
+  <div class="field"><label>Até</label>
+    <input type="date" name="ate" value="{{ filtros.ate }}"></div>
+  <div class="field"><label>Região</label>
+    <select name="regiao">
+      <option value="">Todas</option>
+      {% for r in regioes %}
+      <option value="{{ r }}" {% if filtros.regiao == r %}selected{% endif %}>{{ r }}</option>
+      {% endfor %}
+    </select></div>
+  <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+  <a href="{{ url_for('dados.usinagem_lista', lixeira=1 if lixeira else None) }}" class="btn btn-ghost btn-sm">Limpar</a>
+</form>
+
+<div class="card card-body">
+<table class="table">
+  <thead>
+    <tr>
+      <th>Ticket</th><th>Data</th><th>Placa</th><th>Motorista</th>
+      <th>Peso Líq.</th><th>Região</th><th>Contrato</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in pg.items %}
+    <tr>
+      <td>{{ r.ticket or '—' }}</td>
+      <td>{{ r.data_operacao.strftime('%d/%m/%Y') if r.data_operacao else '—' }}</td>
+      <td>{{ r.placa or '—' }}</td>
+      <td>{{ r.motorista or '—' }}</td>
+      <td>{{ '%.3f'|format(r.peso_liquido) if r.peso_liquido is not none else '—' }}</td>
+      <td>{{ r.regiao or '—' }}</td>
+      <td>{{ r.contrato or '—' }}</td>
+      <td style="white-space:nowrap">
+        {% if lixeira %}
+        <form method="POST" action="{{ url_for('dados.usinagem_restaurar', id=r.id) }}" style="display:inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-success btn-sm">↩ Restaurar</button>
+        </form>
+        {% else %}
+        <a href="{{ url_for('dados.usinagem_editar', id=r.id) }}" class="btn btn-ghost btn-sm">✏️</a>
+        <form method="POST" action="{{ url_for('dados.usinagem_excluir', id=r.id) }}" style="display:inline"
+              onsubmit="return confirm('Mover este registro para a lixeira?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger btn-sm">🗑</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="8" class="table-muted" style="text-align:center;padding:24px">Nenhum registro encontrado.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if pg.pages > 1 %}
+{% set qs = {'q': filtros.q, 'de': filtros.de, 'ate': filtros.ate, 'regiao': filtros.regiao, 'lixeira': '1' if lixeira else None} %}
+<div class="pager">
+  {% if pg.has_prev %}<a href="{{ url_for('dados.usinagem_lista', p=pg.prev_num, **qs) }}">←</a>{% endif %}
+  <span class="cur">{{ pg.page }} / {{ pg.pages }}</span>
+  {% if pg.has_next %}<a href="{{ url_for('dados.usinagem_lista', p=pg.next_num, **qs) }}">→</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

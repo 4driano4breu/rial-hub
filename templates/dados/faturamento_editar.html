@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Editar Nota — OBRIA{% endblock %}
+{% block nav_cur %}Admin / Dados / Faturamento / Editar{% endblock %}
+
+{% block content %}
+<h1>Editar Nota de Faturamento</h1>
+<p class="subtitle">Nota nr {{ nota.nr }} · alterações são registradas na auditoria</p>
+
+<div class="form-card">
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+      <div class="field">
+        <label>Número (nr)</label>
+        <input type="number" name="nr" value="{{ nota.nr }}" required>
+      </div>
+      <div class="field">
+        <label>Emissão</label>
+        <input type="date" name="emissao" value="{{ nota.emissao.isoformat() if nota.emissao else '' }}">
+      </div>
+      <div class="field">
+        <label>Contrato</label>
+        <input type="text" name="contrato" value="{{ nota.contrato or '' }}">
+      </div>
+      <div class="field">
+        <label>Órgão</label>
+        <input type="text" name="orgao" value="{{ nota.orgao or '' }}">
+      </div>
+      <div class="field">
+        <label>Município</label>
+        <input type="text" name="municipio" value="{{ nota.municipio or '' }}">
+      </div>
+      <div class="field">
+        <label>Tipo</label>
+        <input type="text" name="tipo" value="{{ nota.tipo or '' }}">
+      </div>
+      <div class="field">
+        <label>Bruto (R$)</label>
+        <input type="number" step="0.01" name="bruto" value="{{ nota.bruto if nota.bruto is not none else '' }}">
+      </div>
+      <div class="field">
+        <label>INSS (R$)</label>
+        <input type="number" step="0.01" name="inss" value="{{ nota.inss if nota.inss is not none else '' }}">
+      </div>
+      <div class="field">
+        <label>IR (R$)</label>
+        <input type="number" step="0.01" name="ir" value="{{ nota.ir if nota.ir is not none else '' }}">
+      </div>
+      <div class="field">
+        <label>ISS (R$)</label>
+        <input type="number" step="0.01" name="iss" value="{{ nota.iss if nota.iss is not none else '' }}">
+      </div>
+      <div class="field">
+        <label>Líquido (R$)</label>
+        <input type="number" step="0.01" name="liquido" value="{{ nota.liquido if nota.liquido is not none else '' }}">
+      </div>
+      <div class="field">
+        <label>Data recebimento</label>
+        <input type="date" name="data_recebimento"
+               value="{{ nota.data_recebimento.isoformat() if nota.data_recebimento else '' }}">
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="toggle-row">
+        <input type="checkbox" name="recebido" value="1" id="recebido_chk"
+               {% if nota.recebido %}checked{% endif %} style="width:auto">
+        <label for="recebido_chk" class="toggle-label">Nota recebida</label>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">Salvar</button>
+      <a href="{{ url_for('dados.faturamento_lista') }}" class="btn btn-ghost">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

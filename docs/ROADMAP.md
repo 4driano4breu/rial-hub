@@ -161,7 +161,8 @@ Modules por org:
 ├── FormularioResposta (template_id, dados JSON, lat/lon)
 ├── ChecklistTemplate (nome, itens JSON)                ← Gestão de Equipamentos
 ├── Equipamento (nome, tipo, modelo, foto_url, template_id)
-└── ChecklistExecucao (equipamento_id, data, respostas JSON, status)
+├── ChecklistExecucao (equipamento_id, data, respostas JSON, status)
+└── AuditLog (usuario_id, acao, modulo, registro_id, campos JSON) ← Gestão de Dados
 ```
 
 ---
@@ -555,6 +556,92 @@ QR code colado no painel do caminhão → motorista escaneia → preenche em 30 
 
 Admin pode criar um Painel com `modulo_fonte: 'formularios'` + `filtros: {"template_slug": "abastecimento-diario"}` para visualizar as respostas como dashboard com KPIs, gráficos e exportação Excel — usando a mesma infraestrutura de Painéis.
 
+#### 2.8 — Gestão e Correção de Dados
+
+**Objetivo:** Interface centralizada para visualizar, editar e excluir registros de qualquer módulo quando um dado foi enviado incorretamente. Nenhum dado é apagado permanentemente — soft delete + audit trail.
+
+**Problema que resolve:** Operador enviou peso errado → dado vai pro banco → dashboard fica distorcido. Sem esta fase, a única correção é acesso direto ao banco via psql. Com ela, o admin corrige em 30 segundos pela interface.
+
+**Rotas:**
+
+```
+/admin/dados/                          ← visão geral: contagens por módulo
+/admin/dados/usinagem/                 ← tabela de UsinagemRegistro (busca + filtro por data/região)
+/admin/dados/usinagem/{id}/editar      ← editar campos do registro
+/admin/dados/usinagem/{id}/excluir     ← soft delete com confirmação
+/admin/dados/faturamento/              ← tabela de FaturamentoNota
+/admin/dados/faturamento/{id}/editar
+/admin/dados/producao/                 ← tabela de OperacaoProducao + RegistroProducao
+/admin/dados/producao/{id}/editar
+/admin/dados/formularios/              ← tabela de FormularioResposta (Coleta de Campo)
+/admin/dados/formularios/{id}/editar
+/admin/dados/equipamentos/             ← tabela de ChecklistExecucao
+/admin/dados/equipamentos/{id}/editar
+/admin/dados/lixeira/                  ← registros excluídos (restaurar ou purgar)
+/admin/dados/auditoria/                ← log completo de alterações
+```
+
+**Estratégia Soft Delete (todos os modelos de dados):**
+
+```python
+# Campo adicionado a UsinagemRegistro, FaturamentoNota, OperacaoProducao, etc.
+excluido    = db.Column(db.Boolean, default=False, nullable=False)
+excluido_em = db.Column(db.DateTime, nullable=True)
+excluido_por = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+
+# Toda query de negócio filtra automaticamente:
+UsinagemRegistro.query.filter_by(org_id=org_id, excluido=False).all()
+
+# Admin pode restaurar: registro.excluido = False
+# Purga permanente: só SUPERADMIN, com confirmação dupla
+```
+
+**Modelo AuditLog (nova tabela):**
+
+```python
+class AuditLog(db.Model):
+    __tablename__ = "audit_log"
+    id            = db.Column(db.Integer, primary_key=True)
+    org_id        = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=False)
+    usuario_id    = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    acao          = db.Column(db.String(20))   # 'EDIT' | 'DELETE' | 'RESTORE' | 'PURGE'
+    modulo        = db.Column(db.String(40))   # 'usinagem' | 'faturamento' | 'producao' | ...
+    registro_id   = db.Column(db.Integer)      # ID do registro afetado
+    campos        = db.Column(db.JSON)         # {"campo": {"de": valor_antigo, "para": valor_novo}}
+    criado_em     = db.Column(db.DateTime, default=datetime.utcnow)
+```
+
+**Controle de acesso por módulo:**
+
+| Role | Usinagem | Faturamento | Produção | Formulários | Equipamentos | Lixeira |
+|------|----------|-------------|----------|-------------|--------------|---------|
+| ADMIN | ✏️🗑️ | ✏️🗑️ | ✏️🗑️ | ✏️🗑️ | ✏️🗑️ | Restaurar |
+| FINANCEIRO | ❌ | ✏️🗑️ | ❌ | ❌ | ❌ | ❌ |
+| OPERACIONAL | ✏️🗑️ | ❌ | ✏️🗑️ | ✏️ | ✏️ | ❌ |
+| VIEWER | 👁️ | 👁️ | 👁️ | 👁️ | 👁️ | ❌ |
+
+**UI — Tabela de Dados (padrão para todos os módulos):**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Usinagem CBUQ — 673 registros                    [+ Exportar]│
+│ 🔍 [busca livre]  📅 [01/06 — 30/06]  📍 [Todas regiões ▼] │
+├────────┬──────────┬────────┬──────────┬──────┬──────┬───────┤
+│ Ticket │ Data     │ Placa  │ Peso liq │Região│Contr.│ Ações │
+├────────┼──────────┼────────┼──────────┼──────┼──────┼───────┤
+│ 10042  │ 17/06/26 │ ABC1234│ 14.2 t   │AEGEA │ 037  │ ✏️ 🗑 │
+│ 10043  │ 17/06/26 │ DEF5678│ 13.8 t   │GUARD.│ 037  │ ✏️ 🗑 │
+└────────┴──────────┴────────┴──────────┴──────┴──────┴───────┘
+```
+
+- Exclusão sempre pede confirmação: "Excluir ticket 10042? Esta ação pode ser desfeita na Lixeira."
+- Edição abre modal inline — salva no banco + grava AuditLog automaticamente
+- Exportar → CSV dos registros filtrados (sem os excluídos)
+
+**Visão Geral `/admin/dados/`:**
+
+Cards resumo de cada módulo com: total de registros, última atualização, botão "Gerenciar". Inclui contador de registros na lixeira e atalho para o log de auditoria.
+
 #### 2.7 — Gestão de Equipamentos (Checklist Diário)
 
 **Objetivo:** Substituir controles manuais (papel, WhatsApp, planilha) por checklist digital diário para operadores de máquinas pesadas.
@@ -752,6 +839,7 @@ Jun 2026   Jul 2026    Ago 2026    Set 2026    Out 2026    Nov 2026    Dez 2026
 │          │                      │ Landing page                       │
 │          │                      │ Coleta de Campo (PWA)              │
 │          │                      │ Gestão de Equipamentos             │
+│          │                      │ Gestão e Correção de Dados         │
 │          │                      │                    ├─ FASE 3 ──────┤
 │          │                      │                    │ Viário OCR    │
 │          │                      │                    │ GPS + Mapa    │

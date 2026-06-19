@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}OBRIA — Coleta de Campo{% endblock %}
+{% block nav_cur %}Coleta de Campo{% endblock %}
+
+{% block content %}
+<div class="module-header">
+  <div class="module-icon">📋</div>
+  <div>
+    <div class="module-title">Coleta de Campo</div>
+    <div class="module-sub">Formulários mobile para preenchimento em campo</div>
+  </div>
+</div>
+
+<div class="flex gap-sm mb-xl">
+  <a href="{{ url_for('formularios.novo') }}" class="btn btn-primary">+ Novo Formulário</a>
+</div>
+
+{% if cards %}
+<div class="grid-3">
+  {% for c in cards %}
+  <div class="dash-card">
+    <div class="flex-between">
+      <h3>{{ c.tpl.nome }}</h3>
+      <span class="eq-streak">{{ c.respostas }}</span>
+    </div>
+    {% if c.tpl.descricao %}<div class="eq-meta">{{ c.tpl.descricao }}</div>{% endif %}
+    <div class="eq-meta">{{ c.respostas }} resposta(s) · {{ c.tpl.campos|length }} campo(s)</div>
+    <div class="flex gap-sm" style="margin-top:auto">
+      <a href="{{ url_for('formularios.editar', id=c.tpl.id) }}" class="btn btn-ghost btn-sm">✏ Editar</a>
+      <a href="{{ url_for('formularios.respostas', id=c.tpl.id) }}" class="btn btn-ghost btn-sm">📊 Respostas</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="info-box info-box-accent">
+  <strong>Nenhum formulário criado ainda.</strong><br>
+  Crie o primeiro clicando em <strong>+ Novo Formulário</strong>.
+</div>
+{% endif %}
+{% endblock %}

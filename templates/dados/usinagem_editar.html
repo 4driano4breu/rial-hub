@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Editar Usinagem — OBRIA{% endblock %}
+{% block nav_cur %}Admin / Dados / Usinagem / Editar{% endblock %}
+
+{% block content %}
+<h1>Editar Registro de Usinagem</h1>
+<p class="subtitle">Ticket {{ reg.ticket or reg.id }} · alterações são registradas na auditoria</p>
+
+<div class="form-card">
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+      <div class="field">
+        <label>Data da operação</label>
+        <input type="date" name="data_operacao"
+               value="{{ reg.data_operacao.isoformat() if reg.data_operacao else '' }}">
+      </div>
+      <div class="field">
+        <label>Região</label>
+        <input type="text" name="regiao" value="{{ reg.regiao or '' }}">
+      </div>
+      <div class="field">
+        <label>Placa</label>
+        <input type="text" name="placa" value="{{ reg.placa or '' }}">
+      </div>
+      <div class="field">
+        <label>Motorista</label>
+        <input type="text" name="motorista" value="{{ reg.motorista or '' }}">
+      </div>
+      <div class="field">
+        <label>Peso bruto (t)</label>
+        <input type="number" step="0.001" name="peso_bruto"
+               value="{{ reg.peso_bruto if reg.peso_bruto is not none else '' }}">
+      </div>
+      <div class="field">
+        <label>Tara (t)</label>
+        <input type="number" step="0.001" name="tara"
+               value="{{ reg.tara if reg.tara is not none else '' }}">
+      </div>
+      <div class="field">
+        <label>Peso líquido (t)</label>
+        <input type="number" step="0.001" name="peso_liquido"
+               value="{{ reg.peso_liquido if reg.peso_liquido is not none else '' }}">
+      </div>
+      <div class="field">
+        <label>Contrato</label>
+        <input type="text" name="contrato" value="{{ reg.contrato or '' }}">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">Salvar</button>
+      <a href="{{ url_for('dados.usinagem_lista') }}" class="btn btn-ghost">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

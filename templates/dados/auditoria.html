@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Auditoria — OBRIA{% endblock %}
+{% block nav_cur %}Admin / Dados / Auditoria{% endblock %}
+
+{% block head %}
+<style>
+.pager { display:flex; gap:6px; align-items:center; justify-content:center; margin-top:18px; }
+.pager a, .pager span { padding:5px 11px; border-radius:6px; font-size:.8rem; border:1px solid var(--border); color:var(--muted); text-decoration:none; }
+.pager a:hover { color:var(--text); border-color:#475569; }
+.pager .cur { background:var(--accent); color:#fff; border-color:var(--accent); }
+.fbar { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:18px; }
+.fbar .field { margin-bottom:0; }
+.fbar input, .fbar select { min-width:130px; }
+.diff { font-size:.75rem; color:var(--muted); }
+.diff b { color:var(--text); font-weight:600; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="module-header">
+  <div class="module-icon">📜</div>
+  <div>
+    <div class="module-title">Log de Auditoria</div>
+    <div class="module-sub">{{ pg.total }} evento(s)</div>
+  </div>
+</div>
+
+<form method="GET" class="fbar">
+  <div class="field"><label>Módulo</label>
+    <select name="modulo">
+      <option value="">Todos</option>
+      {% for m in ['usinagem','faturamento','producao','formularios','equipamentos'] %}
+      <option value="{{ m }}" {% if filtros.modulo == m %}selected{% endif %}>{{ m }}</option>
+      {% endfor %}
+    </select></div>
+  <div class="field"><label>Ação</label>
+    <select name="acao">
+      <option value="">Todas</option>
+      {% for a in ['EDIT','DELETE','RESTORE','PURGE'] %}
+      <option value="{{ a }}" {% if filtros.acao == a %}selected{% endif %}>{{ a }}</option>
+      {% endfor %}
+    </select></div>
+  <div class="field"><label>Usuário</label>
+    <select name="usuario">
+      <option value="">Todos</option>
+      {% for u in usuarios %}
+      <option value="{{ u.id }}" {% if filtros.usuario == u.id|string %}selected{% endif %}>{{ u.nome }}</option>
+      {% endfor %}
+    </select></div>
+  <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+  <a href="{{ url_for('dados.auditoria') }}" class="btn btn-ghost btn-sm">Limpar</a>
+</form>
+
+<div class="card card-body">
+<table class="table">
+  <thead>
+    <tr><th>Data/Hora</th><th>Usuário</th><th>Ação</th><th>Módulo</th><th>Reg.</th><th>Alterações</th></tr>
+  </thead>
+  <tbody>
+    {% for log in pg.items %}
+    <tr>
+      <td>{{ log.criado_em.strftime('%d/%m/%Y %H:%M') if log.criado_em else '—' }}</td>
+      <td>{{ nomes.get(log.usuario_id, '#' ~ log.usuario_id) }}</td>
+      <td>
+        {% if log.acao == 'EDIT' %}<span class="badge badge-blue">EDIT</span>
+        {% elif log.acao == 'DELETE' %}<span class="badge badge-red">DELETE</span>
+        {% elif log.acao == 'RESTORE' %}<span class="badge badge-green">RESTORE</span>
+        {% else %}<span class="badge badge-muted">{{ log.acao }}</span>{% endif %}
+      </td>
+      <td>{{ log.modulo }}</td>
+      <td>{{ log.registro_id }}</td>
+      <td>
+        {% if log.campos %}
+          {% for campo, alt in log.campos.items() %}
+          <div class="diff"><b>{{ campo }}:</b> {{ alt.de if alt.de is not none else '∅' }} → {{ alt.para if alt.para is not none else '∅' }}</div>
+          {% endfor %}
+        {% else %}<span class="table-muted">—</span>{% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="table-muted" style="text-align:center;padding:24px">Nenhum evento registrado.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if pg.pages > 1 %}
+{% set qs = {'modulo': filtros.modulo, 'acao': filtros.acao, 'usuario': filtros.usuario} %}
+<div class="pager">
+  {% if pg.has_prev %}<a href="{{ url_for('dados.auditoria', p=pg.prev_num, **qs) }}">←</a>{% endif %}
+  <span class="cur">{{ pg.page }} / {{ pg.pages }}</span>
+  {% if pg.has_next %}<a href="{{ url_for('dados.auditoria', p=pg.next_num, **qs) }}">→</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

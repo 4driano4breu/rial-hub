@@ -1,11 +1,16 @@
+import io
 import os
 import tempfile
 from pathlib import Path
-from flask import render_template, request, send_from_directory, current_app, flash, redirect, url_for
+from flask import render_template, request, send_from_directory, current_app, flash, redirect, url_for, Response
 from flask_login import current_user, login_required
 
+import app.storage as r2
 from app.blueprints.faturamento import faturamento_bp
 from app.extensions import db
+
+_XLSX_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+_R2_WARN = " ⚠ R2 indisponível — dados ativos até próximo redeploy."
 
 _R2_XLSX = "faturamento/Faturamento_2026.xlsx"
 _R2_DASH = "faturamento/dashboard.html"
@@ -24,26 +29,43 @@ def index():
     return render_template("faturamento/index.html", ultima_atualizacao=ts.get("faturamento", "—"))
 
 
-@faturamento_bp.route("/dashboard")
-def dashboard():
+def _serve_dashboard():
+    try:
+        data = r2.download(_R2_DASH)
+        if data:
+            return Response(data, content_type="text/html; charset=utf-8")
+    except Exception:
+        pass
     folder = Path(current_app.static_folder) / "ferramentas" / "faturamento"
     return send_from_directory(folder, "dashboard.html")
+
+
+@faturamento_bp.route("/dashboard")
+def dashboard():
+    return _serve_dashboard()
 
 
 def regenerar_dashboard(notas_novas):
     import json
     import re
     from collections import defaultdict
-    import app.storage as r2
 
     dash_path = Path(current_app.static_folder) / "ferramentas" / "faturamento" / "dashboard.html"
-    if not dash_path.exists():
-        return
 
     MESES_PT = {1:"JANEIRO",2:"FEVEREIRO",3:"MARÇO",4:"ABRIL",5:"MAIO",6:"JUNHO",
                 7:"JULHO",8:"AGOSTO",9:"SETEMBRO",10:"OUTUBRO",11:"NOVEMBRO",12:"DEZEMBRO"}
 
-    html = dash_path.read_text(encoding="utf-8")
+    html = None
+    try:
+        data = r2.download(_R2_DASH)
+        if data:
+            html = data.decode("utf-8")
+    except Exception:
+        html = None
+    if html is None:
+        if not dash_path.exists():
+            return
+        html = dash_path.read_text(encoding="utf-8")
 
     m = re.search(r'const NOTES = (\[.*?\]);', html, re.DOTALL)
     existing = json.loads(m.group(1)) if m else []
@@ -101,15 +123,21 @@ def regenerar_dashboard(notas_novas):
     html = re.sub(r'const NOTES = \[.*?\];', f'const NOTES = {notes_js};', html, flags=re.DOTALL)
     html = re.sub(r'const SUMMARY = \[.*?\];', f'const SUMMARY = {summary_js};', html, flags=re.DOTALL)
 
-    dash_path.write_text(html, encoding="utf-8")
-    r2.upload(_R2_DASH, dash_path.read_bytes(), "text/html; charset=utf-8")
+    html_bytes = html.encode("utf-8")
+    try:
+        dash_path.parent.mkdir(parents=True, exist_ok=True)
+        dash_path.write_bytes(html_bytes)
+    except Exception:
+        pass
+    try:
+        r2.upload(_R2_DASH, html_bytes, "text/html; charset=utf-8")
+    except Exception:
+        pass
 
 
 @login_required
 @faturamento_bp.route("/atualizar", methods=["POST"])
 def atualizar():
-    import app.storage as r2
-
     xml_file = request.files.get("xml")
     xlsx_file = request.files.get("xlsx")
     if not xml_file or not xml_file.filename.endswith(".xml"):
@@ -121,25 +149,35 @@ def atualizar():
     xml_tmp.close()
     xml_path = Path(xml_tmp.name)
 
-    xlsx_path = _xlsx_path()
+    r2_warn = ""
+    xlsx_bytes = None
 
     if xlsx_file and xlsx_file.filename.endswith(".xlsx"):
         xlsx_bytes = xlsx_file.read()
-        xlsx_path.write_bytes(xlsx_bytes)
-        r2.upload(_R2_XLSX, xlsx_bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    elif not xlsx_path.exists():
-        # Tenta recuperar do R2 antes de falhar
-        xlsx_bytes = r2.download(_R2_XLSX)
-        if xlsx_bytes:
-            xlsx_path.write_bytes(xlsx_bytes)
-        else:
+        try:
+            r2.upload(_R2_XLSX, xlsx_bytes, _XLSX_CONTENT_TYPE)
+        except Exception:
+            r2_warn = _R2_WARN
+    else:
+        # Sem upload: tenta R2, depois disco local
+        try:
+            xlsx_bytes = r2.download(_R2_XLSX)
+        except Exception:
+            xlsx_bytes = None
+            r2_warn = _R2_WARN
+        if not xlsx_bytes:
+            local = _xlsx_path()
+            if local.exists():
+                xlsx_bytes = local.read_bytes()
+        if not xlsx_bytes:
             flash("Envie também a planilha .xlsx de faturamento (primeira vez).", "error")
             xml_path.unlink(missing_ok=True)
             return redirect(url_for("faturamento.index"))
 
     try:
-        from app.blueprints.faturamento.updater import parse_xml, criar_aba_mes, atualizar_resumo
-        from openpyxl import load_workbook
+        from app.blueprints.faturamento.updater import (
+            parse_xml, criar_aba_mes, atualizar_resumo, carregar_workbook,
+        )
 
         notas = parse_xml(str(xml_path))
         if not notas:
@@ -152,16 +190,21 @@ def atualizar():
                     7:"JULHO",8:"AGOSTO",9:"SETEMBRO",10:"OUTUBRO",11:"NOVEMBRO",12:"DEZEMBRO"}
         nome_aba = f"{MESES_PT[mes]} {ano}"
 
-        wb = load_workbook(str(xlsx_path))
+        wb = carregar_workbook(xlsx_bytes)
         abas_mes = [s for s in wb.sheetnames if s != "RESUMO"]
         template_aba = abas_mes[-1]
         subtotal_row, col_map = criar_aba_mes(wb, notas, mes, ano, nome_aba, template_aba)
         atualizar_resumo(wb, mes, subtotal_row, col_map, nome_aba)
-        wb.save(str(xlsx_path))
+
+        out = io.BytesIO()
+        wb.save(out)
+        xlsx_atualizado = out.getvalue()
 
         # Persiste xlsx atualizado no R2
-        r2.upload(_R2_XLSX, xlsx_path.read_bytes(),
-                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        try:
+            r2.upload(_R2_XLSX, xlsx_atualizado, _XLSX_CONTENT_TYPE)
+        except Exception:
+            r2_warn = _R2_WARN
 
         # Persiste notas no banco PostgreSQL
         from app.models import FaturamentoNota
@@ -195,7 +238,7 @@ def atualizar():
             flash(f"Planilha atualizada, mas erro ao regenerar dashboard: {regen_err}", "warning")
             return redirect(url_for("faturamento.index"))
 
-        flash(f"Planilha e dashboard atualizados: {len(notas)} notas de {MESES_PT[mes]}/{ano} importadas.", "ok")
+        flash(f"Planilha e dashboard atualizados: {len(notas)} notas de {MESES_PT[mes]}/{ano} importadas.{r2_warn}", "ok")
     except Exception as e:
         flash(f"Erro ao processar: {e}", "error")
     finally:

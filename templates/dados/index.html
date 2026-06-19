@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Gestão de Dados — OBRIA{% endblock %}
+{% block nav_cur %}Admin / Dados{% endblock %}
+
+{% block content %}
+<div class="module-header">
+  <div class="module-icon">🗂</div>
+  <div>
+    <div class="module-title">Gestão e Correção de Dados</div>
+    <div class="module-sub">Edite, exclua e audite registros dos módulos</div>
+  </div>
+</div>
+
+{% if stats.usinagem_lixeira or stats.faturamento_lixeira %}
+<div class="info-box" style="border-left:3px solid var(--red);margin-bottom:var(--sp-lg)">
+  <strong style="color:#f87171">⚠ Registros na lixeira:</strong>
+  {{ stats.usinagem_lixeira }} usinagem · {{ stats.faturamento_lixeira }} faturamento.
+  Acesse cada módulo com <code>?lixeira=1</code> para restaurar.
+</div>
+{% endif %}
+
+<div class="grid-3">
+  <div class="dash-card">
+    <h3>⚙ Usinagem</h3>
+    <div class="stat-num" style="margin:8px 0">{{ stats.usinagem }}</div>
+    <div class="stat-label">registros ativos
+      {% if stats.usinagem_lixeira %}· {{ stats.usinagem_lixeira }} na lixeira{% endif %}
+    </div>
+    <div class="flex gap-sm" style="margin-top:14px">
+      <a href="{{ url_for('dados.usinagem_lista') }}" class="btn btn-primary btn-sm">Gerenciar →</a>
+    </div>
+  </div>
+
+  <div class="dash-card">
+    <h3>💰 Faturamento</h3>
+    <div class="stat-num" style="margin:8px 0">{{ stats.faturamento }}</div>
+    <div class="stat-label">notas ativas
+      {% if stats.faturamento_lixeira %}· {{ stats.faturamento_lixeira }} na lixeira{% endif %}
+    </div>
+    <div class="flex gap-sm" style="margin-top:14px">
+      <a href="{{ url_for('dados.faturamento_lista') }}" class="btn btn-primary btn-sm">Gerenciar →</a>
+    </div>
+  </div>
+
+  <div class="dash-card">
+    <h3>🚜 Checklists</h3>
+    <div class="stat-num" style="margin:8px 0">{{ stats.checklist }}</div>
+    <div class="stat-label">execuções registradas</div>
+    <div class="flex gap-sm" style="margin-top:14px">
+      <a href="{{ url_for('equipamentos.index') }}" class="btn btn-ghost btn-sm">Ver módulo →</a>
+    </div>
+  </div>
+
+  <div class="dash-card">
+    <h3>📜 Auditoria</h3>
+    <div class="stat-num" style="margin:8px 0">{{ stats.auditoria }}</div>
+    <div class="stat-label">eventos registrados</div>
+    <div class="flex gap-sm" style="margin-top:14px">
+      <a href="{{ url_for('dados.auditoria') }}" class="btn btn-ghost btn-sm">Ver log →</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

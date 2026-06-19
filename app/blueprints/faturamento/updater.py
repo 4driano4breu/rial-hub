@@ -5,6 +5,7 @@ Uso: python atualizar_faturamento.py <arquivo.xml> [planilha.xlsx]
 """
 
 import sys
+import io
 import re
 import xml.etree.ElementTree as ET
 from copy import copy
@@ -114,6 +115,14 @@ def parse_xml(xml_path):
 
     notas.sort(key=lambda x: x['emissao'] or datetime.min, reverse=True)
     return notas
+
+
+# -------------------------------------------------------------------
+# Carrega a planilha a partir de bytes (filesystem efêmero / R2)
+# -------------------------------------------------------------------
+
+def carregar_workbook(dados: bytes):
+    return load_workbook(io.BytesIO(dados))
 
 
 # -------------------------------------------------------------------

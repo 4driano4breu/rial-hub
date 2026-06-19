@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}OBRIA — Respostas {{ tpl.nome }}{% endblock %}
+{% block nav_cur %}Respostas{% endblock %}
+
+{% block head %}
+<style>
+.resp-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+.resp-table th, .resp-table td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--border,#334155); }
+.resp-table th { color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; }
+.resp-table tr:hover { background:var(--surface,#1e293b40); }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('formularios.editar', id=tpl.id) }}" class="btn btn-ghost btn-sm mb-lg">← Editar formulário</a>
+
+<div class="flex-between mb-xl">
+  <div>
+    <h1>{{ tpl.nome }}</h1>
+    <div class="eq-meta">{{ pag.total }} resposta(s)</div>
+  </div>
+  <a href="{{ url_for('formularios.exportar', id=tpl.id) }}" class="btn btn-primary btn-sm">⬇ Exportar CSV</a>
+</div>
+
+{% if pag.items %}
+<div class="dash-card" style="overflow-x:auto">
+  <table class="resp-table">
+    <thead>
+      <tr>
+        <th>Data envio</th>
+        <th>Enviado por</th>
+        {% for c in preview_campos %}<th>{{ c.label }}</th>{% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in pag.items %}
+      <tr>
+        <td>{{ r.criado_em.strftime('%d/%m/%Y %H:%M') if r.criado_em else '—' }}</td>
+        <td>{{ r.enviado_por if r.enviado_por else 'Anônimo' }}</td>
+        {% for c in preview_campos %}<td>{{ (r.dados or {}).get(c.id, '') }}</td>{% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if pag.pages > 1 %}
+<div class="flex gap-sm" style="margin-top:16px;align-items:center">
+  {% if pag.has_prev %}
+  <a href="{{ url_for('formularios.respostas', id=tpl.id, page=pag.prev_num) }}" class="btn btn-ghost btn-sm">← Anterior</a>
+  {% endif %}
+  <span class="eq-meta">Página {{ pag.page }} de {{ pag.pages }}</span>
+  {% if pag.has_next %}
+  <a href="{{ url_for('formularios.respostas', id=tpl.id, page=pag.next_num) }}" class="btn btn-ghost btn-sm">Próxima →</a>
+  {% endif %}
+</div>
+{% endif %}
+{% else %}
+<div class="info-box info-box-accent">Nenhuma resposta recebida ainda.</div>
+{% endif %}
+{% endblock %}

@@ -53,6 +53,9 @@ class FaturamentoNota(db.Model):
     recebido         = db.Column(db.Boolean, default=False)
     data_recebimento = db.Column(db.Date, nullable=True)
     criado_em        = db.Column(db.DateTime, default=datetime.utcnow)
+    excluido    = db.Column(db.Boolean, default=False, nullable=False, server_default='false')
+    excluido_em = db.Column(db.DateTime, nullable=True)
+    excluido_por = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
 
     __table_args__ = (
         db.UniqueConstraint("org_id", "nr", name="uq_faturamento_org_nr"),
@@ -87,6 +90,9 @@ class UsinagemRegistro(db.Model):
     regiao        = db.Column(db.String(60))   # 'AEGEA' | 'GUARIROBA' | etc
     contrato      = db.Column(db.String(80))
     criado_em     = db.Column(db.DateTime, default=datetime.utcnow)
+    excluido    = db.Column(db.Boolean, default=False, nullable=False, server_default='false')
+    excluido_em = db.Column(db.DateTime, nullable=True)
+    excluido_por = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
 
     __table_args__ = (
         db.UniqueConstraint("org_id", "ticket", name="uq_usinagem_org_ticket"),
@@ -175,3 +181,50 @@ class ChecklistExecucao(db.Model):
     __table_args__ = (
         db.UniqueConstraint("equipamento_id", "data_execucao", name="uq_checklist_por_dia"),
     )
+
+
+class FormularioTemplate(db.Model):
+    __tablename__ = "formulario_template"
+
+    id             = db.Column(db.Integer, primary_key=True)
+    org_id         = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=False)
+    slug           = db.Column(db.String(80), nullable=False)
+    nome           = db.Column(db.String(120), nullable=False)
+    descricao      = db.Column(db.String(255))
+    campos         = db.Column(db.JSON, nullable=False, default=list)
+    aceita_anonimo = db.Column(db.Boolean, default=True)
+    ativo          = db.Column(db.Boolean, default=True)
+    criado_em      = db.Column(db.DateTime, default=datetime.utcnow)
+
+    respostas = db.relationship("FormularioResposta", backref="template", lazy=True)
+
+    __table_args__ = (
+        db.UniqueConstraint("org_id", "slug", name="uq_formulario_org_slug"),
+    )
+
+
+class FormularioResposta(db.Model):
+    __tablename__ = "formulario_resposta"
+
+    id          = db.Column(db.Integer, primary_key=True)
+    org_id      = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=False)
+    template_id = db.Column(db.Integer, db.ForeignKey("formulario_template.id"), nullable=False)
+    dados       = db.Column(db.JSON, nullable=False, default=dict)
+    enviado_por = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    latitude    = db.Column(db.Float, nullable=True)
+    longitude   = db.Column(db.Float, nullable=True)
+    dispositivo = db.Column(db.String(200))
+    criado_em   = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class AuditLog(db.Model):
+    __tablename__ = "audit_log"
+
+    id          = db.Column(db.Integer, primary_key=True)
+    org_id      = db.Column(db.Integer, db.ForeignKey("organizations.id"), nullable=False)
+    usuario_id  = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    acao        = db.Column(db.String(20))   # EDIT | DELETE | RESTORE | PURGE
+    modulo      = db.Column(db.String(40))   # usinagem | faturamento | producao | formularios | equipamentos
+    registro_id = db.Column(db.Integer)
+    campos      = db.Column(db.JSON)         # {"campo": {"de": valor_antigo, "para": valor_novo}}
+    criado_em   = db.Column(db.DateTime, default=datetime.utcnow)

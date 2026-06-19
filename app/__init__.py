@@ -85,6 +85,8 @@ def create_app() -> Flask:
     from app.blueprints.equipamentos import equipamentos_bp
 
     from app.blueprints.admin import admin_bp
+    from app.blueprints.dados import dados_bp
+    from app.blueprints.formularios import formularios_bp
 
     app.register_blueprint(notas_bp,        url_prefix="/notas")
     app.register_blueprint(faturamento_bp,  url_prefix="/faturamento")
@@ -92,6 +94,8 @@ def create_app() -> Flask:
     app.register_blueprint(ferramentas_bp,  url_prefix="/ferramentas")
     app.register_blueprint(equipamentos_bp, url_prefix="/equipamentos")
     app.register_blueprint(admin_bp,        url_prefix="/admin")
+    app.register_blueprint(dados_bp)
+    app.register_blueprint(formularios_bp)
 
     @app.route("/")
     def index():
@@ -112,7 +116,8 @@ def create_app() -> Flask:
     def require_login():
         from flask import request
         public = {"auth.login", "auth.logout", "static", "landing",
-                  "equipamentos.mobile_checklist", "equipamentos.mobile_obrigado"}
+                  "equipamentos.mobile_checklist", "equipamentos.mobile_obrigado",
+                  "formularios.form_mobile", "formularios.form_obrigado"}
         if request.endpoint and request.endpoint not in public:
             if not current_user.is_authenticated:
                 return redirect(url_for("auth.login"))

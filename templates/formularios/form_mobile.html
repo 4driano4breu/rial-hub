@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>{% if tpl %}{{ tpl.nome }}{% else %}Formulário{% endif %}</title>
+<link rel="manifest" href="{{ url_for('static', filename='formularios/manifest.json') }}">
+<meta name="theme-color" content="#3b82f6">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  body { background:#0f172a; color:#f1f5f9; font-family:"Segoe UI",system-ui,sans-serif; padding:18px 16px 96px; line-height:1.5; }
+  .head { margin-bottom:20px; }
+  .mname { font-size:1.6rem; font-weight:800; }
+  .msub { color:#94a3b8; font-size:.95rem; margin-top:4px; }
+  .item { background:#1e293b; border:1px solid #334155; border-radius:12px; padding:16px; margin-bottom:12px; }
+  .item-label { font-size:1rem; font-weight:600; margin-bottom:12px; }
+  .item-label .req { color:#f87171; }
+  .okrow { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .okbtn { padding:16px; border-radius:10px; border:2px solid #334155; background:#0f172a; color:#f1f5f9; font-size:1rem; font-weight:700; cursor:pointer; text-align:center; }
+  .okbtn.sel-sim { border-color:#16a34a; background:#16a34a25; color:#4ade80; }
+  .okbtn.sel-nao { border-color:#dc2626; background:#dc262625; color:#f87171; }
+  input[type=text], input[type=number], input[type=date], input[type=time], select, textarea {
+    width:100%; background:#0f172a; border:1px solid #334155; border-radius:10px; color:#f1f5f9; padding:14px; font-size:16px; font-family:inherit; }
+  input[type=file] { width:100%; background:#0f172a; border:1px solid #334155; border-radius:10px; color:#f1f5f9; padding:14px; font-size:16px; }
+  textarea { resize:vertical; min-height:80px; }
+  .unit { color:#94a3b8; font-size:.85rem; margin-top:6px; }
+  .submit-bar { position:fixed; left:0; right:0; bottom:0; padding:14px 16px; background:#0f172a; border-top:1px solid #334155; }
+  .submit-btn { width:100%; padding:18px; border:none; border-radius:12px; background:#3b82f6; color:#fff; font-size:1.1rem; font-weight:800; cursor:pointer; }
+  .submit-btn:active { background:#2563eb; }
+  .geo { font-size:.78rem; color:#64748b; margin-top:8px; text-align:center; }
+  .errbox { background:#1e293b; border:1px solid #475569; border-radius:12px; padding:32px 24px; text-align:center; color:#94a3b8; margin-top:48px; }
+  .errbox .icon { font-size:3rem; margin-bottom:12px; }
+</style>
+</head>
+<body>
+{% if not tpl %}
+  <div class="errbox">
+    <div class="icon">🔍</div>
+    <h1 style="font-size:1.3rem;color:#f1f5f9;margin-bottom:8px">Formulário não encontrado</h1>
+    <div>O link pode estar incorreto ou o formulário foi desativado.</div>
+  </div>
+{% else %}
+<form method="post" action="{{ url_for('formularios.form_mobile', org_slug=org.slug, form_slug=tpl.slug) }}" enctype="multipart/form-data">
+  <div class="head">
+    <div class="mname">{{ tpl.nome }}</div>
+    {% if tpl.descricao %}<div class="msub">{{ tpl.descricao }}</div>{% endif %}
+    <div class="msub" id="hoje"></div>
+  </div>
+
+  {% for c in tpl.campos %}
+  <div class="item">
+    <div class="item-label">{{ c.label }}{% if c.obrigatorio %} <span class="req">*</span>{% endif %}</div>
+
+    {% if c.tipo == 'text' %}
+      <input type="text" name="{{ c.id }}" {% if c.obrigatorio %}required{% endif %}>
+    {% elif c.tipo == 'numero' %}
+      <input type="number" step="any" name="{{ c.id }}" {% if c.obrigatorio %}required{% endif %} inputmode="decimal">
+      {% if c.unidade %}<div class="unit">{{ c.unidade }}</div>{% endif %}
+    {% elif c.tipo == 'select' %}
+      <select name="{{ c.id }}" {% if c.obrigatorio %}required{% endif %}>
+        <option value="">— Selecione —</option>
+        {% for o in c.opcoes or [] %}<option value="{{ o }}">{{ o }}</option>{% endfor %}
+      </select>
+    {% elif c.tipo == 'data' %}
+      <input type="date" name="{{ c.id }}" {% if c.obrigatorio %}required{% endif %}>
+    {% elif c.tipo == 'hora' %}
+      <input type="time" name="{{ c.id }}" {% if c.obrigatorio %}required{% endif %}>
+    {% elif c.tipo == 'foto' %}
+      <input type="file" name="{{ c.id }}" accept="image/*" capture="environment" {% if c.obrigatorio %}required{% endif %}>
+    {% elif c.tipo == 'gps' %}
+      <input type="hidden" name="{{ c.id }}" id="gps_{{ c.id }}">
+      <div class="unit" id="gpsmsg_{{ c.id }}">📍 Obtendo localização...</div>
+    {% elif c.tipo == 'booleano' %}
+      <input type="hidden" name="{{ c.id }}" id="inp_{{ c.id }}" {% if c.obrigatorio %}required{% endif %}>
+      <div class="okrow">
+        <div class="okbtn" data-target="inp_{{ c.id }}" data-val="Sim" onclick="pick(this)">✅ Sim</div>
+        <div class="okbtn" data-target="inp_{{ c.id }}" data-val="Não" onclick="pick(this)">❌ Não</div>
+      </div>
+    {% else %}
+      <textarea name="{{ c.id }}" {% if c.obrigatorio %}required{% endif %} placeholder="Digite aqui..."></textarea>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <input type="hidden" name="lat" id="lat">
+  <input type="hidden" name="lon" id="lon">
+  <div class="geo" id="geoMsg">📍 Obtendo localização...</div>
+
+  <div class="submit-bar">
+    <button type="submit" class="submit-btn">Enviar</button>
+  </div>
+</form>
+
+<script>
+document.getElementById('hoje').textContent = new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
+
+function pick(el) {
+  const target = document.getElementById(el.dataset.target);
+  const val = el.dataset.val;
+  target.value = val;
+  el.parentElement.querySelectorAll('.okbtn').forEach(b => b.classList.remove('sel-sim','sel-nao'));
+  el.classList.add(val === 'Sim' ? 'sel-sim' : 'sel-nao');
+}
+
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    function(p) {
+      var lat = p.coords.latitude, lon = p.coords.longitude;
+      document.getElementById('lat').value = lat;
+      document.getElementById('lon').value = lon;
+      document.getElementById('geoMsg').textContent = '📍 Localização registrada';
+      document.querySelectorAll('[id^="gps_"]').forEach(function(f){ f.value = lat + ',' + lon; });
+      document.querySelectorAll('[id^="gpsmsg_"]').forEach(function(m){ m.textContent = '📍 ' + lat.toFixed(5) + ', ' + lon.toFixed(5); });
+    },
+    function() {
+      document.getElementById('geoMsg').textContent = '📍 Localização indisponível';
+      document.querySelectorAll('[id^="gpsmsg_"]').forEach(function(m){ m.textContent = '📍 Localização indisponível'; });
+    },
+    { timeout: 8000 }
+  );
+} else {
+  document.getElementById('geoMsg').textContent = '';
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('{{ url_for('static', filename='formularios/sw.js') }}').catch(function(){});
+}
+</script>
+{% endif %}
+</body>
+</html>

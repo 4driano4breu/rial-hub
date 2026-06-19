@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}OBRIA — Novo Formulário{% endblock %}
+{% block nav_cur %}Novo Formulário{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('formularios.index') }}" class="btn btn-ghost btn-sm mb-lg">← Coleta de Campo</a>
+
+<h1 class="mb-lg">Novo Formulário</h1>
+
+<form method="post" action="{{ url_for('formularios.novo') }}">
+  <div class="form-card" style="max-width:640px">
+    <div class="field">
+      <label for="nome">Nome *</label>
+      <input type="text" id="nome" name="nome" required placeholder="Ex: Inspeção de Obra">
+    </div>
+    <div class="field">
+      <label for="descricao">Descrição</label>
+      <input type="text" id="descricao" name="descricao" placeholder="Breve descrição do formulário">
+    </div>
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" name="aceita_anonimo" value="1" checked style="width:auto">
+        Aceita resposta sem login?
+      </label>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">Criar e adicionar campos</button>
+      <a href="{{ url_for('formularios.index') }}" class="btn btn-ghost">Cancelar</a>
+    </div>
+  </div>
+</form>
+{% endblock %}

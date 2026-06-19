@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Dados / Faturamento — OBRIA{% endblock %}
+{% block nav_cur %}Admin / Dados / Faturamento{% endblock %}
+
+{% block head %}
+<style>
+.pager { display:flex; gap:6px; align-items:center; justify-content:center; margin-top:18px; }
+.pager a, .pager span { padding:5px 11px; border-radius:6px; font-size:.8rem; border:1px solid var(--border); color:var(--muted); text-decoration:none; }
+.pager a:hover { color:var(--text); border-color:#475569; }
+.pager .cur { background:var(--accent); color:#fff; border-color:var(--accent); }
+.fbar { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:18px; }
+.fbar .field { margin-bottom:0; }
+.fbar input, .fbar select { min-width:130px; }
+.num { text-align:right; font-variant-numeric:tabular-nums; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="module-header">
+  <div class="module-icon">💰</div>
+  <div>
+    <div class="module-title">Notas de Faturamento {% if lixeira %}— Lixeira{% endif %}</div>
+    <div class="module-sub">{{ pg.total }} nota(s)</div>
+  </div>
+</div>
+
+{% if lixeira %}
+<div class="info-box" style="border-left:3px solid var(--red);margin-bottom:14px">
+  <strong style="color:#f87171">Lixeira:</strong> exibindo notas excluídas.
+  <a href="{{ url_for('dados.faturamento_lista') }}" style="color:var(--accent)">← Voltar às ativas</a>
+</div>
+{% else %}
+<div class="flex gap-sm" style="margin-bottom:14px">
+  <a href="{{ url_for('dados.faturamento_lista', lixeira=1) }}" class="btn btn-ghost btn-sm">🗑 Ver lixeira</a>
+</div>
+{% endif %}
+
+<form method="GET" class="fbar">
+  {% if lixeira %}<input type="hidden" name="lixeira" value="1">{% endif %}
+  <div class="field"><label>Busca</label>
+    <input type="text" name="q" value="{{ filtros.q }}" placeholder="nr, contrato, município"></div>
+  <div class="field"><label>De (emissão)</label>
+    <input type="date" name="de" value="{{ filtros.de }}"></div>
+  <div class="field"><label>Até (emissão)</label>
+    <input type="date" name="ate" value="{{ filtros.ate }}"></div>
+  <div class="field"><label>Recebido</label>
+    <select name="recebido">
+      <option value="">Todas</option>
+      <option value="1" {% if filtros.recebido == '1' %}selected{% endif %}>Recebidas</option>
+      <option value="0" {% if filtros.recebido == '0' %}selected{% endif %}>Pendentes</option>
+    </select></div>
+  <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+  <a href="{{ url_for('dados.faturamento_lista', lixeira=1 if lixeira else None) }}" class="btn btn-ghost btn-sm">Limpar</a>
+</form>
+
+<div class="card card-body">
+<table class="table">
+  <thead>
+    <tr>
+      <th>Nr</th><th>Emissão</th><th>Contrato</th><th>Município</th>
+      <th class="num">Bruto</th><th class="num">Líquido</th><th>Recebido</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for n in pg.items %}
+    <tr>
+      <td>{{ n.nr }}</td>
+      <td>{{ n.emissao.strftime('%d/%m/%Y') if n.emissao else '—' }}</td>
+      <td>{{ n.contrato or '—' }}</td>
+      <td>{{ n.municipio or '—' }}</td>
+      <td class="num">{{ '%.2f'|format(n.bruto) if n.bruto is not none else '—' }}</td>
+      <td class="num">{{ '%.2f'|format(n.liquido) if n.liquido is not none else '—' }}</td>
+      <td>
+        {% if n.recebido %}<span class="badge badge-green">Recebido</span>
+        {% else %}<span class="badge badge-yellow">Pendente</span>{% endif %}
+      </td>
+      <td style="white-space:nowrap">
+        {% if lixeira %}
+        <form method="POST" action="{{ url_for('dados.faturamento_restaurar', id=n.id) }}" style="display:inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-success btn-sm">↩ Restaurar</button>
+        </form>
+        {% else %}
+        <a href="{{ url_for('dados.faturamento_editar', id=n.id) }}" class="btn btn-ghost btn-sm">✏️</a>
+        <form method="POST" action="{{ url_for('dados.faturamento_excluir', id=n.id) }}" style="display:inline"
+              onsubmit="return confirm('Mover esta nota para a lixeira?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger btn-sm">🗑</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="8" class="table-muted" style="text-align:center;padding:24px">Nenhuma nota encontrada.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if pg.pages > 1 %}
+{% set qs = {'q': filtros.q, 'de': filtros.de, 'ate': filtros.ate, 'recebido': filtros.recebido, 'lixeira': '1' if lixeira else None} %}
+<div class="pager">
+  {% if pg.has_prev %}<a href="{{ url_for('dados.faturamento_lista', p=pg.prev_num, **qs) }}">←</a>{% endif %}
+  <span class="cur">{{ pg.page }} / {{ pg.pages }}</span>
+  {% if pg.has_next %}<a href="{{ url_for('dados.faturamento_lista', p=pg.next_num, **qs) }}">→</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

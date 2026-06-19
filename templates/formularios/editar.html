@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}OBRIA — Editar {{ tpl.nome }}{% endblock %}
+{% block nav_cur %}Editar Formulário{% endblock %}
+
+{% block head %}
+<style>
+.campo-row { display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background:var(--surface,#1e293b); border:1px solid var(--border,#334155);
+  border-radius:10px; padding:12px 14px; margin-bottom:8px; }
+.campo-meta { font-size:.78rem; color:var(--muted); }
+.tag { display:inline-block; font-size:.68rem; padding:2px 8px; border-radius:12px;
+  background:#3b82f620; color:#60a5fa; border:1px solid #3b82f640; margin-left:6px; }
+.tag.req { background:#dc262620; color:#f87171; border-color:#dc262640; }
+.url-box { display:flex; gap:8px; align-items:center; background:var(--surface,#1e293b);
+  border:1px solid var(--border,#334155); border-radius:10px; padding:10px 12px; }
+.url-box code { flex:1; font-size:.82rem; color:#93c5fd; word-break:break-all; }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('formularios.index') }}" class="btn btn-ghost btn-sm mb-lg">← Coleta de Campo</a>
+
+<div class="flex-between mb-lg">
+  <h1>{{ tpl.nome }}</h1>
+  <div class="flex gap-sm">
+    <a href="{{ url_for('formularios.respostas', id=tpl.id) }}" class="btn btn-ghost btn-sm">📊 Respostas</a>
+    <form method="post" action="{{ url_for('formularios.excluir', id=tpl.id) }}"
+          onsubmit="return confirm('Excluir este formulário?')" style="display:inline">
+      <button type="submit" class="btn btn-ghost btn-sm" style="color:#f87171">🗑 Excluir</button>
+    </form>
+  </div>
+</div>
+
+<!-- Dados do formulário -->
+<form method="post" action="{{ url_for('formularios.editar', id=tpl.id) }}">
+  <input type="hidden" name="action" value="save">
+  <div class="form-card mb-xl" style="max-width:720px">
+    <div class="field">
+      <label for="nome">Nome</label>
+      <input type="text" id="nome" name="nome" value="{{ tpl.nome }}" required>
+    </div>
+    <div class="field">
+      <label for="descricao">Descrição</label>
+      <input type="text" id="descricao" name="descricao" value="{{ tpl.descricao or '' }}">
+    </div>
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" name="aceita_anonimo" value="1" {% if tpl.aceita_anonimo %}checked{% endif %} style="width:auto">
+        Aceita resposta sem login?
+      </label>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">Salvar</button>
+    </div>
+  </div>
+</form>
+
+<!-- URL Mobile -->
+<h2 class="mb-sm">Link Mobile</h2>
+<div class="url-box mb-xl" style="max-width:720px">
+  <code id="mobileUrl">{{ mobile_url }}</code>
+  <button type="button" class="btn btn-ghost btn-sm" onclick="copiar()">📋 Copiar</button>
+</div>
+
+<!-- Campos -->
+<h2 class="mb-sm">Campos</h2>
+{% if tpl.campos %}
+{% for c in tpl.campos %}
+<div class="campo-row" style="max-width:720px">
+  <div>
+    <strong>{{ c.label }}</strong>
+    <span class="tag">{{ c.tipo }}</span>
+    {% if c.obrigatorio %}<span class="tag req">obrigatório</span>{% endif %}
+    {% if c.tipo == 'select' and c.opcoes %}<div class="campo-meta">Opções: {{ c.opcoes|join(', ') }}</div>{% endif %}
+    {% if c.tipo == 'numero' and c.unidade %}<div class="campo-meta">Unidade: {{ c.unidade }}</div>{% endif %}
+  </div>
+  <form method="post" action="{{ url_for('formularios.editar', id=tpl.id) }}" style="display:inline">
+    <input type="hidden" name="action" value="remove_campo">
+    <input type="hidden" name="campo_id" value="{{ c.id }}">
+    <button type="submit" class="btn btn-ghost btn-sm" style="color:#f87171"
+            onclick="return confirm('Remover campo?')">🗑</button>
+  </form>
+</div>
+{% endfor %}
+{% else %}
+<div class="info-box mb-lg" style="max-width:720px">Nenhum campo ainda. Adicione abaixo.</div>
+{% endif %}
+
+<!-- Adicionar campo -->
+<h2 class="mb-sm" style="margin-top:24px">Adicionar campo</h2>
+<form method="post" action="{{ url_for('formularios.editar', id=tpl.id) }}">
+  <input type="hidden" name="action" value="add_campo">
+  <div class="form-card" style="max-width:720px">
+    <div class="grid-2">
+      <div class="field">
+        <label for="tipo">Tipo</label>
+        <select id="tipo" name="tipo" onchange="toggleExtra()">
+          <option value="texto">Texto longo</option>
+          <option value="text">Texto curto</option>
+          <option value="numero">Número</option>
+          <option value="select">Seleção</option>
+          <option value="data">Data</option>
+          <option value="hora">Hora</option>
+          <option value="foto">Foto</option>
+          <option value="gps">GPS</option>
+          <option value="booleano">Sim/Não</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="label">Rótulo</label>
+        <input type="text" id="label" name="label" required placeholder="Ex: Nome do responsável">
+      </div>
+    </div>
+    <div class="field" id="extraOpcoes" style="display:none">
+      <label for="opcoes">Opções (separadas por vírgula)</label>
+      <input type="text" id="opcoes" name="opcoes" placeholder="Opção A, Opção B, Opção C">
+    </div>
+    <div class="field" id="extraUnidade" style="display:none">
+      <label for="unidade">Unidade</label>
+      <input type="text" id="unidade" name="unidade" placeholder="Ex: m, kg, %">
+    </div>
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" name="obrigatorio" value="1" style="width:auto">
+        Campo obrigatório
+      </label>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">+ Adicionar campo</button>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleExtra() {
+  var tipo = document.getElementById('tipo').value;
+  document.getElementById('extraOpcoes').style.display = (tipo === 'select') ? 'block' : 'none';
+  document.getElementById('extraUnidade').style.display = (tipo === 'numero') ? 'block' : 'none';
+}
+function copiar() {
+  var txt = document.getElementById('mobileUrl').textContent;
+  navigator.clipboard.writeText(txt).then(function(){ alert('Link copiado!'); });
+}
+toggleExtra();
+</script>
+{% endblock %}

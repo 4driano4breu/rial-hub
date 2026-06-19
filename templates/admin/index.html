@@ -20,6 +20,10 @@
     <div class="stat-num">{{ org.plan | upper }}</div>
     <div class="stat-label">Plano atual</div>
   </div>
+  <div class="stat">
+    <div class="stat-num"><a href="{{ url_for('dados.index') }}" style="color:var(--accent);text-decoration:none">Dados</a></div>
+    <div class="stat-label">Gestão e correção de dados</div>
+  </div>
   {% if current_user.has_role("SUPERADMIN") %}
   <div class="stat">
     <div class="stat-num"><a href="{{ url_for('admin.organizacoes') }}" style="color:var(--accent);text-decoration:none">Orgs</a></div>
