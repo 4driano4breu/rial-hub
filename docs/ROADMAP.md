@@ -762,6 +762,122 @@ Grid de células por dia do ano. Cores: verde (feito), vermelho (dia útil sem c
 
 **Integração com Painéis:** Admin configura Painel com `modulo_fonte: 'equipamentos'` + `filtros: {"tipo": "retroescavadeira"}` para exibir % de compliance mensal, streak médio da frota e máquinas em atraso.
 
+#### 2.9 — Central de Ajuda e Manual do Usuário
+
+**Objetivo:** Todo usuário — do operador de máquina ao admin financeiro — consegue aprender a usar o OBRIA sem precisar perguntar a ninguém. Ajuda disponível em dois níveis: contextual (dentro de cada página) e centralizada (manual completo em `/ajuda/`).
+
+**Rotas:**
+
+```
+/ajuda/                          ← página inicial: índice dos módulos + busca
+/ajuda/usinagem                  ← manual do módulo Usinagem CBUQ
+/ajuda/faturamento               ← manual do módulo Faturamento NFS-e
+/ajuda/notas                     ← manual do módulo Notas de Medição
+/ajuda/equipamentos              ← manual do módulo Gestão de Equipamentos
+/ajuda/coleta                    ← manual do módulo Coleta de Campo (PWA)
+/ajuda/dados                     ← manual do módulo Gestão de Dados
+/ajuda/ferramentas               ← manual das Ferramentas (Faz Tudo, Le Doc, etc.)
+/ajuda/primeiros-passos          ← guia para novos usuários (onboarding textual)
+```
+
+**Nível 1 — Ajuda contextual (em cada módulo):**
+
+- Ícone `?` no cabeçalho de cada módulo → abre painel lateral com resumo rápido
+- Tooltips em campos complexos (ex: "O ticket é o número da nota de pesagem")
+- Mensagens de estado vazias com CTA: "Nenhum registro ainda. [Como fazer o primeiro upload →]"
+- Flash messages de sucesso com link para ação seguinte: "✓ Atualizado. [Ver dashboard →]"
+
+**Nível 2 — Manual central `/ajuda/`:**
+
+```
+Início da ajuda
+├── 🔍 Busca por palavra-chave (filtra seções em JS, sem backend)
+├── 🚀 Primeiros Passos
+│   ├── Como fazer login
+│   ├── Visão geral dos módulos
+│   └── Como convidar usuários da equipe
+├── ⚙ Usinagem CBUQ
+│   ├── Como exportar o CSV do Google Sheets
+│   ├── Como fazer o upload e atualizar dashboards
+│   └── Como interpretar os gráficos
+├── 💰 Faturamento NFS-e
+│   ├── Como importar o XML da prefeitura
+│   ├── Como marcar nota como recebida
+│   └── Como exportar relatório
+├── 📋 Notas de Medição
+│   └── Como gerar uma nota parcial ou de reajustamento
+├── 🚜 Gestão de Equipamentos
+│   ├── Como cadastrar uma máquina
+│   ├── Como criar um template de checklist
+│   ├── Como o operador preenche pelo celular (QR code)
+│   └── Como interpretar o streak e o calendário
+├── 📱 Coleta de Campo
+│   ├── Como criar um formulário
+│   ├── Como compartilhar o link ou QR code
+│   └── Como exportar respostas
+├── 🗂 Gestão de Dados
+│   ├── Como editar um registro enviado errado
+│   ├── Como excluir e restaurar da lixeira
+│   └── Como consultar o histórico de alterações
+└── 🔑 Administração
+    ├── Como criar usuários e definir cargos
+    └── Como configurar parâmetros da organização
+```
+
+**Blueprint `/ajuda/`:**
+
+```python
+# app/blueprints/ajuda/__init__.py
+ajuda_bp = Blueprint("ajuda", __name__, url_prefix="/ajuda")
+
+# Rotas:
+GET /ajuda/          → render index com todos os módulos + JS search
+GET /ajuda/<secao>   → render seção específica (usinagem, faturamento, etc.)
+```
+
+**Templates:**
+
+- `templates/ajuda/index.html` — extends base.html
+  - Barra de busca JS (filtra seções sem reload)
+  - Cards por módulo com ícone, descrição e link "Abrir manual"
+  - Seção "Primeiros Passos" em destaque
+- `templates/ajuda/<modulo>.html` — extends base.html
+  - Sumário lateral fixo (links para cada seção da página)
+  - Conteúdo em HTML estático (sem banco, sem dinâmica)
+  - Capturas de tela ou GIFs nas ações principais
+  - Botão "← Voltar para o índice"
+  - Link "Precisa de mais ajuda? [Fale conosco →]"
+
+**Integração com os módulos:**
+
+Cada template de módulo existente ganha:
+```html
+<!-- No module-header de cada página -->
+<a href="{{ url_for('ajuda.secao', secao='usinagem') }}"
+   class="btn btn-ghost btn-sm" title="Ajuda"
+   style="margin-left:auto">❓ Ajuda</a>
+```
+
+**Busca local (JS, sem backend):**
+
+```javascript
+// Indexa todos os títulos h2/h3 e parágrafos da página de índice
+// Filtra em tempo real ao digitar — sem requisição ao servidor
+document.getElementById('busca').addEventListener('input', function() {
+  var q = this.value.toLowerCase();
+  document.querySelectorAll('.ajuda-item').forEach(function(el) {
+    el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+```
+
+**Princípios de escrita:**
+
+- Linguagem simples, sem termos técnicos desnecessários
+- Cada seção responde "Como faço para X?" — orientada à tarefa, não à funcionalidade
+- Capturas de tela da interface real (atualizadas a cada release)
+- Máximo 5 passos por procedimento — se precisar de mais, dividir em subtarefas
+
 ---
 
 ### FASE 3 — Módulo Viário
@@ -840,6 +956,7 @@ Jun 2026   Jul 2026    Ago 2026    Set 2026    Out 2026    Nov 2026    Dez 2026
 │          │                      │ Coleta de Campo (PWA)              │
 │          │                      │ Gestão de Equipamentos             │
 │          │                      │ Gestão e Correção de Dados         │
+│          │                      │ Central de Ajuda e Manual          │
 │          │                      │                    ├─ FASE 3 ──────┤
 │          │                      │                    │ Viário OCR    │
 │          │                      │                    │ GPS + Mapa    │
