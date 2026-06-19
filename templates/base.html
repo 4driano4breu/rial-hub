@@ -22,6 +22,7 @@
     <a class="nav-link {% if request.endpoint and request.endpoint.startswith('ferramentas') %}active{% endif %}" href="{{ url_for('ferramentas.index') }}">🔧 Ferramentas</a>
     <a class="nav-link {% if request.endpoint and request.endpoint.startswith('equipamentos') %}active{% endif %}" href="{{ url_for('equipamentos.index') }}">🚜 Equipamentos</a>
     <a class="nav-link {% if request.endpoint and request.endpoint.startswith('formularios') %}active{% endif %}" href="{{ url_for('formularios.index') }}">📋 Coleta de Campo</a>
+    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('ajuda') %}active{% endif %}" href="{{ url_for('ajuda.index') }}">❓ Ajuda</a>
     <a class="nav-link" href="/">← Início</a>
     {% if current_user.is_authenticated %}
     <span style="color:var(--border);margin:0 4px">|</span>

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} — Ajuda OBRIA{% endblock %}
+{% block nav_cur %}Ajuda{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost btn-sm mb-lg">← Central de Ajuda</a>
+
+<div class="module-header">
+  <div class="module-icon">🔧</div>
+  <div>
+    <div class="module-title">{{ titulo }}</div>
+    <div class="module-sub">Calculadoras e utilitários de obra</div>
+  </div>
+</div>
+
+<div class="card mb-xl" style="padding:16px 20px">
+  <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Nesta página</div>
+  <ul style="margin:0;padding-left:20px;line-height:2">
+    <li><a href="#faz-tudo">Registro de Produção Diária (Faz Tudo)</a></li>
+    <li><a href="#le-doc">Preenchimento de Documentos (Le Doc)</a></li>
+    <li><a href="#combustivel">Controle de Combustível</a></li>
+    <li><a href="#notas-offline">Notas de Medição Offline</a></li>
+  </ul>
+</div>
+
+<h2 id="faz-tudo" style="margin-bottom:8px">Registro de Produção Diária</h2>
+<p>Registra as operações de pavimentação do dia: tickets, placas, motoristas, pesos e regiões atendidas.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Acesse <strong>/ferramentas/</strong> e abra "Registro de Produção"</li>
+  <li>Escolha o modo TB (Tapa-buraco) ou QM (Quente-mole)</li>
+  <li>Preencha a data, range de tickets e os registros de cada caminhão</li>
+  <li>Clique em <strong>Salvar</strong> — os dados vão direto para o banco PostgreSQL</li>
+</ol>
+
+<h2 id="le-doc" style="margin-bottom:8px">Preenchimento de Documentos</h2>
+<p>Preenche modelos de documentos (Word) com dados variáveis de forma rápida, sem abrir o Word.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Acesse <strong>/ferramentas/</strong> e abra "Preenchimento de Documentos"</li>
+  <li>Faça upload do modelo Word (.docx) com marcadores</li>
+  <li>Preencha os campos exibidos na tela</li>
+  <li>Baixe o documento preenchido</li>
+</ol>
+
+<h2 id="combustivel" style="margin-bottom:8px">Controle de Combustível</h2>
+<p>Dashboard de abastecimento com gráficos de consumo por veículo e período. Os dados são inseridos via Coleta de Campo (formulário de abastecimento) ou planilha.</p>
+
+<h2 id="notas-offline" style="margin-bottom:8px">Notas de Medição Offline</h2>
+<p>Versão standalone do gerador de notas, sem necessidade de login. Útil para uso em campo ou em dispositivos sem acesso à internet.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Acesse <strong>/ferramentas/notas-html</strong></li>
+  <li>Preencha os dados da medição</li>
+  <li>Clique em <strong>Gerar Nota</strong> para baixar o .docx</li>
+</ol>
+
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost mt-xl">← Voltar ao índice</a>
+{% endblock %}

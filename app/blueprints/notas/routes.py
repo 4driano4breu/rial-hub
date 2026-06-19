@@ -14,18 +14,36 @@ from core.config import SERVICE_LABELS, CIDADE_DISPLAY
 from app.org_settings import get_aliquotas
 
 
-def _registrar_medicao(tipo: str, info: dict) -> None:
+def _registrar_medicao(tipo: str, info: dict, docx_bytes: bytes | None = None) -> None:
     try:
         from app.extensions import db
         from app.models import MedicaoRecord
+        from datetime import datetime
+        import app.storage as r2
+
         org_id = current_user.org_id if current_user.is_authenticated else 1
         user_id = current_user.id if current_user.is_authenticated else None
+
+        r2_key = None
+        if docx_bytes:
+            ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+            r2_key = f"notas/{org_id}/{tipo}_{ts}.docx"
+            try:
+                r2.upload(
+                    r2_key,
+                    docx_bytes,
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                )
+            except Exception:
+                r2_key = None  # não bloqueia se R2 falhar
+
         db.session.add(MedicaoRecord(
             org_id=org_id,
             gerado_por=user_id,
             tipo=tipo,
             contrato=info.get("contrato", ""),
             periodo=info.get("num_medicao", ""),
+            docx_r2_key=r2_key,
         ))
         db.session.commit()
     except Exception:
@@ -63,7 +81,7 @@ def gerar_medicao():
         tmp_path = _save_upload(xlsx_file, ".xlsx")
         info, cidades = extrair_dados_xlsx(tmp_path)
         docx_bytes = gerar_word_medicao(info, cidades)
-        _registrar_medicao("parcial", info)
+        _registrar_medicao("parcial", info, docx_bytes=docx_bytes)
         digitos = re.sub(r"[^\d]", "", info["num_medicao"])
         filename = f"notas_{digitos}_medicao.docx"
 
@@ -111,7 +129,7 @@ def gerar_reajuste():
         coefs, total_pdf, reaj_secao = extrair_pdf_reajuste(tmp_pdf)
         reajuste = calcular_reajuste(cidades, coefs, total_pdf, reaj_secao)
         docx_bytes = gerar_word_reajuste(info, reajuste)
-        _registrar_medicao("reajustamento", info)
+        _registrar_medicao("reajustamento", info, docx_bytes=docx_bytes)
         digitos = re.sub(r"[^\d]", "", info["num_medicao"])
         filename = f"reajuste_{digitos}_medicao.docx"
 
@@ -156,6 +174,51 @@ def download():
     except Exception as e:
         flash(f"Erro no download: {e}", "error")
         return redirect(url_for("notas.index"))
+
+
+@notas_bp.route("/historico")
+@login_required
+def historico():
+    from app.models import MedicaoRecord
+    registros = (
+        MedicaoRecord.query
+        .filter_by(org_id=current_user.org_id)
+        .order_by(MedicaoRecord.criado_em.desc())
+        .limit(50)
+        .all()
+    )
+    return render_template("notas/historico.html", registros=registros)
+
+
+@notas_bp.route("/historico/<int:registro_id>/download")
+@login_required
+def historico_download(registro_id: int):
+    from app.models import MedicaoRecord
+    import app.storage as r2
+
+    registro = MedicaoRecord.query.filter_by(
+        id=registro_id, org_id=current_user.org_id
+    ).first()
+    if not registro or not registro.docx_r2_key:
+        flash("Arquivo não disponível.", "error")
+        return redirect(url_for("notas.historico"))
+
+    try:
+        data = r2.download(registro.docx_r2_key)
+    except Exception:
+        data = None
+    if data is None:
+        flash("Arquivo não encontrado no armazenamento.", "error")
+        return redirect(url_for("notas.historico"))
+
+    digitos = re.sub(r"[^\d]", "", registro.periodo or "")
+    filename = f"{registro.tipo}_{digitos or registro_id}.docx"
+    return send_file(
+        io.BytesIO(data),
+        as_attachment=True,
+        download_name=filename,
+        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    )
 
 
 # ── Helpers de preview ────────────────────────────────────────────────────────

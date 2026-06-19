@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} — Ajuda OBRIA{% endblock %}
+{% block nav_cur %}Ajuda{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost btn-sm mb-lg">← Central de Ajuda</a>
+
+<div class="module-header">
+  <div class="module-icon">🔑</div>
+  <div>
+    <div class="module-title">{{ titulo }}</div>
+    <div class="module-sub">Gerenciar usuários, cargos e configurações da organização</div>
+  </div>
+</div>
+
+<div class="card mb-xl" style="padding:16px 20px">
+  <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Nesta página</div>
+  <ul style="margin:0;padding-left:20px;line-height:2">
+    <li><a href="#usuarios">Como criar e gerenciar usuários</a></li>
+    <li><a href="#cargos">Cargos e permissões</a></li>
+    <li><a href="#config">Como alterar configurações da organização</a></li>
+  </ul>
+</div>
+
+<h2 id="usuarios" style="margin-bottom:8px">Como criar e gerenciar usuários</h2>
+<p>Disponível apenas para <strong>ADMIN</strong> e <strong>SUPERADMIN</strong>. Acesse <strong>/admin/</strong>.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>No painel Admin, clique em <strong>Usuários</strong></li>
+  <li>Clique em <strong>+ Novo Usuário</strong></li>
+  <li>Preencha nome, e-mail, senha e cargo</li>
+  <li>Clique em <strong>Criar</strong> — o usuário já pode fazer login</li>
+</ol>
+<p>Para desativar um usuário sem excluí-lo, edite o perfil e desmarque "Ativo".</p>
+
+<h2 id="cargos" style="margin-bottom:8px">Cargos e permissões</h2>
+<div class="card" style="padding:16px;margin-bottom:24px;overflow-x:auto">
+  <table style="width:100%;border-collapse:collapse;font-size:.9rem">
+    <thead>
+      <tr style="border-bottom:1px solid var(--border)">
+        <th style="text-align:left;padding:8px">Cargo</th>
+        <th style="padding:8px">Notas</th>
+        <th style="padding:8px">Faturamento</th>
+        <th style="padding:8px">Usinagem</th>
+        <th style="padding:8px">Equipamentos</th>
+        <th style="padding:8px">Admin</th>
+      </tr>
+    </thead>
+    <tbody style="color:var(--muted)">
+      <tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:8px;font-weight:700;color:var(--text)">ADMIN</td>
+        <td style="text-align:center;padding:8px">✅</td>
+        <td style="text-align:center;padding:8px">✅</td>
+        <td style="text-align:center;padding:8px">✅</td>
+        <td style="text-align:center;padding:8px">✅</td>
+        <td style="text-align:center;padding:8px">✅</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:8px;font-weight:700;color:var(--text)">FINANCEIRO</td>
+        <td style="text-align:center;padding:8px">✅</td>
+        <td style="text-align:center;padding:8px">✅</td>
+        <td style="text-align:center;padding:8px">👁</td>
+        <td style="text-align:center;padding:8px">❌</td>
+        <td style="text-align:center;padding:8px">❌</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:8px;font-weight:700;color:var(--text)">OPERACIONAL</td>
+        <td style="text-align:center;padding:8px">❌</td>
+        <td style="text-align:center;padding:8px">❌</td>
+        <td style="text-align:center;padding:8px">✅</td>
+        <td style="text-align:center;padding:8px">✅</td>
+        <td style="text-align:center;padding:8px">❌</td>
+      </tr>
+      <tr>
+        <td style="padding:8px;font-weight:700;color:var(--text)">VIEWER</td>
+        <td style="text-align:center;padding:8px">👁</td>
+        <td style="text-align:center;padding:8px">👁</td>
+        <td style="text-align:center;padding:8px">👁</td>
+        <td style="text-align:center;padding:8px">👁</td>
+        <td style="text-align:center;padding:8px">❌</td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="font-size:.78rem;color:var(--muted);margin-top:8px">✅ acesso total &nbsp; 👁 somente leitura &nbsp; ❌ sem acesso</div>
+</div>
+
+<h2 id="config" style="margin-bottom:8px">Como alterar configurações da organização</h2>
+<p>Acesse <strong>/admin/</strong> e clique em <strong>Configurações</strong>. Parâmetros disponíveis:</p>
+<ul style="margin:12px 0 24px 20px;line-height:1.8">
+  <li><strong>Alíquotas</strong> — percentuais de INSS, IR e ISS usados no cálculo de notas</li>
+  <li><strong>CAP AEGEA / Guariroba</strong> — toneladas contratadas para cada contrato</li>
+  <li><strong>Contratos ativos</strong> — lista de contratos disponíveis para seleção nas notas</li>
+  <li><strong>Google Sheets ID</strong> — planilha de origem para sincronização automática da Usinagem</li>
+</ul>
+
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost mt-xl">← Voltar ao índice</a>
+{% endblock %}

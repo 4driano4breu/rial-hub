@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}OBRIA — Central de Ajuda{% endblock %}
+{% block nav_cur %}Ajuda{% endblock %}
+
+{% block head %}
+<style>
+.ajuda-busca { width:100%; max-width:520px; padding:11px 14px; font-size:.92rem;
+  background:var(--card,#1e293b); color:var(--text); border:1px solid var(--border);
+  border-radius:9px; margin-bottom:24px; }
+.ajuda-busca:focus { outline:none; border-color:var(--accent); }
+.ajuda-card-icon { font-size:1.8rem; line-height:1; }
+.ajuda-empty { color:var(--muted); font-size:.88rem; padding:20px 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="module-header">
+  <div class="module-icon">❓</div>
+  <div>
+    <div class="module-title">Central de Ajuda</div>
+    <div class="module-sub">Manual do usuário do OBRIA</div>
+  </div>
+</div>
+
+<input type="text" id="busca" class="ajuda-busca" placeholder="Buscar no manual..." onkeyup="filtrar()" autocomplete="off">
+
+<div class="grid-3" id="ajuda-grid">
+  {% set cards = [
+    ('primeiros-passos', '🚀', 'Primeiros Passos', 'Como começar a usar o OBRIA'),
+    ('usinagem', '⚙', 'Usinagem CBUQ', 'Upload de planilha, dashboards e relatórios'),
+    ('faturamento', '💰', 'Faturamento NFS-e', 'Importar XML, marcar notas, exportar relatório'),
+    ('notas', '📋', 'Notas de Medição', 'Gerar notas de medição parcial e de reajustamento'),
+    ('equipamentos', '🚜', 'Gestão de Equipamentos', 'Cadastrar máquinas e acompanhar checklists diários'),
+    ('coleta', '📱', 'Coleta de Campo', 'Criar formulários mobile e coletar dados em campo'),
+    ('dados', '🗂', 'Gestão de Dados', 'Editar registros, lixeira e histórico de alterações'),
+    ('ferramentas', '🔧', 'Ferramentas', 'Cálculo de pavimentação, documentos e outros'),
+    ('admin', '🔑', 'Administração', 'Usuários, cargos e configurações da organização'),
+  ] %}
+  {% for slug, icone, titulo, desc in cards %}
+  <a class="dash-card ajuda-card" href="{{ url_for('ajuda.secao', secao=slug) }}">
+    <div class="ajuda-card-icon">{{ icone }}</div>
+    <h3>{{ titulo }}</h3>
+    <p>{{ desc }}</p>
+    <span class="text-xs" style="color:var(--accent)">Ver manual →</span>
+  </a>
+  {% endfor %}
+</div>
+<div class="ajuda-empty" id="ajuda-vazio" style="display:none">Nenhum resultado para sua busca.</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filtrar() {
+  var termo = document.getElementById('busca').value.toLowerCase();
+  var cards = document.querySelectorAll('.ajuda-card');
+  var visiveis = 0;
+  cards.forEach(function (c) {
+    var match = c.textContent.toLowerCase().indexOf(termo) !== -1;
+    c.style.display = match ? '' : 'none';
+    if (match) visiveis++;
+  });
+  document.getElementById('ajuda-vazio').style.display = visiveis ? 'none' : '';
+}
+</script>
+{% endblock %}

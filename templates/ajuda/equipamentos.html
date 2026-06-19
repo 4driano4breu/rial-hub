@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} — Ajuda OBRIA{% endblock %}
+{% block nav_cur %}Ajuda{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost btn-sm mb-lg">← Central de Ajuda</a>
+
+<div class="module-header">
+  <div class="module-icon">🚜</div>
+  <div>
+    <div class="module-title">{{ titulo }}</div>
+    <div class="module-sub">Manual de uso</div>
+  </div>
+</div>
+
+<div class="card mb-xl" style="padding:16px 20px">
+  <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Nesta página</div>
+  <ul style="margin:0;padding-left:20px;line-height:2">
+    <li><a href="#cadastrar">Como cadastrar uma máquina</a></li>
+    <li><a href="#template">Como criar um template de checklist</a></li>
+    <li><a href="#operador">Como o operador acessa pelo celular</a></li>
+    <li><a href="#streak">Como interpretar o streak e o heatmap</a></li>
+  </ul>
+</div>
+
+<h2 id="cadastrar" style="margin-bottom:8px">Como cadastrar uma máquina</h2>
+<p>Cada equipamento da frota precisa estar cadastrado para receber checklists.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Acesse <strong>/equipamentos/</strong> pela barra superior (🚜 Equipamentos).</li>
+  <li>Clique em <strong>+ Nova Máquina</strong>.</li>
+  <li>Informe o nome, o tipo e o modelo.</li>
+  <li>Salve para a máquina aparecer na frota.</li>
+</ol>
+
+<h2 id="template" style="margin-bottom:8px">Como criar um template de checklist</h2>
+<p>O template define quais itens o operador vai verificar todos os dias.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Na página de equipamentos, abra <strong>Templates</strong>.</li>
+  <li>Crie um novo template e dê um nome.</li>
+  <li>Adicione os itens a verificar (fluidos, freios, pneus, etc.).</li>
+  <li>Marque quais itens são obrigatórios.</li>
+  <li>Salve o template e vincule-o à máquina.</li>
+</ol>
+
+<h2 id="operador" style="margin-bottom:8px">Como o operador acessa pelo celular</h2>
+<p>O operador preenche o checklist direto no celular, sem precisar de senha.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Cada máquina tem um link no formato <strong>/equipamentos/m/{id}</strong>.</li>
+  <li>Compartilhe o link com o operador (ou um QR Code, se disponível).</li>
+  <li>O operador abre o link, responde os itens e envia.</li>
+  <li>O checklist enviado aparece no detalhe da máquina.</li>
+</ol>
+
+<h2 id="streak" style="margin-bottom:8px">Como interpretar o streak e o heatmap</h2>
+<p>Esses indicadores mostram a regularidade dos checklists.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>O <strong>streak</strong> é o número de dias seguidos com checklist em dia.</li>
+  <li>O <strong>heatmap</strong> é um calendário colorido: cada quadrado é um dia.</li>
+  <li>Dias preenchidos ficam destacados; dias sem checklist ficam vazios.</li>
+  <li>Use isso para ver máquinas que estão sendo esquecidas.</li>
+</ol>
+
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost mt-lg">← Voltar ao índice</a>
+{% endblock %}

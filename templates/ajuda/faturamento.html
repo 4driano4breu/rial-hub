@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} — Ajuda OBRIA{% endblock %}
+{% block nav_cur %}Ajuda{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost btn-sm mb-lg">← Central de Ajuda</a>
+
+<div class="module-header">
+  <div class="module-icon">💰</div>
+  <div>
+    <div class="module-title">{{ titulo }}</div>
+    <div class="module-sub">Manual de uso</div>
+  </div>
+</div>
+
+<div class="card mb-xl" style="padding:16px 20px">
+  <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Nesta página</div>
+  <ul style="margin:0;padding-left:20px;line-height:2">
+    <li><a href="#importar">Como importar o XML da NFS-e</a></li>
+    <li><a href="#receber">Como marcar uma nota como recebida</a></li>
+    <li><a href="#dashboard">Como funciona o dashboard</a></li>
+  </ul>
+</div>
+
+<h2 id="importar" style="margin-bottom:8px">Como importar o XML da NFS-e</h2>
+<p>Cada nota fiscal de serviço vem em um arquivo XML. Importe-o para registrar a nota no sistema.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Acesse <strong>/faturamento/</strong> pela barra superior (💰 Faturamento).</li>
+  <li>Clique em importar XML.</li>
+  <li>Selecione o arquivo XML da nota.</li>
+  <li>Confira os dados lidos (número, valor, cliente) e confirme.</li>
+</ol>
+
+<h2 id="receber" style="margin-bottom:8px">Como marcar uma nota como recebida</h2>
+<p>Quando o pagamento de uma nota entra, registre o recebimento para acompanhar o que falta.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Encontre a nota na lista de faturamento.</li>
+  <li>Clique na opção de marcar como recebida.</li>
+  <li>Confirme a ação.</li>
+  <li>A nota passa a contar como recebida nos totais.</li>
+</ol>
+
+<h2 id="dashboard" style="margin-bottom:8px">Como funciona o dashboard</h2>
+<p>O painel resume o que foi faturado e o que já foi recebido.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Os cartões mostram o total faturado e o total recebido.</li>
+  <li>O valor a receber é a diferença entre os dois.</li>
+  <li>Os gráficos ajudam a ver a evolução por período.</li>
+</ol>
+
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost mt-lg">← Voltar ao índice</a>
+{% endblock %}

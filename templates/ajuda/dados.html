@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} — Ajuda OBRIA{% endblock %}
+{% block nav_cur %}Ajuda{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost btn-sm mb-lg">← Central de Ajuda</a>
+
+<div class="module-header">
+  <div class="module-icon">🗂</div>
+  <div>
+    <div class="module-title">{{ titulo }}</div>
+    <div class="module-sub">Corrigir dados enviados com erro, lixeira e auditoria</div>
+  </div>
+</div>
+
+<div class="card mb-xl" style="padding:16px 20px">
+  <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Nesta página</div>
+  <ul style="margin:0;padding-left:20px;line-height:2">
+    <li><a href="#acessar">Como acessar a Gestão de Dados</a></li>
+    <li><a href="#editar">Como editar um registro com erro</a></li>
+    <li><a href="#excluir">Como excluir e restaurar da lixeira</a></li>
+    <li><a href="#auditoria">Como consultar o histórico de alterações</a></li>
+  </ul>
+</div>
+
+<h2 id="acessar" style="margin-bottom:8px">Como acessar a Gestão de Dados</h2>
+<p>Disponível apenas para usuários com cargo <strong>ADMIN</strong> ou <strong>SUPERADMIN</strong>. Acesse em <strong>/admin/dados/</strong> ou pelo painel de administração.</p>
+<p>A tela inicial mostra um resumo de todos os módulos com a quantidade de registros e um atalho para cada tabela de dados.</p>
+
+<h2 id="editar" style="margin-bottom:8px">Como editar um registro com erro</h2>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Acesse <strong>/admin/dados/</strong> e escolha o módulo (ex: Usinagem)</li>
+  <li>Use os filtros de busca para localizar o registro incorreto</li>
+  <li>Clique no ícone ✏️ na linha do registro</li>
+  <li>Corrija os campos necessários e clique em <strong>Salvar</strong></li>
+</ol>
+<p>Toda edição é registrada no histórico de auditoria com: quem editou, qual campo, o valor anterior e o novo valor.</p>
+
+<h2 id="excluir" style="margin-bottom:8px">Como excluir e restaurar da lixeira</h2>
+<p>A exclusão no OBRIA é <strong>reversível</strong> — o registro não é apagado, apenas ocultado.</p>
+<ol style="margin:12px 0 16px 20px;line-height:1.8">
+  <li>Localize o registro e clique no ícone 🗑</li>
+  <li>Confirme a exclusão na caixa de diálogo</li>
+  <li>O registro some da lista principal mas vai para a <strong>Lixeira</strong></li>
+</ol>
+<p>Para restaurar: acesse a lista com <code>?lixeira=1</code> na URL, localize o registro e clique em <strong>Restaurar</strong>.</p>
+
+<h2 id="auditoria" style="margin-bottom:8px">Como consultar o histórico de alterações</h2>
+<p>Acesse <strong>/admin/dados/auditoria/</strong>. A tabela mostra todas as ações realizadas na plataforma: edições, exclusões e restaurações. Você pode filtrar por módulo, tipo de ação e usuário.</p>
+
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost mt-xl">← Voltar ao índice</a>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} — Ajuda OBRIA{% endblock %}
+{% block nav_cur %}Ajuda{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost btn-sm mb-lg">← Central de Ajuda</a>
+
+<div class="module-header">
+  <div class="module-icon">⚙</div>
+  <div>
+    <div class="module-title">{{ titulo }}</div>
+    <div class="module-sub">Manual de uso</div>
+  </div>
+</div>
+
+<div class="card mb-xl" style="padding:16px 20px">
+  <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Nesta página</div>
+  <ul style="margin:0;padding-left:20px;line-height:2">
+    <li><a href="#exportar">Como exportar a planilha do Google Sheets</a></li>
+    <li><a href="#upload">Como fazer upload no OBRIA</a></li>
+    <li><a href="#dashboards">Como abrir os dashboards</a></li>
+    <li><a href="#totais">Como interpretar os totais e gráficos</a></li>
+  </ul>
+</div>
+
+<h2 id="exportar" style="margin-bottom:8px">Como exportar a planilha do Google Sheets</h2>
+<p>Os dados de produção começam na sua planilha do Google. Exporte-a como CSV antes de enviar.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Abra a planilha de usinagem no Google Sheets.</li>
+  <li>Vá em <strong>Arquivo → Fazer download</strong>.</li>
+  <li>Escolha <strong>Valores separados por vírgulas (.csv)</strong>.</li>
+  <li>Guarde o arquivo no computador.</li>
+</ol>
+
+<h2 id="upload" style="margin-bottom:8px">Como fazer upload no OBRIA</h2>
+<p>Depois de exportar, envie o arquivo para atualizar os dashboards.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Acesse <strong>/usinagem/</strong> pela barra superior (⚙ Usinagem).</li>
+  <li>Clique no botão <strong>Atualizar</strong>.</li>
+  <li>Selecione o arquivo CSV que você baixou.</li>
+  <li>Confirme o envio e aguarde a mensagem de sucesso.</li>
+</ol>
+
+<h2 id="dashboards" style="margin-bottom:8px">Como abrir os dashboards</h2>
+<p>O módulo tem painéis separados por cliente/contrato.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Na página de usinagem, escolha o painel <strong>Geral</strong> para a visão consolidada.</li>
+  <li>Abra <strong>AEGEA</strong> para os dados desse contrato.</li>
+  <li>Abra <strong>Guariroba</strong> para os dados desse contrato.</li>
+</ol>
+
+<h2 id="totais" style="margin-bottom:8px">Como interpretar os totais e gráficos</h2>
+<p>Os números no topo resumem a produção; os gráficos mostram a evolução ao longo do tempo.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Os cartões de total mostram a quantidade de massa produzida no período.</li>
+  <li>Os gráficos de barras mostram a produção por dia ou por mês.</li>
+  <li>Se um total parecer errado, confira se enviou o CSV mais recente.</li>
+</ol>
+
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost mt-lg">← Voltar ao índice</a>
+{% endblock %}

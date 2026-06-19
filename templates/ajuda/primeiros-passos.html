@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} — Ajuda OBRIA{% endblock %}
+{% block nav_cur %}Ajuda{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost btn-sm mb-lg">← Central de Ajuda</a>
+
+<div class="module-header">
+  <div class="module-icon">🚀</div>
+  <div>
+    <div class="module-title">{{ titulo }}</div>
+    <div class="module-sub">Manual de uso</div>
+  </div>
+</div>
+
+<div class="card mb-xl" style="padding:16px 20px">
+  <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Nesta página</div>
+  <ul style="margin:0;padding-left:20px;line-height:2">
+    <li><a href="#login">Como fazer login</a></li>
+    <li><a href="#modulos">Visão geral dos módulos</a></li>
+    <li><a href="#navegar">Como navegar pelo sistema</a></li>
+    <li><a href="#convidar">Como convidar um membro da equipe</a></li>
+  </ul>
+</div>
+
+<h2 id="login" style="margin-bottom:8px">Como fazer login</h2>
+<p>O OBRIA é protegido por senha. Você precisa de uma conta para acessar qualquer módulo.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Abra o endereço do sistema no navegador.</li>
+  <li>Digite o seu e-mail e a sua senha.</li>
+  <li>Clique em <strong>Entrar</strong>.</li>
+  <li>Se errar a senha várias vezes, aguarde alguns minutos antes de tentar de novo.</li>
+</ol>
+
+<h2 id="modulos" style="margin-bottom:8px">Visão geral dos módulos</h2>
+<p>Cada área do sistema cuida de uma parte do trabalho:</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li><strong>Usinagem</strong> — controle da produção de massa asfáltica (CBUQ).</li>
+  <li><strong>Faturamento</strong> — notas fiscais de serviço (NFS-e) e recebimentos.</li>
+  <li><strong>Notas de Medição</strong> — geração de documentos de medição da obra.</li>
+  <li><strong>Equipamentos</strong> — máquinas e checklists diários.</li>
+  <li><strong>Coleta de Campo</strong> — formulários para preencher no celular.</li>
+</ol>
+
+<h2 id="navegar" style="margin-bottom:8px">Como navegar pelo sistema</h2>
+<p>A barra no topo da tela leva você a qualquer módulo a partir de qualquer página.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Clique no nome de um módulo na barra superior para abri-lo.</li>
+  <li>O item em destaque mostra onde você está agora.</li>
+  <li>Use <strong>← Início</strong> para voltar à tela inicial.</li>
+  <li>Clique em <strong>❓ Ajuda</strong> a qualquer momento para abrir este manual.</li>
+</ol>
+
+<h2 id="convidar" style="margin-bottom:8px">Como convidar um membro da equipe</h2>
+<p>Apenas administradores podem criar novos usuários, na área de Administração.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Acesse <strong>⚙ Admin</strong> na barra superior.</li>
+  <li>Abra a seção de usuários.</li>
+  <li>Clique em criar usuário e informe nome, e-mail e cargo.</li>
+  <li>Defina uma senha inicial e avise o colega.</li>
+  <li>Peça que ele troque a senha no primeiro acesso, no perfil.</li>
+</ol>
+
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost mt-lg">← Voltar ao índice</a>
+{% endblock %}

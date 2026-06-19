@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Histórico de Notas — OBRIA{% endblock %}
+{% block nav_cur %}Histórico de Notas{% endblock %}
+
+{% block content %}
+<div class="module-header">
+  <div class="module-icon">🗂</div>
+  <div>
+    <div class="module-title">Histórico de Notas</div>
+    <div class="module-sub">Últimas 50 notas de medição e reajuste geradas</div>
+  </div>
+</div>
+
+<div style="margin-bottom:16px">
+  <a class="btn btn-secondary" href="{{ url_for('notas.index') }}">← Voltar para Notas</a>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    {% if registros %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Tipo</th>
+          <th>Contrato</th>
+          <th>Período</th>
+          <th>Arquivo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in registros %}
+        <tr>
+          <td>{{ r.criado_em.strftime("%d/%m/%Y %H:%M") if r.criado_em else "—" }}</td>
+          <td>{{ "Reajustamento" if r.tipo == "reajustamento" else "Medição parcial" }}</td>
+          <td>{{ r.contrato or "—" }}</td>
+          <td>{{ r.periodo or "—" }}</td>
+          <td>
+            {% if r.docx_r2_key %}
+            <a class="btn btn-sm btn-primary" href="{{ url_for('notas.historico_download', registro_id=r.id) }}">⬇ Baixar .docx</a>
+            {% else %}
+            <span class="text-muted text-xs">indisponível</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">Nenhuma nota gerada ainda.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

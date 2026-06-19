@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} — Ajuda OBRIA{% endblock %}
+{% block nav_cur %}Ajuda{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost btn-sm mb-lg">← Central de Ajuda</a>
+
+<div class="module-header">
+  <div class="module-icon">📋</div>
+  <div>
+    <div class="module-title">{{ titulo }}</div>
+    <div class="module-sub">Manual de uso</div>
+  </div>
+</div>
+
+<div class="card mb-xl" style="padding:16px 20px">
+  <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Nesta página</div>
+  <ul style="margin:0;padding-left:20px;line-height:2">
+    <li><a href="#parcial">Como gerar uma nota parcial</a></li>
+    <li><a href="#reajuste">Como gerar uma nota de reajustamento</a></li>
+    <li><a href="#baixar">Como baixar o documento gerado</a></li>
+  </ul>
+</div>
+
+<h2 id="parcial" style="margin-bottom:8px">Como gerar uma nota parcial</h2>
+<p>A nota de medição parcial documenta o serviço executado em um período da obra.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Acesse <strong>/notas/</strong> pela barra superior (📋 Notas).</li>
+  <li>Escolha a opção de nota parcial.</li>
+  <li>Preencha o número da medição e o período.</li>
+  <li>Informe os itens e as quantidades executadas.</li>
+  <li>Clique em gerar a nota.</li>
+</ol>
+
+<h2 id="reajuste" style="margin-bottom:8px">Como gerar uma nota de reajustamento</h2>
+<p>A nota de reajustamento aplica a correção de preços prevista no contrato.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Na página de notas, escolha a opção de reajustamento.</li>
+  <li>Informe a medição de referência e o índice de reajuste.</li>
+  <li>Confira os valores calculados.</li>
+  <li>Clique em gerar a nota.</li>
+</ol>
+
+<h2 id="baixar" style="margin-bottom:8px">Como baixar o documento gerado</h2>
+<p>Cada nota é gerada como um documento Word (.docx) pronto para imprimir ou enviar.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Após gerar, clique no botão de download.</li>
+  <li>O arquivo .docx é salvo no seu computador.</li>
+  <li>Abra no Word para conferir ou imprimir.</li>
+</ol>
+
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost mt-lg">← Voltar ao índice</a>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} — Ajuda OBRIA{% endblock %}
+{% block nav_cur %}Ajuda{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost btn-sm mb-lg">← Central de Ajuda</a>
+
+<div class="module-header">
+  <div class="module-icon">📱</div>
+  <div>
+    <div class="module-title">{{ titulo }}</div>
+    <div class="module-sub">Formulários mobile configuráveis para coleta em campo</div>
+  </div>
+</div>
+
+<div class="card mb-xl" style="padding:16px 20px">
+  <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Nesta página</div>
+  <ul style="margin:0;padding-left:20px;line-height:2">
+    <li><a href="#criar">Como criar um formulário</a></li>
+    <li><a href="#campos">Como adicionar campos</a></li>
+    <li><a href="#compartilhar">Como compartilhar o link</a></li>
+    <li><a href="#respostas">Como ver e exportar respostas</a></li>
+  </ul>
+</div>
+
+<h2 id="criar" style="margin-bottom:8px">Como criar um formulário</h2>
+<p>Acesse <strong>/formularios/</strong> no menu "📋 Coleta de Campo" e clique em <strong>+ Novo Formulário</strong>.</p>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Digite o nome do formulário (ex: "Abastecimento Diário")</li>
+  <li>Adicione uma descrição opcional</li>
+  <li>Marque "Aceita resposta sem login?" se operadores não tiverem conta no OBRIA</li>
+  <li>Clique em <strong>Criar e adicionar campos</strong></li>
+</ol>
+
+<h2 id="campos" style="margin-bottom:8px">Como adicionar campos</h2>
+<p>Após criar, você é levado ao editor de campos. Tipos disponíveis:</p>
+<ul style="margin:12px 0 24px 20px;line-height:1.8">
+  <li><strong>Texto curto</strong> — campo livre de uma linha (ex: placa do veículo)</li>
+  <li><strong>Texto longo</strong> — área de texto (ex: observações)</li>
+  <li><strong>Número</strong> — aceita valores numéricos com unidade (ex: 45 litros)</li>
+  <li><strong>Seleção</strong> — lista de opções predefinidas (ex: motorista)</li>
+  <li><strong>Data / Hora</strong> — picker nativo do celular</li>
+  <li><strong>Foto</strong> — abre a câmera do celular</li>
+  <li><strong>Sim/Não</strong> — dois botões de escolha rápida</li>
+  <li><strong>GPS</strong> — captura a localização automaticamente</li>
+</ul>
+<p>Para cada campo: escolha o tipo, escreva o rótulo e marque "obrigatório" se necessário.</p>
+
+<h2 id="compartilhar" style="margin-bottom:8px">Como compartilhar o link</h2>
+<p>Na tela de edição do formulário, o link mobile aparece automaticamente. Copie e envie por WhatsApp, ou imprima um QR code apontando para esse link e cole na máquina ou local de coleta.</p>
+<p>O operador abre o link no celular e preenche — sem instalar nada, sem fazer login (se configurado como anônimo).</p>
+
+<h2 id="respostas" style="margin-bottom:8px">Como ver e exportar respostas</h2>
+<ol style="margin:12px 0 24px 20px;line-height:1.8">
+  <li>Acesse <strong>/formularios/</strong> e clique no formulário desejado</li>
+  <li>Clique em <strong>📊 Respostas</strong></li>
+  <li>Veja a tabela com todas as respostas recebidas</li>
+  <li>Clique em <strong>Exportar CSV</strong> para baixar os dados em planilha</li>
+</ol>
+
+<a href="{{ url_for('ajuda.index') }}" class="btn btn-ghost mt-xl">← Voltar ao índice</a>
+{% endblock %}
