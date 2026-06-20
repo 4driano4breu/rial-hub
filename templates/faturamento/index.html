@@ -26,6 +26,7 @@
   <div class="card card-body">
     <div class="card-title-sm">Atualizar Planilha</div>
     <form method="POST" action="/faturamento/atualizar" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="field">
         <label>XML de NFS-e</label>
         <input type="file" id="xml" name="xml" accept=".xml" required>
