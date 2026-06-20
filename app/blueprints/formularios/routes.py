@@ -214,6 +214,16 @@ def excluir(id):
     return redirect(url_for("formularios.index"))
 
 
+@formularios_bp.route("/<int:id>/qrcode")
+@login_required
+def qrcode(id):
+    t = FormularioTemplate.query.filter_by(id=id, org_id=current_user.org_id).first_or_404()
+    org = Organization.query.get(current_user.org_id)
+    url_publica = url_for("formularios.form_mobile",
+                          org_slug=org.slug, form_slug=t.slug, _external=True)
+    return render_template("formularios/qrcode.html", template=t, url_publica=url_publica)
+
+
 # ── Público (mobile) ──
 
 @formularios_bp.route("/f/<org_slug>/<form_slug>", methods=["GET", "POST"])

@@ -28,6 +28,7 @@
     <div class="flex gap-sm" style="margin-top:auto">
       <a href="{{ url_for('formularios.editar', id=c.tpl.id) }}" class="btn btn-ghost btn-sm">✏ Editar</a>
       <a href="{{ url_for('formularios.respostas', id=c.tpl.id) }}" class="btn btn-ghost btn-sm">📊 Respostas</a>
+      <a href="{{ url_for('formularios.qrcode', id=c.tpl.id) }}" class="btn btn-ghost btn-sm" target="_blank">🔲 QR Code</a>
     </div>
   </div>
   {% endfor %}

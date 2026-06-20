@@ -24,6 +24,7 @@
   <h1>{{ tpl.nome }}</h1>
   <div class="flex gap-sm">
     <a href="{{ url_for('formularios.respostas', id=tpl.id) }}" class="btn btn-ghost btn-sm">📊 Respostas</a>
+    <a href="{{ url_for('formularios.qrcode', id=tpl.id) }}" class="btn btn-ghost btn-sm" target="_blank">🔲 QR Code</a>
     <form method="post" action="{{ url_for('formularios.excluir', id=tpl.id) }}"
           onsubmit="return confirm('Excluir este formulário?')" style="display:inline">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
