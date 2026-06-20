@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Lixeira — Dados{% endblock %}
+{% block nav_cur %}Dados{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('dados.index') }}" class="btn btn-ghost btn-sm mb-lg">← Gestão de Dados</a>
+
+<div class="module-header">
+  <div class="module-icon">🗑</div>
+  <div>
+    <div class="module-title">Lixeira</div>
+    <div class="module-sub">Registros excluídos — restaure ou aguarde purga automática</div>
+  </div>
+</div>
+
+<h2 style="margin-bottom:12px">Usinagem CBUQ
+  <span style="font-size:.85rem;font-weight:400;color:var(--muted);margin-left:8px">{{ usinagem|length }} registro(s)</span>
+</h2>
+
+{% if usinagem %}
+<div class="card mb-xl" style="padding:0;overflow:hidden">
+  <table style="width:100%;border-collapse:collapse;font-size:.9rem">
+    <thead>
+      <tr style="border-bottom:1px solid var(--border)">
+        <th style="text-align:left;padding:12px 16px">Ticket</th>
+        <th style="padding:12px 8px">Data</th>
+        <th style="padding:12px 8px">Placa</th>
+        <th style="padding:12px 8px">Peso liq.</th>
+        <th style="padding:12px 8px">Região</th>
+        <th style="padding:12px 8px">Excluído em</th>
+        <th style="padding:12px 16px"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in usinagem %}
+      <tr style="border-bottom:1px solid var(--border);opacity:.8">
+        <td style="padding:10px 16px;color:var(--muted)">{{ r.ticket or '—' }}</td>
+        <td style="text-align:center;padding:10px 8px;color:var(--muted)">{{ r.data_operacao.strftime('%d/%m/%y') if r.data_operacao else '—' }}</td>
+        <td style="text-align:center;padding:10px 8px">{{ r.placa or '—' }}</td>
+        <td style="text-align:center;padding:10px 8px">{{ r.peso_liquido or '—' }}</td>
+        <td style="text-align:center;padding:10px 8px">{{ r.regiao or '—' }}</td>
+        <td style="text-align:center;padding:10px 8px;font-size:.82rem;color:var(--muted)">{{ r.excluido_em.strftime('%d/%m/%y %H:%M') if r.excluido_em else '—' }}</td>
+        <td style="padding:10px 16px;text-align:right">
+          <form method="POST" action="{{ url_for('dados.usinagem_restaurar', id=r.id) }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm" style="color:#16a34a;border-color:#16a34a40">↩ Restaurar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card mb-xl" style="padding:24px;text-align:center;color:var(--muted)">Nenhum registro de usinagem na lixeira.</div>
+{% endif %}
+
+<h2 style="margin-bottom:12px">Faturamento NFS-e
+  <span style="font-size:.85rem;font-weight:400;color:var(--muted);margin-left:8px">{{ faturamento|length }} registro(s)</span>
+</h2>
+
+{% if faturamento %}
+<div class="card mb-xl" style="padding:0;overflow:hidden">
+  <table style="width:100%;border-collapse:collapse;font-size:.9rem">
+    <thead>
+      <tr style="border-bottom:1px solid var(--border)">
+        <th style="text-align:left;padding:12px 16px">NF</th>
+        <th style="padding:12px 8px">Emissão</th>
+        <th style="padding:12px 8px">Contrato</th>
+        <th style="padding:12px 8px">Bruto</th>
+        <th style="padding:12px 8px">Excluído em</th>
+        <th style="padding:12px 16px"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in faturamento %}
+      <tr style="border-bottom:1px solid var(--border);opacity:.8">
+        <td style="padding:10px 16px;color:var(--muted)">{{ r.nr }}</td>
+        <td style="text-align:center;padding:10px 8px;color:var(--muted)">{{ r.emissao.strftime('%d/%m/%y') if r.emissao else '—' }}</td>
+        <td style="text-align:center;padding:10px 8px">{{ r.contrato or '—' }}</td>
+        <td style="text-align:center;padding:10px 8px">R$ {{ "%.2f"|format(r.bruto|float) }}</td>
+        <td style="text-align:center;padding:10px 8px;font-size:.82rem;color:var(--muted)">{{ r.excluido_em.strftime('%d/%m/%y %H:%M') if r.excluido_em else '—' }}</td>
+        <td style="padding:10px 16px;text-align:right">
+          <form method="POST" action="{{ url_for('dados.faturamento_restaurar', id=r.id) }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm" style="color:#16a34a;border-color:#16a34a40">↩ Restaurar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card mb-xl" style="padding:24px;text-align:center;color:var(--muted)">Nenhuma nota na lixeira.</div>
+{% endif %}
+{% endblock %}

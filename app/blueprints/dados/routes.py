@@ -545,3 +545,21 @@ def auditoria():
     return render_template("dados/auditoria.html",
                            pg=pg, usuarios=usuarios, nomes=nomes,
                            filtros={"modulo": modulo, "acao": acao, "usuario": usuario})
+
+
+# ── Lixeira ────────────────────────────────────────────────────────────────────
+
+@dados_bp.route("/lixeira/")
+@_require_admin
+def lixeira():
+    org_id = current_user.org_id
+    usinagem = (UsinagemRegistro.query
+        .filter_by(org_id=org_id, excluido=True)
+        .order_by(UsinagemRegistro.excluido_em.desc().nullslast())
+        .limit(100).all())
+    faturamento = (FaturamentoNota.query
+        .filter_by(org_id=org_id, excluido=True)
+        .order_by(FaturamentoNota.excluido_em.desc().nullslast())
+        .limit(100).all())
+    return render_template("dados/lixeira.html",
+                           usinagem=usinagem, faturamento=faturamento)

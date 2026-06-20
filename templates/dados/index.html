@@ -15,7 +15,7 @@
 <div class="info-box" style="border-left:3px solid var(--red);margin-bottom:var(--sp-lg)">
   <strong style="color:#f87171">⚠ Registros na lixeira:</strong>
   {{ stats.usinagem_lixeira }} usinagem · {{ stats.faturamento_lixeira }} faturamento.
-  Acesse cada módulo com <code>?lixeira=1</code> para restaurar.
+  <a href="{{ url_for('dados.lixeira') }}" class="btn btn-ghost btn-sm" style="margin-left:8px">🗑 Abrir lixeira</a>
 </div>
 {% endif %}
 
@@ -75,6 +75,15 @@
     <div class="stat-label">eventos registrados</div>
     <div class="flex gap-sm" style="margin-top:14px">
       <a href="{{ url_for('dados.auditoria') }}" class="btn btn-ghost btn-sm">Ver log →</a>
+    </div>
+  </div>
+
+  <div class="dash-card">
+    <h3>🗑 Lixeira</h3>
+    <div class="stat-num" style="margin:8px 0">{{ stats.usinagem_lixeira + stats.faturamento_lixeira }}</div>
+    <div class="stat-label">registros excluídos</div>
+    <div class="flex gap-sm" style="margin-top:14px">
+      <a href="{{ url_for('dados.lixeira') }}" class="btn btn-ghost btn-sm">Abrir →</a>
     </div>
   </div>
 </div>
