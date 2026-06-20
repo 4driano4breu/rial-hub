@@ -1,8 +1,10 @@
 import io
-import os
+import json
 import tempfile
+from collections import defaultdict
+from datetime import date as _date
 from pathlib import Path
-from flask import render_template, request, send_from_directory, current_app, flash, redirect, url_for, Response
+from flask import render_template, request, jsonify, current_app, flash, redirect, url_for
 from flask_login import current_user, login_required
 
 import app.storage as r2
@@ -13,7 +15,10 @@ _XLSX_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetm
 _R2_WARN = " ⚠ R2 indisponível — dados ativos até próximo redeploy."
 
 _R2_XLSX = "faturamento/Faturamento_2026.xlsx"
-_R2_DASH = "faturamento/dashboard.html"
+
+_MESES_PT = {1:"JANEIRO",2:"FEVEREIRO",3:"MARÇO",4:"ABRIL",5:"MAIO",6:"JUNHO",
+             7:"JULHO",8:"AGOSTO",9:"SETEMBRO",10:"OUTUBRO",11:"NOVEMBRO",12:"DEZEMBRO"}
+_MESES_ORDER = list(_MESES_PT.values())
 
 
 def _xlsx_path() -> Path:
@@ -22,89 +27,41 @@ def _xlsx_path() -> Path:
     return d / "Faturamento 2026.xlsx"
 
 
-@faturamento_bp.route("/")
-def index():
-    from core.timestamps import ler_timestamps
-    ts = ler_timestamps()
-    return render_template("faturamento/index.html", ultima_atualizacao=ts.get("faturamento", "—"))
+def _build_dashboard_data(org_id: int):
+    from app.models import FaturamentoNota
+    notas = (FaturamentoNota.query
+             .filter_by(org_id=org_id, excluido=False)
+             .order_by(FaturamentoNota.emissao.asc(), FaturamentoNota.nr.asc())
+             .all())
 
+    notes_list = []
+    for n in notas:
+        notes_list.append({
+            "mes": _MESES_PT[n.emissao.month],
+            "nr": n.nr,
+            "emissao": n.emissao.strftime("%d/%m/%Y"),
+            "contrato": n.contrato or "",
+            "orgao": n.orgao or "",
+            "municipio": n.municipio or "",
+            "tipo": n.tipo or "",
+            "bruto": float(n.bruto or 0),
+            "inss": float(n.inss or 0),
+            "ir": float(n.ir or 0),
+            "iss": float(n.iss or 0),
+            "liquido": float(n.liquido or 0),
+            "recebido": bool(n.recebido),
+            "dataRecebimento": n.data_recebimento.strftime("%Y-%m-%d") if n.data_recebimento else "",
+        })
 
-def _serve_dashboard():
-    try:
-        data = r2.download(_R2_DASH)
-        if data:
-            return Response(data, content_type="text/html; charset=utf-8")
-    except Exception:
-        pass
-    folder = Path(current_app.static_folder) / "ferramentas" / "faturamento"
-    return send_from_directory(folder, "dashboard.html")
-
-
-@faturamento_bp.route("/dashboard")
-def dashboard():
-    return _serve_dashboard()
-
-
-def regenerar_dashboard(notas_novas):
-    import json
-    import re
-    from collections import defaultdict
-
-    dash_path = Path(current_app.static_folder) / "ferramentas" / "faturamento" / "dashboard.html"
-
-    MESES_PT = {1:"JANEIRO",2:"FEVEREIRO",3:"MARÇO",4:"ABRIL",5:"MAIO",6:"JUNHO",
-                7:"JULHO",8:"AGOSTO",9:"SETEMBRO",10:"OUTUBRO",11:"NOVEMBRO",12:"DEZEMBRO"}
-
-    html = None
-    try:
-        data = r2.download(_R2_DASH)
-        if data:
-            html = data.decode("utf-8")
-    except Exception:
-        html = None
-    if html is None:
-        if not dash_path.exists():
-            return
-        html = dash_path.read_text(encoding="utf-8")
-
-    m = re.search(r'const NOTES = (\[.*?\]);', html, re.DOTALL)
-    existing = json.loads(m.group(1)) if m else []
-    existing_nrs = {n["nr"] for n in existing}
-
-    for n in notas_novas:
-        if n["nr"] not in existing_nrs:
-            existing.append({
-                "mes": MESES_PT[n["emissao"].month],
-                "nr": n["nr"],
-                "emissao": n["emissao"].strftime("%d/%m/%Y"),
-                "contrato": n["contrato"],
-                "orgao": n["orgao"],
-                "municipio": n["municipio"],
-                "tipo": n["tipo"],
-                "bruto": round(n["bruto"], 2),
-                "inss": round(n["inss"], 2),
-                "ir": round(n["ir"], 2),
-                "iss": round(n["iss"], 2),
-                "liquido": round(n["liquido"], 2),
-                "recebido": False,
-                "dataRecebimento": "",
-            })
-
-    def sort_key(n):
-        d = n["emissao"].split("/")
-        return (int(d[2]), int(d[1]), -n["nr"])
-    existing.sort(key=sort_key)
-
-    month_data = defaultdict(lambda: {"notas": 0, "bruto": 0, "inss": 0, "ir": 0, "iss": 0, "liquido": 0})
-    for n in existing:
+    month_data = defaultdict(lambda: {"notas": 0, "bruto": 0.0, "inss": 0.0, "ir": 0.0, "iss": 0.0, "liquido": 0.0})
+    for n in notes_list:
         k = n["mes"]
         month_data[k]["notas"] += 1
         for f in ("bruto", "inss", "ir", "iss", "liquido"):
             month_data[k][f] += n[f]
 
-    MESES_ORDER = list(MESES_PT.values())
     summary = []
-    for mes in MESES_ORDER:
+    for mes in _MESES_ORDER:
         if mes in month_data:
             d = month_data[mes]
             summary.append({
@@ -117,22 +74,48 @@ def regenerar_dashboard(notas_novas):
                 "mes": mes,
             })
 
-    notes_js = json.dumps(existing, ensure_ascii=False, separators=(",", ":"))
-    summary_js = json.dumps(summary, ensure_ascii=False, separators=(",", ":"))
+    return (
+        json.dumps(notes_list, ensure_ascii=False, separators=(",", ":")),
+        json.dumps(summary,    ensure_ascii=False, separators=(",", ":")),
+    )
 
-    html = re.sub(r'const NOTES = \[.*?\];', f'const NOTES = {notes_js};', html, flags=re.DOTALL)
-    html = re.sub(r'const SUMMARY = \[.*?\];', f'const SUMMARY = {summary_js};', html, flags=re.DOTALL)
 
-    html_bytes = html.encode("utf-8")
-    try:
-        dash_path.parent.mkdir(parents=True, exist_ok=True)
-        dash_path.write_bytes(html_bytes)
-    except Exception:
-        pass
-    try:
-        r2.upload(_R2_DASH, html_bytes, "text/html; charset=utf-8")
-    except Exception:
-        pass
+@faturamento_bp.route("/")
+def index():
+    from core.timestamps import ler_timestamps
+    ts = ler_timestamps()
+    return render_template("faturamento/index.html", ultima_atualizacao=ts.get("faturamento", "—"))
+
+
+@faturamento_bp.route("/dashboard")
+@login_required
+def dashboard():
+    notes_js, summary_js = _build_dashboard_data(current_user.org_id)
+    return render_template("faturamento/dashboard.html", notes_js=notes_js, summary_js=summary_js)
+
+
+@faturamento_bp.route("/notas/<int:nr>/recebido", methods=["POST"])
+@login_required
+def nota_recebido(nr):
+    from app.models import FaturamentoNota
+    nota = FaturamentoNota.query.filter_by(
+        org_id=current_user.org_id, nr=nr, excluido=False
+    ).first_or_404()
+
+    data = request.get_json(silent=True) or {}
+    nota.recebido = bool(data.get("recebido", False))
+
+    data_str = (data.get("data_recebimento") or "").strip()
+    if data_str:
+        try:
+            nota.data_recebimento = _date.fromisoformat(data_str)
+        except ValueError:
+            nota.data_recebimento = None
+    else:
+        nota.data_recebimento = None
+
+    db.session.commit()
+    return jsonify(ok=True, recebido=nota.recebido)
 
 
 @login_required
@@ -232,13 +215,7 @@ def atualizar():
         from core.timestamps import salvar_timestamp
         salvar_timestamp("faturamento")
 
-        try:
-            regenerar_dashboard(notas)
-        except Exception as regen_err:
-            flash(f"Planilha atualizada, mas erro ao regenerar dashboard: {regen_err}", "warning")
-            return redirect(url_for("faturamento.index"))
-
-        flash(f"Planilha e dashboard atualizados: {len(notas)} notas de {MESES_PT[mes]}/{ano} importadas.{r2_warn}", "ok")
+        flash(f"Planilha atualizada: {len(notas)} notas de {MESES_PT[mes]}/{ano} importadas.{r2_warn}", "ok")
     except Exception as e:
         flash(f"Erro ao processar: {e}", "error")
     finally:
