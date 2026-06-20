@@ -1,11 +1,15 @@
 import json
+from datetime import date, timedelta
 from functools import wraps
 from flask import render_template, request, redirect, url_for, flash, abort
 from flask_login import current_user, login_required
+from sqlalchemy import func
 
 from app.blueprints.paineis import paineis_bp
 from app.extensions import db
-from app.models import Painel
+from app.models import (Painel, UsinagemRegistro, FaturamentoNota,
+                        OperacaoProducao, FormularioTemplate, FormularioResposta,
+                        Equipamento, ChecklistExecucao)
 
 MODULOS_DISPONIVEIS = [
     ("insumos",      "Gestão de Insumos (Usinagem)"),
@@ -130,4 +134,85 @@ def configurar(slug):
 @login_required
 def detalhe(slug):
     painel = Painel.query.filter_by(org_id=current_user.org_id, slug=slug).first_or_404()
-    return render_template("paineis/detalhe.html", painel=painel)
+    org_id = current_user.org_id
+    filtros = painel.filtros or {}
+    stats = {}
+    hoje = date.today()
+    inicio_mes = hoje.replace(day=1)
+
+    if painel.modulo_fonte == "insumos":
+        q = UsinagemRegistro.query.filter_by(org_id=org_id, excluido=False)
+        if filtros.get("regiao"):
+            q = q.filter(UsinagemRegistro.regiao == filtros["regiao"])
+        if filtros.get("contrato"):
+            q = q.filter(UsinagemRegistro.contrato == filtros["contrato"])
+        total = q.count()
+        peso_total = q.with_entities(func.sum(UsinagemRegistro.peso_liquido)).scalar() or 0
+        peso_mes = q.filter(UsinagemRegistro.data_operacao >= inicio_mes)\
+                    .with_entities(func.sum(UsinagemRegistro.peso_liquido)).scalar() or 0
+        regioes = [r[0] for r in q.with_entities(UsinagemRegistro.regiao).distinct().all() if r[0]]
+        stats = {"total": total, "peso_total": float(peso_total),
+                 "peso_mes": float(peso_mes), "regioes": regioes,
+                 "label_total": "Registros", "label_peso": "Toneladas (total)",
+                 "label_mes": f"Toneladas ({inicio_mes.strftime('%b/%Y')})"}
+
+    elif painel.modulo_fonte == "faturamento":
+        q = FaturamentoNota.query.filter_by(org_id=org_id, excluido=False)
+        if filtros.get("contrato"):
+            q = q.filter(FaturamentoNota.contrato == filtros["contrato"])
+        if filtros.get("orgao"):
+            q = q.filter(FaturamentoNota.orgao == filtros["orgao"])
+        total = q.count()
+        recebido = q.filter_by(recebido=True).count()
+        pendente = total - recebido
+        bruto_total = q.with_entities(func.sum(FaturamentoNota.bruto)).scalar() or 0
+        liquido_total = q.with_entities(func.sum(FaturamentoNota.liquido)).scalar() or 0
+        stats = {"total": total, "recebido": recebido, "pendente": pendente,
+                 "bruto_total": float(bruto_total), "liquido_total": float(liquido_total),
+                 "label_total": "Notas Fiscais", "label_recebido": "Recebidas",
+                 "label_pendente": "Pendentes"}
+
+    elif painel.modulo_fonte == "producao":
+        q = OperacaoProducao.query.filter_by(org_id=org_id)
+        if filtros.get("modo"):
+            q = q.filter(OperacaoProducao.modo == filtros["modo"])
+        total = q.count()
+        mes = q.filter(OperacaoProducao.data_operacao >= inicio_mes).count()
+        caminhoes_total = q.with_entities(func.sum(OperacaoProducao.total_caminhoes)).scalar() or 0
+        stats = {"total": total, "mes": mes,
+                 "caminhoes_total": int(caminhoes_total),
+                 "label_total": "Operações", "label_mes": f"Operações ({inicio_mes.strftime('%b/%Y')})"}
+
+    elif painel.modulo_fonte == "formularios":
+        tpl_q = FormularioTemplate.query.filter_by(org_id=org_id, ativo=True)
+        if filtros.get("template_slug"):
+            tpl_q = tpl_q.filter(FormularioTemplate.slug == filtros["template_slug"])
+        templates = tpl_q.all()
+        tpl_ids = [t.id for t in templates]
+        resp_q = FormularioResposta.query.filter(
+            FormularioResposta.org_id == org_id,
+            FormularioResposta.template_id.in_(tpl_ids) if tpl_ids else db.false()
+        )
+        total = resp_q.count()
+        mes = resp_q.filter(FormularioResposta.criado_em >= inicio_mes).count()
+        stats = {"total": total, "mes": mes, "templates": len(templates),
+                 "label_total": "Respostas", "label_mes": f"Respostas ({inicio_mes.strftime('%b/%Y')})"}
+
+    elif painel.modulo_fonte == "equipamentos":
+        eq_q = Equipamento.query.filter_by(org_id=org_id, ativo=True)
+        if filtros.get("tipo"):
+            eq_q = eq_q.filter(Equipamento.tipo == filtros["tipo"])
+        equipamentos_count = eq_q.count()
+        eq_ids = [e.id for e in eq_q.all()]
+        chk_q = ChecklistExecucao.query.filter(
+            ChecklistExecucao.org_id == org_id,
+            ChecklistExecucao.equipamento_id.in_(eq_ids) if eq_ids else db.false()
+        )
+        total = chk_q.count()
+        mes = chk_q.filter(ChecklistExecucao.data_execucao >= inicio_mes).count()
+        completo = chk_q.filter_by(status="COMPLETO").count()
+        stats = {"total": total, "mes": mes, "equipamentos": equipamentos_count,
+                 "completo": completo,
+                 "label_total": "Checklists", "label_mes": f"Checklists ({inicio_mes.strftime('%b/%Y')})"}
+
+    return render_template("paineis/detalhe.html", painel=painel, stats=stats)

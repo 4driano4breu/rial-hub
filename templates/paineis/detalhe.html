@@ -21,12 +21,88 @@
   {% endif %}
 </div>
 
-<div class="card" style="padding:40px;text-align:center;color:var(--muted)">
-  <div style="font-size:2.5rem;margin-bottom:12px">🚧</div>
-  <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px;color:var(--text)">Dashboard em construção</div>
-  <div style="font-size:.9rem">Módulo: <strong style="color:var(--text)">{{ painel.modulo_fonte }}</strong></div>
-  {% if painel.filtros %}
-  <div style="font-size:.85rem;margin-top:8px;font-family:monospace">Filtros: {{ painel.filtros | tojson }}</div>
+{% if stats %}
+<div class="grid-3" style="--cols:3;margin-bottom:24px">
+
+  {% if stats.get('total') is not none %}
+  <div class="card" style="padding:24px;text-align:center">
+    <div style="font-size:2rem;font-weight:800;color:{{ cor }}">{{ stats.total }}</div>
+    <div style="color:var(--muted);font-size:.88rem;margin-top:4px">{{ stats.get('label_total','Total') }}</div>
+  </div>
   {% endif %}
+
+  {% if stats.get('peso_total') is not none %}
+  <div class="card" style="padding:24px;text-align:center">
+    <div style="font-size:2rem;font-weight:800;color:{{ cor }}">{{ "%.1f"|format(stats.peso_total) }} t</div>
+    <div style="color:var(--muted);font-size:.88rem;margin-top:4px">{{ stats.get('label_peso','Peso total') }}</div>
+  </div>
+  {% endif %}
+
+  {% if stats.get('peso_mes') is not none %}
+  <div class="card" style="padding:24px;text-align:center">
+    <div style="font-size:2rem;font-weight:800;color:{{ cor }}">{{ "%.1f"|format(stats.peso_mes) }} t</div>
+    <div style="color:var(--muted);font-size:.88rem;margin-top:4px">{{ stats.get('label_mes','Este mês') }}</div>
+  </div>
+  {% endif %}
+
+  {% if stats.get('bruto_total') is not none %}
+  <div class="card" style="padding:24px;text-align:center">
+    <div style="font-size:2rem;font-weight:800;color:{{ cor }}">R$ {{ "%.2f"|format(stats.bruto_total)|replace('.',',')|replace(',','.',1) }}</div>
+    <div style="color:var(--muted);font-size:.88rem;margin-top:4px">Valor bruto total</div>
+  </div>
+  {% endif %}
+
+  {% if stats.get('recebido') is not none %}
+  <div class="card" style="padding:24px;text-align:center">
+    <div style="font-size:2rem;font-weight:800;color:#16a34a">{{ stats.recebido }}</div>
+    <div style="color:var(--muted);font-size:.88rem;margin-top:4px">{{ stats.label_recebido }}</div>
+  </div>
+  {% endif %}
+
+  {% if stats.get('pendente') is not none %}
+  <div class="card" style="padding:24px;text-align:center;border-top:3px solid #d97706">
+    <div style="font-size:2rem;font-weight:800;color:#d97706">{{ stats.pendente }}</div>
+    <div style="color:var(--muted);font-size:.88rem;margin-top:4px">{{ stats.label_pendente }}</div>
+  </div>
+  {% endif %}
+
+  {% if stats.get('mes') is not none %}
+  <div class="card" style="padding:24px;text-align:center">
+    <div style="font-size:2rem;font-weight:800;color:{{ cor }}">{{ stats.mes }}</div>
+    <div style="color:var(--muted);font-size:.88rem;margin-top:4px">{{ stats.get('label_mes','Este mês') }}</div>
+  </div>
+  {% endif %}
+
+  {% if stats.get('equipamentos') is not none %}
+  <div class="card" style="padding:24px;text-align:center">
+    <div style="font-size:2rem;font-weight:800;color:{{ cor }}">{{ stats.equipamentos }}</div>
+    <div style="color:var(--muted);font-size:.88rem;margin-top:4px">Equipamentos ativos</div>
+  </div>
+  {% endif %}
+
+  {% if stats.get('completo') is not none and stats.total > 0 %}
+  <div class="card" style="padding:24px;text-align:center">
+    <div style="font-size:2rem;font-weight:800;color:#16a34a">{{ ((stats.completo / stats.total) * 100)|round|int }}%</div>
+    <div style="color:var(--muted);font-size:.88rem;margin-top:4px">Taxa de conclusão</div>
+  </div>
+  {% endif %}
+
 </div>
+
+{% if stats.get('regioes') %}
+<div class="card" style="padding:16px 20px;margin-bottom:16px">
+  <div style="font-size:.82rem;color:var(--muted);margin-bottom:8px">Regiões no painel</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    {% for r in stats.regioes %}
+    <span style="background:#1e293b;border:1px solid var(--border);border-radius:99px;padding:4px 12px;font-size:.82rem">{{ r }}</span>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="card" style="padding:40px;text-align:center;color:var(--muted)">
+  Nenhum dado encontrado para os filtros configurados.
+</div>
+{% endif %}
 {% endblock %}
