@@ -31,10 +31,6 @@
         <label>XML de NFS-e</label>
         <input type="file" id="xml" name="xml" accept=".xml" required>
       </div>
-      <div class="field">
-        <label>Planilha .xlsx <span class="text-xs text-muted">(só na primeira vez)</span></label>
-        <input type="file" id="xlsx" name="xlsx" accept=".xlsx">
-      </div>
       <button type="submit" class="btn btn-success btn-full" style="margin-top:6px">⬆ Importar NFS-e</button>
     </form>
   </div>
@@ -42,8 +38,7 @@
 </div>
 
 <div class="info-box info-box-accent mb-sm">
-  <strong>Fluxo:</strong> XML NFS-e → atualiza planilha xlsx. O dashboard HTML é atualizado separadamente.<br>
-  Na <strong>primeira importação</strong>, envie também a planilha .xlsx base. Nas importações seguintes, apenas o XML é necessário.
+  <strong>Fluxo:</strong> faça upload do XML de NFS-e → as notas são salvas automaticamente no banco de dados → o dashboard é atualizado em tempo real.
 </div>
 <div class="text-xs text-muted mt-sm">
   Última atualização: <strong style="color:var(--text)">{{ ultima_atualizacao | default('—') }}</strong>
