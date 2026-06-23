@@ -1,9 +1,10 @@
 import csv
 import io
+import json
 import tempfile
 from datetime import date, datetime
 from pathlib import Path
-from flask import render_template, request, send_from_directory, current_app, flash, redirect, url_for, jsonify, Response
+from flask import render_template, request, send_from_directory, current_app, flash, redirect, url_for, jsonify
 from flask_login import current_user, login_required
 
 from app.blueprints.usinagem import usinagem_bp
@@ -18,19 +19,35 @@ _R2_FILES = {
 }
 
 
+def _classificar(regiao: str) -> str:
+    r = (regiao or "").upper()
+    if "GUARIROBA" in r or "AGUAS GUARIROBA" in r:
+        return "GUARIROBA"
+    if "AEGEA" in r:
+        return "AEGEA"
+    return "GERAL"
+
+
+def _rows_json(registros) -> str:
+    """Serializa lista de UsinagemRegistro para array JS [[data, ticket, placa, ...]]. """
+    rows = []
+    for r in registros:
+        rows.append([
+            r.data_operacao.strftime("%d/%m/%Y") if r.data_operacao else "—",
+            r.ticket or "",
+            r.placa or "",
+            r.motorista or "",
+            "",                                      # entrada (não armazenado)
+            "",                                      # saída (não armazenado)
+            str(float(r.peso_bruto or 0)),           # índice 6 = tara no dashboard
+            str(float(r.peso_liquido or 0)),         # índice 7 = peso no dashboard
+            r.regiao or "",
+        ])
+    return json.dumps(rows, ensure_ascii=False, separators=(",", ":"))
+
+
 def _dashboard_folder() -> Path:
     return Path(current_app.static_folder) / "ferramentas" / "usinagem"
-
-
-def _dashboard(name: str):
-    """Serve dashboard: tenta R2 primeiro (persiste entre deploys), fallback para static local."""
-    import app.storage as r2
-    r2_key = _R2_FILES.get(name)
-    if r2_key:
-        data = r2.download(r2_key)
-        if data:
-            return Response(data, content_type="text/html; charset=utf-8")
-    return send_from_directory(_dashboard_folder(), f"{name}.html")
 
 
 def _xlsx_to_csv_path(xlsx_bytes: bytes) -> str:
@@ -115,18 +132,50 @@ def index():
 
 
 @usinagem_bp.route("/geral")
+@login_required
 def geral():
-    return _dashboard("geral")
+    org_id = current_user.org_id
+    registros = (UsinagemRegistro.query
+                 .filter_by(org_id=org_id, excluido=False)
+                 .order_by(UsinagemRegistro.data_operacao.desc(), UsinagemRegistro.ticket.desc())
+                 .all())
+    return render_template("usinagem/geral.html", rows_json=_rows_json(registros))
 
 
 @usinagem_bp.route("/aegea")
+@login_required
 def aegea():
-    return _dashboard("aegea")
+    org_id = current_user.org_id
+    cfg = get_usinagem_cfg()
+    registros = (UsinagemRegistro.query
+                 .filter_by(org_id=org_id, excluido=False)
+                 .order_by(UsinagemRegistro.data_operacao.desc(), UsinagemRegistro.ticket.desc())
+                 .all())
+    aegea_rows = [r for r in registros if _classificar(r.regiao) == "AEGEA"]
+    return render_template(
+        "usinagem/aegea.html",
+        rows_json=_rows_json(aegea_rows),
+        cap_total=cfg["cap_aegea"],
+        cap_comp=cfg["composicao_cap"],
+    )
 
 
 @usinagem_bp.route("/guariroba")
+@login_required
 def guariroba():
-    return _dashboard("guariroba")
+    org_id = current_user.org_id
+    cfg = get_usinagem_cfg()
+    registros = (UsinagemRegistro.query
+                 .filter_by(org_id=org_id, excluido=False)
+                 .order_by(UsinagemRegistro.data_operacao.desc(), UsinagemRegistro.ticket.desc())
+                 .all())
+    guari_rows = [r for r in registros if _classificar(r.regiao) == "GUARIROBA"]
+    return render_template(
+        "usinagem/guariroba.html",
+        rows_json=_rows_json(guari_rows),
+        cap_fornecido=cfg["cap_guariroba"],
+        cap_comp=cfg["composicao_cap"],
+    )
 
 
 @login_required
