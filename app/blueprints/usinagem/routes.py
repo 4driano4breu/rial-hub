@@ -12,12 +12,6 @@ from app.extensions import db
 from app.models import UsinagemRegistro
 from app.org_settings import get_usinagem_cfg
 
-_R2_FILES = {
-    "geral":      "usinagem/geral.html",
-    "aegea":      "usinagem/aegea.html",
-    "guariroba":  "usinagem/guariroba.html",
-}
-
 
 def _classificar(regiao: str) -> str:
     r = (regiao or "").upper()
@@ -44,10 +38,6 @@ def _rows_json(registros) -> str:
             r.regiao or "",
         ])
     return json.dumps(rows, ensure_ascii=False, separators=(",", ":"))
-
-
-def _dashboard_folder() -> Path:
-    return Path(current_app.static_folder) / "ferramentas" / "usinagem"
 
 
 def _xlsx_to_csv_path(xlsx_bytes: bytes) -> str:
@@ -232,8 +222,6 @@ def sincronizar():
 @login_required
 @usinagem_bp.route("/atualizar", methods=["POST"])
 def atualizar():
-    import app.storage as r2
-
     upload_file = request.files.get("csv")
     if not upload_file or not upload_file.filename:
         flash("Selecione um arquivo .csv ou .xlsx.", "error")
@@ -257,55 +245,47 @@ def atualizar():
         flash("Formato inválido. Envie um arquivo .csv ou .xlsx.", "error")
         return redirect(url_for("usinagem.index"))
 
+    # Índices das colunas no CSV "Base_Notas - Notas" (formato fixo)
+    COL_NOTA, COL_DATA, COL_PLACA, COL_MOT, COL_BRUTO, COL_LIQ, COL_REGIAO = 8, 9, 10, 11, 15, 16, 17
+    max_col = COL_REGIAO
+
     try:
-        from app.blueprints.usinagem import updater as _upd
-        import importlib
-        importlib.reload(_upd)
+        rows = []
+        for enc in ("utf-8-sig", "latin-1", "cp1252"):
+            try:
+                with open(csv_path, newline="", encoding=enc) as f:
+                    sample = f.readline()
+                    delim = ";" if sample.count(";") > sample.count(",") else ","
+                    f.seek(0)
+                    rows = list(csv.reader(f, delimiter=delim))
+                break
+            except UnicodeDecodeError:
+                continue
 
-        linhas_raw = _upd.ler_csv(str(csv_path))
-        linhas = _upd.deduplicar(linhas_raw)
-        aegea     = _upd.ordenar_desc([r for r in linhas if _upd.classificar(r[_upd.COL_REGIAO]) == "AEGEA"])
-        guariroba = _upd.ordenar_desc([r for r in linhas if _upd.classificar(r[_upd.COL_REGIAO]) == "GUARIROBA"])
-        todas     = _upd.ordenar_desc(linhas)
+        linhas_db = []
+        for r in rows[1:]:
+            if len(r) <= max_col:
+                continue
+            ticket = (r[COL_NOTA] or "").strip().replace(".", "").replace(",", "")
+            if not ticket.isdigit():
+                continue
+            linhas_db.append({
+                "ticket":       r[COL_NOTA].strip(),
+                "data":         r[COL_DATA].strip(),
+                "placa":        r[COL_PLACA].strip(),
+                "motorista":    r[COL_MOT].strip(),
+                "peso_bruto":   r[COL_BRUTO].strip(),
+                "peso_liquido": r[COL_LIQ].strip(),
+                "regiao":       r[COL_REGIAO].strip(),
+                "contrato":     "",
+            })
 
-        _upd.atualizar_aegea(aegea)
-        _upd.atualizar_guariroba(guariroba)
-        _upd.atualizar_geral(todas)
+        org_id = current_user.org_id if current_user.is_authenticated else 1
+        novos = _salvar_registros_db(linhas_db, org_id)
 
         from core.timestamps import salvar_timestamp
         salvar_timestamp("usinagem")
-
-        # Persiste dashboards no R2 (ignorado se R2 não configurado ou sem permissão)
-        r2_ok = True
-        folder = _dashboard_folder()
-        for name, r2_key in _R2_FILES.items():
-            local = folder / f"{name}.html"
-            if local.exists():
-                try:
-                    r2.upload(r2_key, local.read_bytes(), "text/html; charset=utf-8")
-                except Exception:
-                    r2_ok = False
-
-        # Persiste registros no banco também
-        try:
-            org_id = current_user.org_id if current_user.is_authenticated else 1
-            linhas_db = []
-            for r in linhas:
-                linhas_db.append({
-                    "ticket":      str(r[_upd.COL_NOTA]).strip() if len(r) > _upd.COL_NOTA else "",
-                    "data":        str(r[_upd.COL_DATA]).strip() if len(r) > _upd.COL_DATA else "",
-                    "placa":       str(r[_upd.COL_PLACA]).strip() if len(r) > _upd.COL_PLACA else "",
-                    "motorista":   str(r[_upd.COL_MOT]).strip() if len(r) > _upd.COL_MOT else "",
-                    "peso_bruto":  str(r[_upd.COL_BRUTO]).strip() if len(r) > _upd.COL_BRUTO else "",
-                    "peso_liquido":str(r[_upd.COL_LIQ]).strip() if len(r) > _upd.COL_LIQ else "",
-                    "regiao":      str(r[_upd.COL_REGIAO]).strip() if len(r) > _upd.COL_REGIAO else "",
-                    "contrato":    "",
-                })
-            novos = _salvar_registros_db(linhas_db, org_id)
-            r2_aviso = "" if r2_ok else " ⚠ R2 indisponível — dashboards ativos até próximo redeploy."
-            flash(f"Dashboards atualizados: {len(todas)} registros (AEGEA: {len(aegea)}, Guariroba: {len(guariroba)}). {novos} novos no banco.{r2_aviso}", "ok")
-        except Exception as db_err:
-            flash(f"Dashboards atualizados, mas erro ao salvar no banco: {db_err}", "error")
+        flash(f"Atualização concluída: {novos} novos registros de {len(linhas_db)} linhas do arquivo.", "ok")
     except Exception as e:
         flash(f"Erro ao processar CSV: {e}", "error")
     finally:

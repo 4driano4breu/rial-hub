@@ -1,0 +1,2 @@
+[phases.setup]
+aptPkgs = ["tesseract-ocr", "tesseract-ocr-por", "libsm6", "libxext6", "libxrender-dev"]

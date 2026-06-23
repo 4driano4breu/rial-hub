@@ -89,6 +89,7 @@ def create_app() -> Flask:
     from app.blueprints.formularios import formularios_bp
     from app.blueprints.ajuda import ajuda_bp
     from app.blueprints.paineis import paineis_bp
+    from app.blueprints.viario import viario_bp
 
     app.register_blueprint(notas_bp,        url_prefix="/notas")
     app.register_blueprint(faturamento_bp,  url_prefix="/faturamento")
@@ -100,6 +101,7 @@ def create_app() -> Flask:
     app.register_blueprint(formularios_bp)
     app.register_blueprint(ajuda_bp)
     app.register_blueprint(paineis_bp)
+    app.register_blueprint(viario_bp,       url_prefix="/viario")
 
     @app.route("/")
     def index():
@@ -250,9 +252,6 @@ def _r2_pull_command():
     instance_faturamento.mkdir(parents=True, exist_ok=True)
 
     targets = {
-        "usinagem/geral.html":              static / "ferramentas" / "usinagem" / "geral.html",
-        "usinagem/aegea.html":              static / "ferramentas" / "usinagem" / "aegea.html",
-        "usinagem/guariroba.html":          static / "ferramentas" / "usinagem" / "guariroba.html",
         "faturamento/dashboard.html":       static / "ferramentas" / "faturamento" / "dashboard.html",
         "faturamento/Faturamento_2026.xlsx": instance_faturamento / "Faturamento 2026.xlsx",
     }

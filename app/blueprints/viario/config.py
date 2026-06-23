@@ -1,4 +1,5 @@
-TESSERACT_CMD = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+import os, shutil
+TESSERACT_CMD = shutil.which("tesseract") or r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 # ── Serviços disponíveis ─────────────────────────────────────────
 SERVICOS_GPS = [
