@@ -27,5 +27,12 @@ google-api-python-client>=2.100.0
 google-auth>=2.23.0
 google-auth-httplib2>=0.2.0
 
+# Viário (OCR + GPS + relatório)
+pandas>=2.2.0
+numpy>=1.26.0
+Pillow>=10.0.0
+pytesseract>=0.3.10
+openrouteservice>=2.3.3
+
 # Produção
 gunicorn>=23.0.0
