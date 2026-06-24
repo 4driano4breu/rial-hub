@@ -884,6 +884,29 @@ input[type=checkbox]{accent-color:#3b82f6;width:1rem;height:1rem;cursor:pointer;
     </template>
   </div>
 
+  <!-- ── Card: Template XLSM ── -->
+  <div class="card" style="margin-top:1rem">
+    <div class="section-hdr">
+      <span class="section-title">📋 Template de Relatório (.xlsm)</span>
+    </div>
+    <p style="font-size:.8rem;color:#94a3b8;margin-bottom:.8rem">
+      O template muda a cada mês. Faça upload do arquivo atualizado — ele será salvo permanentemente no R2 e restaurado automaticamente a cada redeploy.
+    </p>
+
+    <div style="display:flex;align-items:center;gap:.8rem;flex-wrap:wrap">
+      <div style="font-size:.78rem;color:#64748b" x-text="tmplStatus"></div>
+      <label class="btn-save" style="cursor:pointer;margin:0">
+        📤 Selecionar .xlsm
+        <input type="file" accept=".xlsm,.xlsx" style="display:none"
+               @change="uploadTemplate($event)" :disabled="tmplUploading"/>
+      </label>
+      <span x-show="tmplUploading" class="spin" style="color:#94a3b8">⟳</span>
+    </div>
+    <template x-if="tmplMsg">
+      <div :class="tmplOk ? 'alert-saved' : 'alert-err'" style="margin-top:.6rem" x-text="tmplMsg"></div>
+    </template>
+  </div>
+
 </div>
 </template>
 
@@ -1082,6 +1105,12 @@ function app(){
       limite_cg:'', ajuste_sr:'', descricao_cg:'', descricao_sr:''
     },
 
+    // ── Template XLSM ──
+    tmplStatus:    'Verificando…',
+    tmplUploading: false,
+    tmplMsg:       '',
+    tmplOk:        false,
+
     // arquivos selecionados (upload)
     fotos:     [],
     dadosFile: null,
@@ -1106,7 +1135,7 @@ function app(){
       this.fotos = [];
       this.dadosFile = null;
       this.resetUI();
-      if(nome === 'vias') this.carregarVias();
+      if(nome === 'vias'){ this.carregarVias(); this.verificarTemplate(); }
     },
 
     selFotos(ev){ this.fotos = Array.from(ev.target.files || []); },
@@ -1263,6 +1292,33 @@ function app(){
     // ══════════════════════════════════════
     //  MÉTODOS DE CONFIGURAÇÃO DE VIAS
     // ══════════════════════════════════════
+
+    async verificarTemplate(){
+      try {
+        const r = await fetch('/viario/api/config/template/status');
+        const d = await r.json();
+        this.tmplStatus = d.existe
+          ? `✅ Template carregado (${(d.bytes/1024).toFixed(0)} KB)`
+          : '⚠ Nenhum template carregado — faça upload para habilitar geração de relatórios.';
+      } catch(e){ this.tmplStatus = 'Erro ao verificar template.'; }
+    },
+
+    async uploadTemplate(ev){
+      const file = ev.target.files[0];
+      if(!file) return;
+      this.tmplUploading = true; this.tmplMsg = ''; this.tmplOk = false;
+      const fd = new FormData();
+      fd.append('template', file);
+      try {
+        const r = await fetch('/viario/api/config/template', {method:'POST', body:fd});
+        const d = await r.json();
+        if(!r.ok || d.error){ this.tmplMsg = d.error || 'Falha no upload.'; this.tmplOk = false; }
+        else { this.tmplMsg = `✅ Template "${d.nome}" salvo (${(d.bytes/1024).toFixed(0)} KB).`; this.tmplOk = true; }
+        await this.verificarTemplate();
+      } catch(e){ this.tmplMsg = 'Erro: '+e; this.tmplOk = false; }
+      this.tmplUploading = false;
+      ev.target.value = '';
+    },
 
     async carregarVias(){
       try {

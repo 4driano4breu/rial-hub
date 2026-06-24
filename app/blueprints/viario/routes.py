@@ -50,6 +50,17 @@ def _on_register(state):
     (_instance_viario / "saidas").mkdir(parents=True, exist_ok=True)
     (_instance_viario / "uploads").mkdir(parents=True, exist_ok=True)
     _carregar_config()
+    _restaurar_template_r2()
+
+
+def _restaurar_template_r2():
+    """Puxa base_gerar_relatorio.xlsm do R2 se não existir localmente (container efêmero)."""
+    local = Path(_template_path())
+    if local.exists():
+        return
+    data = r2.download("viario/base_gerar_relatorio.xlsm")
+    if data:
+        local.write_bytes(data)
 
 
 def _rodovias_json() -> Path:
@@ -934,6 +945,34 @@ def api_download():
     if full.is_file():
         return send_file(str(full), as_attachment=True)
     return jsonify({"error": "Arquivo não encontrado"}), 404
+
+
+# ── Config: Template XLSM ────────────────────────────────────────
+
+@viario_bp.route("/api/config/template", methods=["POST"])
+def api_config_template():
+    arq = request.files.get("template")
+    if not arq or not (arq.filename or "").lower().endswith((".xlsm", ".xlsx")):
+        return jsonify({"error": "Envie um arquivo .xlsm ou .xlsx."}), 400
+    data = arq.read()
+    local = Path(_template_path())
+    local.write_bytes(data)
+    try:
+        r2.upload("viario/base_gerar_relatorio.xlsm", data,
+                  "application/vnd.ms-excel.sheet.macroenabled.12")
+    except Exception:
+        pass  # R2 opcional — arquivo já está salvo localmente
+    return jsonify({"ok": True, "nome": secure_filename(arq.filename), "bytes": len(data)})
+
+
+@viario_bp.route("/api/config/template/status")
+def api_config_template_status():
+    local = Path(_template_path())
+    return jsonify({
+        "existe": local.is_file(),
+        "nome":   local.name if local.is_file() else None,
+        "bytes":  local.stat().st_size if local.is_file() else None,
+    })
 
 
 # ── Config: Rodovias e Tapa-Buraco ───────────────────────────────
