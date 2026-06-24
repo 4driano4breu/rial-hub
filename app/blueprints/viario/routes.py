@@ -50,7 +50,8 @@ def _on_register(state):
     (_instance_viario / "saidas").mkdir(parents=True, exist_ok=True)
     (_instance_viario / "uploads").mkdir(parents=True, exist_ok=True)
     _carregar_config()
-    _restaurar_template_r2()
+    with state.app.app_context():
+        _restaurar_template_r2()
 
 
 def _restaurar_template_r2():
