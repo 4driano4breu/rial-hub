@@ -16,10 +16,19 @@
   <span class="nav-sep">/</span>
   <span class="nav-cur">{% block nav_cur %}{% endblock %}</span>
   <div class="nav-links">
-    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('paineis') %}active{% endif %}" href="{{ url_for('paineis.index') }}">📊 Painéis</a>
+    <div class="nav-dropdown {% if request.endpoint and (request.endpoint.startswith('usinagem') or request.endpoint.startswith('faturamento')) %}active{% endif %}">
+      <span class="nav-link nav-drop-trigger">📊 Dashboards ▾</span>
+      <div class="nav-drop-menu">
+        <div class="drop-group-label">Usinagem CBUQ</div>
+        <a href="{{ url_for('usinagem.geral') }}">Geral</a>
+        <a href="{{ url_for('usinagem.aegea') }}">AEGEA</a>
+        <a href="{{ url_for('usinagem.guariroba') }}">Guariroba</a>
+        <div class="drop-divider"></div>
+        <div class="drop-group-label">Faturamento</div>
+        <a href="{{ url_for('faturamento.dashboard') }}">Dashboard</a>
+      </div>
+    </div>
     <a class="nav-link {% if request.endpoint and request.endpoint.startswith('notas') %}active{% endif %}" href="{{ url_for('notas.index') }}">📋 Notas</a>
-    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('faturamento') %}active{% endif %}" href="{{ url_for('faturamento.index') }}">💰 Faturamento</a>
-    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('usinagem') %}active{% endif %}" href="{{ url_for('usinagem.index') }}">⚙ Usinagem</a>
     <a class="nav-link {% if request.endpoint and request.endpoint.startswith('ferramentas') %}active{% endif %}" href="{{ url_for('ferramentas.index') }}">🔧 Ferramentas</a>
     <a class="nav-link {% if request.endpoint and request.endpoint.startswith('equipamentos') %}active{% endif %}" href="{{ url_for('equipamentos.index') }}">🚜 Equipamentos</a>
     <a class="nav-link {% if request.endpoint and request.endpoint.startswith('formularios') %}active{% endif %}" href="{{ url_for('formularios.index') }}">📋 Coleta de Campo</a>
