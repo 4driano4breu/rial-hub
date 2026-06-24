@@ -415,14 +415,11 @@ input[type=checkbox]{accent-color:#3b82f6;width:1rem;height:1rem;cursor:pointer;
       <div class="step">
         <div class="step-num">3</div>
         <div class="step-body">
-          <label>Pasta com as fotos originais</label>
+          <label>Fotos originais</label>
           <div class="field-wrap">
-            <div class="row">
-              <input type="text" x-model="cfg.pasta" placeholder="Clique em 📁 para selecionar a pasta..."/>
-              <button class="btn-browse" @click="browse('folder','cfg.pasta')" :disabled="rodando">📁 Selecionar</button>
-            </div>
+            <input type="file" multiple accept="image/*" @change="selFotos($event)" :disabled="rodando"/>
           </div>
-          <div class="step-hint">Selecione a pasta que contém as fotos .jpg tiradas em campo. As fotos originais não serão alteradas.</div>
+          <div class="step-hint" x-text="fotosLabel('Selecione as fotos .jpg tiradas em campo. As fotos originais não serão alteradas.')"></div>
         </div>
       </div>
 
@@ -449,7 +446,7 @@ input[type=checkbox]{accent-color:#3b82f6;width:1rem;height:1rem;cursor:pointer;
     </div>
   </div>
 
-  <button class="btn-run" @click="run('gps')" :disabled="rodando||!cfg.pasta">
+  <button class="btn-run" @click="run('gps')" :disabled="rodando||!fotos.length">
     <template x-if="!rodando"><span class="arrow">▶</span><span>Executar — OCR + Cálculo de KM + Relatório</span></template>
     <template x-if="rodando"><span class="spin">⟳</span><span>Processando… aguarde</span></template>
   </button>
@@ -503,14 +500,11 @@ input[type=checkbox]{accent-color:#3b82f6;width:1rem;height:1rem;cursor:pointer;
       <div class="step">
         <div class="step-num">3</div>
         <div class="step-body">
-          <label>Pasta com as fotos originais</label>
+          <label>Fotos originais</label>
           <div class="field-wrap">
-            <div class="row">
-              <input type="text" x-model="cfg.pasta" placeholder="Clique em 📁 para selecionar a pasta..."/>
-              <button class="btn-browse" @click="browse('folder','cfg.pasta')" :disabled="rodando">📁 Selecionar</button>
-            </div>
+            <input type="file" multiple accept="image/*" @change="selFotos($event)" :disabled="rodando"/>
           </div>
-          <div class="step-hint">Selecione a pasta com as fotos onde o KM aparece escrito na imagem.</div>
+          <div class="step-hint" x-text="fotosLabel('Selecione as fotos onde o KM aparece escrito na imagem.')"></div>
         </div>
       </div>
 
@@ -535,7 +529,7 @@ input[type=checkbox]{accent-color:#3b82f6;width:1rem;height:1rem;cursor:pointer;
     </div>
   </div>
 
-  <button class="btn-run" @click="run('rossada')" :disabled="rodando||!cfg.pasta">
+  <button class="btn-run" @click="run('rossada')" :disabled="rodando||!fotos.length">
     <template x-if="!rodando"><span class="arrow">▶</span><span>Executar — Ler KM das Fotos + Relatório</span></template>
     <template x-if="rodando"><span class="spin">⟳</span><span>Processando… aguarde</span></template>
   </button>
@@ -564,14 +558,11 @@ input[type=checkbox]{accent-color:#3b82f6;width:1rem;height:1rem;cursor:pointer;
       <div class="step">
         <div class="step-num">1</div>
         <div class="step-body">
-          <label>Pasta com as fotos originais</label>
+          <label>Fotos originais</label>
           <div class="field-wrap">
-            <div class="row">
-              <input type="text" x-model="cfg.pasta" placeholder="Clique em 📁 para selecionar a pasta..."/>
-              <button class="btn-browse" @click="browse('folder','cfg.pasta')" :disabled="rodando">📁 Selecionar</button>
-            </div>
+            <input type="file" multiple accept="image/*" @change="selFotos($event)" :disabled="rodando"/>
           </div>
-          <div class="step-hint">As fotos devem ter coordenadas GPS gravadas pelo app de campo.</div>
+          <div class="step-hint" x-text="fotosLabel('As fotos devem ter coordenadas GPS gravadas pelo app de campo.')"></div>
         </div>
       </div>
 
@@ -596,7 +587,7 @@ input[type=checkbox]{accent-color:#3b82f6;width:1rem;height:1rem;cursor:pointer;
     </div>
   </div>
 
-  <button class="btn-run" @click="run('tapa')" :disabled="rodando||!cfg.pasta">
+  <button class="btn-run" @click="run('tapa')" :disabled="rodando||!fotos.length">
     <template x-if="!rodando"><span class="arrow">▶</span><span>Executar — OCR + KM Campo Grande/Santa Rita + Relatório</span></template>
     <template x-if="rodando"><span class="spin">⟳</span><span>Processando… aguarde</span></template>
   </button>
@@ -652,12 +643,9 @@ input[type=checkbox]{accent-color:#3b82f6;width:1rem;height:1rem;cursor:pointer;
         <div class="step-body">
           <label>Arquivo dados.xlsx</label>
           <div class="field-wrap">
-            <div class="row">
-              <input type="text" x-model="cfg.arquivo" placeholder="Clique em 📄 para selecionar o arquivo..."/>
-              <button class="btn-browse" @click="browse('file','cfg.arquivo')" :disabled="rodando">📄 Selecionar</button>
-            </div>
+            <input type="file" accept=".xlsx,.xlsm" @change="selDados($event)" :disabled="rodando"/>
           </div>
-          <div class="step-hint">Selecione o arquivo dados.xlsx que contém as colunas Latitude e Longitude preenchidas.</div>
+          <div class="step-hint" x-text="dadosLabel('Selecione o arquivo dados.xlsx que contém as colunas Latitude e Longitude preenchidas.')"></div>
         </div>
       </div>
     </div>
@@ -670,7 +658,7 @@ input[type=checkbox]{accent-color:#3b82f6;width:1rem;height:1rem;cursor:pointer;
     </div>
   </div>
 
-  <button class="btn-run" @click="run('km')" :disabled="rodando||!cfg.arquivo">
+  <button class="btn-run" @click="run('km')" :disabled="rodando||!dadosFile">
     <template x-if="!rodando"><span class="arrow">▶</span><span>Recalcular KM no arquivo selecionado</span></template>
     <template x-if="rodando"><span class="spin">⟳</span><span>Calculando… aguarde</span></template>
   </button>
@@ -711,26 +699,20 @@ input[type=checkbox]{accent-color:#3b82f6;width:1rem;height:1rem;cursor:pointer;
         <div class="step-body">
           <label>Arquivo dados.xlsx</label>
           <div class="field-wrap">
-            <div class="row">
-              <input type="text" x-model="cfg.arquivo" placeholder="Clique em 📄 para selecionar o arquivo..."/>
-              <button class="btn-browse" @click="browse('file','cfg.arquivo')" :disabled="rodando">📄 Selecionar</button>
-            </div>
+            <input type="file" accept=".xlsx,.xlsm" @change="selDados($event)" :disabled="rodando"/>
           </div>
-          <div class="step-hint">O arquivo deve ter as colunas <strong>Imagem</strong> e <strong>Descrição</strong> preenchidas.</div>
+          <div class="step-hint" x-text="dadosLabel('O arquivo deve ter as colunas Imagem e Descrição preenchidas.')"></div>
         </div>
       </div>
 
       <div class="step">
         <div class="step-num">3</div>
         <div class="step-body">
-          <label>Pasta com as fotos</label>
+          <label>Fotos do relatório</label>
           <div class="field-wrap">
-            <div class="row">
-              <input type="text" x-model="cfg.pasta" placeholder="Clique em 📁 para selecionar a pasta..."/>
-              <button class="btn-browse" @click="browse('folder','cfg.pasta')" :disabled="rodando">📁 Selecionar</button>
-            </div>
+            <input type="file" multiple accept="image/*" @change="selFotos($event)" :disabled="rodando"/>
           </div>
-          <div class="step-hint">A pasta onde estão as fotos renomeadas (foto_001.jpg, foto_002.jpg…).</div>
+          <div class="step-hint" x-text="fotosLabel('Selecione as fotos referenciadas na coluna Imagem do dados.xlsx.')"></div>
         </div>
       </div>
     </div>
@@ -743,7 +725,7 @@ input[type=checkbox]{accent-color:#3b82f6;width:1rem;height:1rem;cursor:pointer;
     </div>
   </div>
 
-  <button class="btn-run" @click="run('rel')" :disabled="rodando||!cfg.arquivo||!cfg.pasta">
+  <button class="btn-run" @click="run('rel')" :disabled="rodando||!dadosFile||!fotos.length">
     <template x-if="!rodando"><span class="arrow">▶</span><span>Gerar Relatório .xlsm</span></template>
     <template x-if="rodando"><span class="spin">⟳</span><span>Gerando relatório… aguarde</span></template>
   </button>
@@ -1100,13 +1082,17 @@ function app(){
       limite_cg:'', ajuste_sr:'', descricao_cg:'', descricao_sr:''
     },
 
+    // arquivos selecionados (upload)
+    fotos:     [],
+    dadosFile: null,
+
     cfg:{
       rodovia:'{{ rodovias[0] }}',
       servico_gps:'{{ servicos_gps[0] }}',
       tipo_servico:'{{ servicos_km_foto[0] }}',
       rota_km_foto:'{{ rotas_km_foto[0] }}',
       nomeRel:'',
-      pasta:'', arquivo:'', comRel:true,
+      comRel:true,
       infoAberta:{ gps:false, rossada:false, tapa:false, km:false, rel:false }
     },
 
@@ -1117,27 +1103,38 @@ function app(){
     trocar(nome){
       if(this.rodando) return;
       this.aba = nome;
+      this.fotos = [];
+      this.dadosFile = null;
       this.resetUI();
       if(nome === 'vias') this.carregarVias();
+    },
+
+    selFotos(ev){ this.fotos = Array.from(ev.target.files || []); },
+    selDados(ev){ this.dadosFile = (ev.target.files || [])[0] || null; },
+    fotosLabel(base){ return this.fotos.length ? this.fotos.length+' foto(s) selecionada(s).' : base; },
+    dadosLabel(base){ return this.dadosFile ? this.dadosFile.name+' selecionado.' : base; },
+
+    async _uploadFotos(){
+      const fd = new FormData();
+      for(const f of this.fotos) fd.append('fotos', f);
+      const r = await fetch('/viario/api/upload-fotos', {method:'POST', body:fd});
+      const d = await r.json();
+      if(!r.ok || !d.token) throw new Error(d.error || 'Falha no upload das fotos.');
+      return d.token;
+    },
+
+    async _uploadDados(){
+      const fd = new FormData();
+      fd.append('arquivo', this.dadosFile);
+      const r = await fetch('/viario/api/upload-dados', {method:'POST', body:fd});
+      const d = await r.json();
+      if(!r.ok || !d.token) throw new Error(d.error || 'Falha no upload do arquivo.');
+      return d.token;
     },
 
     resetUI(){
       this.logs=[]; this.dls=[]; this.pastaSaida='';
       this.etapas=[]; this.erroGeral=''; this.proximoPasso='';
-    },
-
-    async browse(tipo, campo){
-      const ep = tipo==='folder' ? '/viario/api/browse-folder' : '/viario/api/browse-file';
-      try {
-        const r = await fetch(ep, {method:'POST'});
-        const d = await r.json();
-        if(d.path){
-          const k = campo.split('.');
-          let o = this;
-          for(let i=0;i<k.length-1;i++) o=o[k[i]];
-          o[k[k.length-1]] = d.path;
-        }
-      } catch(e){ console.error(e); }
     },
 
     async runDiag(silencioso=false){
@@ -1159,12 +1156,19 @@ function app(){
     etapa(id){ return this.etapas.find(e=>e.id===id); },
 
     initEtapas(titulos){
-      this.etapas = titulos.map((t,i)=>({id:i+1, titulo:t, msg:'Aguardando…', status:'pending', pct:0}));
+      // "Etapa 0 — Envio…" recebe id 0; as demais ficam 1-based para casar com o backend SSE.
+      let n = 0;
+      this.etapas = titulos.map(t => {
+        const id = /Envio/.test(t) ? 0 : ++n;
+        return {id, titulo:t, msg:'Aguardando…', status:'pending', pct:0};
+      });
     },
 
     sse(url, onDone){
-      this.resetUI();
       this.rodando = true;
+      // Etapa 0 (upload) já concluída quando a SSE inicia
+      const e0 = this.etapas[0];
+      if(e0 && /Envio/.test(e0.titulo)){ e0.status='ok'; e0.pct=100; e0.msg='Arquivos enviados'; }
       const src = new EventSource(url);
       src.onmessage = e => {
         const d = JSON.parse(e.data);
@@ -1204,39 +1208,55 @@ function app(){
       };
     },
 
-    run(tipo){
+    async run(tipo){
       const p = new URLSearchParams();
+      this.resetUI();
+      this.rodando = true;
+      try {
+        if(tipo==='gps'){
+          this.initEtapas(['Etapa 0 — Envio das fotos','Etapa 1 — Leitura GPS das fotos','Etapa 2 — Cálculo de KM via API','Etapa 3 — Geração do relatório .xlsm']);
+          this.log('▶ Enviando '+this.fotos.length+' foto(s)…','info');
+          p.set('token', await this._uploadFotos());
+          p.set('rodovia',this.cfg.rodovia);
+          p.set('servico',this.cfg.servico_gps); p.set('relatorio',this.cfg.comRel);
+          this.sse('/viario/api/pipeline-gps?'+p, d=>this._onDone(d,'gps'));
 
-      if(tipo==='gps'){
-        this.initEtapas(['Etapa 1 — Leitura GPS das fotos','Etapa 2 — Cálculo de KM via API','Etapa 3 — Geração do relatório .xlsm']);
-        p.set('pasta',this.cfg.pasta); p.set('rodovia',this.cfg.rodovia);
-        p.set('servico',this.cfg.servico_gps); p.set('relatorio',this.cfg.comRel);
-        this.sse('/viario/api/pipeline-gps?'+p, d=>this._onDone(d,'gps'));
+        } else if(tipo==='rossada'){
+          this.initEtapas(['Etapa 0 — Envio das fotos','Etapa 1 — Leitura do KM nas fotos','Etapa 2 — Geração do relatório .xlsm']);
+          this.log('▶ Enviando '+this.fotos.length+' foto(s)…','info');
+          p.set('token', await this._uploadFotos());
+          p.set('tipo_servico',this.cfg.tipo_servico);
+          p.set('rota',this.cfg.rota_km_foto);
+          p.set('relatorio',this.cfg.comRel);
+          this.sse('/viario/api/pipeline-km-foto?'+p, d=>this._onDone(d,'rossada'));
 
-      } else if(tipo==='rossada'){
-        this.initEtapas(['Etapa 1 — Leitura do KM nas fotos','Etapa 2 — Geração do relatório .xlsm']);
-        p.set('pasta',this.cfg.pasta);
-        p.set('tipo_servico',this.cfg.tipo_servico);
-        p.set('rota',this.cfg.rota_km_foto);
-        p.set('relatorio',this.cfg.comRel);
-        this.sse('/viario/api/pipeline-km-foto?'+p, d=>this._onDone(d,'rossada'));
+        } else if(tipo==='tapa'){
+          this.initEtapas(['Etapa 0 — Envio das fotos','Etapa 1 — Leitura GPS das fotos','Etapa 2 — Cálculo KM (Campo Grande / Santa Rita)','Etapa 3 — Geração do relatório .xlsm']);
+          this.log('▶ Enviando '+this.fotos.length+' foto(s)…','info');
+          p.set('token', await this._uploadFotos());
+          p.set('relatorio',this.cfg.comRel);
+          this.sse('/viario/api/pipeline-tapa-buraco?'+p, d=>this._onDone(d,'tapa'));
 
-      } else if(tipo==='tapa'){
-        this.initEtapas(['Etapa 1 — Leitura GPS das fotos','Etapa 2 — Cálculo KM (Campo Grande / Santa Rita)','Etapa 3 — Geração do relatório .xlsm']);
-        p.set('pasta',this.cfg.pasta); p.set('relatorio',this.cfg.comRel);
-        this.sse('/viario/api/pipeline-tapa-buraco?'+p, d=>this._onDone(d,'tapa'));
+        } else if(tipo==='km'){
+          this.initEtapas(['Etapa 0 — Envio do arquivo','Cálculo de KM via API de Rotas']);
+          this.log('▶ Enviando arquivo…','info');
+          p.set('token', await this._uploadDados());
+          p.set('rodovia',this.cfg.rodovia);
+          p.set('servico',this.cfg.servico_gps);
+          this.sse('/viario/api/atualizar-km?'+p, d=>this._onDone(d,'km'));
 
-      } else if(tipo==='km'){
-        this.initEtapas(['Cálculo de KM via API de Rotas']);
-        p.set('arquivo',this.cfg.arquivo); p.set('rodovia',this.cfg.rodovia);
-        p.set('servico',this.cfg.servico_gps);
-        this.sse('/viario/api/atualizar-km?'+p, d=>this._onDone(d,'km'));
-
-      } else if(tipo==='rel'){
-        this.initEtapas(['Geração do Relatório .xlsm']);
-        p.set('arquivo',this.cfg.arquivo); p.set('pasta',this.cfg.pasta);
-        p.set('nome', this.cfg.nomeRel || 'relatorio');
-        this.sse('/viario/api/relatorio?'+p, d=>this._onDone(d,'rel'));
+        } else if(tipo==='rel'){
+          this.initEtapas(['Etapa 0 — Envio dos arquivos','Geração do Relatório .xlsm']);
+          this.log('▶ Enviando dados e fotos…','info');
+          p.set('token_dados', await this._uploadDados());
+          p.set('token_fotos', await this._uploadFotos());
+          p.set('nome', this.cfg.nomeRel || 'relatorio');
+          this.sse('/viario/api/relatorio?'+p, d=>this._onDone(d,'rel'));
+        }
+      } catch(e){
+        this.erroGeral = String(e.message || e);
+        this.log('✗ '+this.erroGeral,'error');
+        this.rodando = false;
       }
     },
 
