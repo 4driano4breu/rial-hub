@@ -131,6 +131,7 @@ def create_app() -> Flask:
     # Comandos CLI
     app.cli.add_command(_seed_command)
     app.cli.add_command(_seed_auto_command)
+    app.cli.add_command(_r2_pull_command)
 
     return app
 
@@ -235,3 +236,7 @@ def _seed_template_retro(org_id):
     db.session.commit()
 
 
+@click.command("r2-pull")
+def _r2_pull_command():
+    """Mantido por compatibilidade com start command do Railway (no-op)."""
+    click.echo("r2-pull: sem arquivos a restaurar.")
