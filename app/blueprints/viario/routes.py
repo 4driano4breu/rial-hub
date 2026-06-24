@@ -162,6 +162,10 @@ def listar_imagens(pasta: str):
 
 
 def ler_api_key() -> str:
+    # Variável de ambiente tem prioridade (Railway), fallback para arquivo local
+    key = os.environ.get("ORS_API_KEY", "").strip()
+    if key:
+        return key
     with open(_api_key_path()) as f:
         return f.read().strip()
 
