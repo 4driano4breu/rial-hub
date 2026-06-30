@@ -20,7 +20,7 @@ def _require_admin(f):
     @wraps(f)
     @login_required
     def decorated(*args, **kwargs):
-        if not current_user.has_role("ADMIN", "SUPERADMIN"):
+        if not current_user.has_role("GESTOR", "ADMIN", "SUPERADMIN"):
             abort(403)
         return f(*args, **kwargs)
     return decorated

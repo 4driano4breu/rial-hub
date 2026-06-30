@@ -60,7 +60,7 @@ def usuarios():
 @admin_bp.route("/usuarios/novo", methods=["GET", "POST"])
 @_require_admin
 def usuario_novo():
-    roles_disponiveis = ["VIEWER", "OPERACIONAL", "FINANCEIRO", "ADMIN"]
+    roles_disponiveis = ["VIEWER", "OPERACIONAL", "FINANCEIRO", "GESTOR", "ADMIN"]
     if current_user.has_role("SUPERADMIN"):
         roles_disponiveis.append("SUPERADMIN")
 
@@ -111,7 +111,7 @@ def usuario_novo():
 def usuario_editar(uid):
     usuario = User.query.filter_by(id=uid, org_id=current_user.org_id).first_or_404()
 
-    roles_disponiveis = ["VIEWER", "OPERACIONAL", "FINANCEIRO", "ADMIN"]
+    roles_disponiveis = ["VIEWER", "OPERACIONAL", "FINANCEIRO", "GESTOR", "ADMIN"]
     if current_user.has_role("SUPERADMIN"):
         roles_disponiveis.append("SUPERADMIN")
 
@@ -211,7 +211,7 @@ def configuracoes():
 @admin_bp.route("/convidar", methods=["GET", "POST"])
 @_require_admin
 def convidar():
-    roles_disponiveis = ["VIEWER", "OPERACIONAL", "FINANCEIRO", "ADMIN"]
+    roles_disponiveis = ["VIEWER", "OPERACIONAL", "FINANCEIRO", "GESTOR", "ADMIN"]
     convites_recentes = (InviteToken.query
         .filter_by(org_id=current_user.org_id, usado=False)
         .filter(InviteToken.expires_at > datetime.utcnow())
