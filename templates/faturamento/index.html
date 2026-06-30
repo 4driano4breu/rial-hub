@@ -37,6 +37,24 @@
 
 </div>
 
+  <!-- Card 3: Importar Recebimentos JSON -->
+  <div class="card card-body">
+    <div class="card-title-sm">Importar Recebimentos (JSON)</div>
+    <p class="text-muted text-sm mb-md" style="line-height:1.6">
+      Importe o arquivo <strong>recebimentos.json</strong> para restaurar o status de recebimento das notas fiscais.
+    </p>
+    <form method="POST" action="/faturamento/importar-recebimentos" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="field">
+        <label>recebimentos.json</label>
+        <input type="file" name="json" accept=".json" required>
+      </div>
+      <button type="submit" class="btn btn-success btn-full" style="margin-top:6px">📥 Importar Recebimentos</button>
+    </form>
+  </div>
+
+</div>
+
 <div class="info-box info-box-accent mb-sm">
   <strong>Fluxo:</strong> faça upload do XML de NFS-e → as notas são salvas automaticamente no banco de dados → o dashboard é atualizado em tempo real.
 </div>

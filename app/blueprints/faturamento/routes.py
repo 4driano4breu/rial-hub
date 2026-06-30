@@ -106,6 +106,45 @@ def nota_recebido(nr):
     return jsonify(ok=True, recebido=nota.recebido)
 
 
+@faturamento_bp.route("/importar-recebimentos", methods=["POST"])
+@login_required
+def importar_recebimentos():
+    json_file = request.files.get("json")
+    if not json_file or not json_file.filename.endswith(".json"):
+        flash("Envie um arquivo .json de recebimentos.", "error")
+        return redirect(url_for("faturamento.index"))
+
+    try:
+        from app.models import FaturamentoNota
+        dados = json.loads(json_file.read().decode("utf-8"))
+        org_id = current_user.org_id
+        atualizadas = nao_encontradas = 0
+
+        for nr_str, info in dados.items():
+            nr = int(nr_str)
+            nota = FaturamentoNota.query.filter_by(org_id=org_id, nr=nr, excluido=False).first()
+            if nota is None:
+                nao_encontradas += 1
+                continue
+            nota.recebido = bool(info.get("recebido", False))
+            data_str = (info.get("dataRecebimento") or "").strip()
+            try:
+                nota.data_recebimento = _date.fromisoformat(data_str) if data_str else None
+            except ValueError:
+                nota.data_recebimento = None
+            atualizadas += 1
+
+        db.session.commit()
+        msg = f"{atualizadas} nota(s) de recebimento importadas."
+        if nao_encontradas:
+            msg += f" {nao_encontradas} não encontradas no banco (importe o XML primeiro)."
+        flash(msg, "ok")
+    except Exception as e:
+        flash(f"Erro ao importar recebimentos: {e}", "error")
+
+    return redirect(url_for("faturamento.index"))
+
+
 @login_required
 @faturamento_bp.route("/atualizar", methods=["POST"])
 def atualizar():
