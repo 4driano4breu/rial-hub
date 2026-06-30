@@ -1,11 +1,10 @@
-﻿<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Faturamento 2026 — OBRIA</title>
+﻿{% extends "base.html" %}
+{% block title %}Faturamento 2026 — OBRIA{% endblock %}
+{% block head %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
+  /* Remove padding do wrapper base para o dashboard ter controle total */
+  .content-area > .main { padding: 0; max-width: none; }
   :root {
     --bg: #0f172a;
     --card: #1e293b;
@@ -331,7 +330,7 @@
   .progress-teto-label { position: absolute; top: -18px; font-size: 0.68rem; color: #ef4444; transform: translateX(-50%); white-space: nowrap; }
 
   /* ── TABS ── */
-  .tab-nav { display:flex; gap:4px; padding:0 32px; background:#0f172a; border-bottom:1px solid #1e293b; }
+  .tab-nav { display:flex; gap:4px; padding:0 32px; background:#0f172a; border-bottom:1px solid #1e293b; position:sticky; top:0; z-index:100; }
   .tab-btn { padding:12px 22px; font-size:0.875rem; font-weight:600; color:#64748b; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:color .15s,border-color .15s; }
   .tab-btn:hover { color:#94a3b8; }
   .tab-btn.active { color:#f1f5f9; border-bottom-color:#3b82f6; }
@@ -360,22 +359,8 @@
   .badge-princ { background:#1e3a5f; color:#93c5fd; padding:2px 8px; border-radius:4px; font-size:.72rem; font-weight:600; }
   .badge-reaj { background:#2d1f5f; color:#c4b5fd; padding:2px 8px; border-radius:4px; font-size:.72rem; font-weight:600; }
 </style>
-</head>
-<body>
-<nav style="background:#0f172a;border-bottom:1px solid #334155;padding:0 28px;height:52px;display:flex;align-items:center;gap:0;font-family:'Segoe UI',system-ui,sans-serif;position:sticky;top:0;z-index:9999">
-  <div style="width:26px;height:26px;background:#3b82f6;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-right:6px">🏗</div>
-  <a href="/" style="font-size:.95rem;font-weight:800;color:#3b82f6;text-decoration:none">OBRIA</a>
-  <span style="color:#475569;margin:0 6px">/</span>
-  <span style="font-size:.8rem;color:#94a3b8;white-space:nowrap">💰 Dashboard Faturamento</span>
-  <div style="margin-left:auto;display:flex;align-items:center;gap:0">
-    <a href="/notas/" style="font-size:.78rem;color:#94a3b8;text-decoration:none;padding:5px 10px;border-radius:6px">📋 Notas</a>
-    <a href="/faturamento/" style="font-size:.78rem;color:#f1f5f9;text-decoration:none;padding:5px 10px;border-radius:6px;background:#1e293b">💰 Faturamento</a>
-    <a href="/usinagem/" style="font-size:.78rem;color:#94a3b8;text-decoration:none;padding:5px 10px;border-radius:6px">⚙ Usinagem</a>
-    <a href="/ferramentas/" style="font-size:.78rem;color:#94a3b8;text-decoration:none;padding:5px 10px;border-radius:6px">🔧 Ferramentas</a>
-    <span style="color:#334155;margin:0 4px">|</span>
-    <a href="/" style="font-size:.78rem;color:#94a3b8;text-decoration:none;padding:5px 10px;border-radius:6px">← Início</a>
-  </div>
-</nav>
+{% endblock %}
+{% block content %}
 
 <nav class="tab-nav">
   <button class="tab-btn active" onclick="switchTab('faturamento',this)">📊 Faturamento Geral</button>
@@ -1118,5 +1103,4 @@ function renderMedicoes() {
   }).join('') || '<p style="color:var(--muted);padding:20px">Nenhuma nota encontrada para os filtros selecionados.</p>';
 }
 </script>
-</body>
-</html>
+{% endblock %}
