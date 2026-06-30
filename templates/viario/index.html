@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Sistema Viário — OBRIA</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js" defer></script>
+<script src="https://unpkg.com/tesseract.js@v4/dist/tesseract.min.js" defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -427,7 +428,15 @@ input[type=checkbox]{accent-color:#3b82f6;width:1rem;height:1rem;cursor:pointer;
         <div class="step-num">4</div>
         <div class="step-body">
           <label>Opções</label>
-          <div class="chk-row" @click="cfg.comRel=!cfg.comRel" style="cursor:pointer">
+          <div class="chk-row" @click="modoLocal=!modoLocal" style="cursor:pointer">
+            <input type="checkbox" x-model="modoLocal" @click.stop/>
+            <label @click.prevent>Processar localmente (sem upload de fotos)</label>
+            <small style="background:#172033;color:#60a5fa;border-radius:4px;padding:1px 5px">Recomendado</small>
+          </div>
+          <div x-show="modoLocal" style="font-size:.74rem;color:#60a5fa;margin-top:5px;padding-left:2px">
+            ✓ As fotos ficam no seu computador. O GPS é extraído no navegador, sem upload.
+          </div>
+          <div class="chk-row" @click="cfg.comRel=!cfg.comRel" style="cursor:pointer;margin-top:8px" x-show="!modoLocal">
             <input type="checkbox" x-model="cfg.comRel" @click.stop/>
             <label @click.prevent>Gerar relatório .xlsm automaticamente ao final</label>
             <small>Recomendado</small>
@@ -1083,6 +1092,7 @@ function app(){
   return {
     aba:'gps', rodando:false, erroGeral:'', logs:[], dls:[],
     pastaSaida:'', etapas:[], diag:null, mostrarDiag:false, proximoPasso:'',
+    modoLocal: true,
 
     // ── Config de Vias ──
     viasConfig:   null,
@@ -1243,12 +1253,29 @@ function app(){
       this.rodando = true;
       try {
         if(tipo==='gps'){
-          this.initEtapas(['Etapa 0 — Envio das fotos','Etapa 1 — Leitura GPS das fotos','Etapa 2 — Cálculo de KM via API','Etapa 3 — Geração do relatório .xlsm']);
-          this.log('▶ Enviando '+this.fotos.length+' foto(s)…','info');
-          p.set('token', await this._uploadFotos());
-          p.set('rodovia',this.cfg.rodovia);
-          p.set('servico',this.cfg.servico_gps); p.set('relatorio',this.cfg.comRel);
-          this.sse('/viario/api/pipeline-gps?'+p, d=>this._onDone(d,'gps'));
+          if(this.modoLocal){
+            this.initEtapas(['Etapa 1 — GPS (local)','Etapa 2 — Cálculo de KM via API']);
+            this.log('💻 Extraindo GPS de '+this.fotos.length+' foto(s) localmente…','info');
+            const coords = await this._extrairGPSLocal(this.fotos);
+            const comGPS = coords.filter(c=>c.lat).length;
+            this.log(`✓ ${comGPS}/${coords.length} fotos com GPS detectado.`,'info');
+            const rc = await fetch('/viario/api/upload-coordenadas',{
+              method:'POST', headers:{'Content-Type':'application/json'},
+              body:JSON.stringify(coords)
+            });
+            const dc = await rc.json();
+            if(!rc.ok||!dc.token) throw new Error(dc.error||'Falha ao enviar coordenadas.');
+            p.set('token',dc.token); p.set('rodovia',this.cfg.rodovia);
+            p.set('servico',this.cfg.servico_gps); p.set('relatorio','false');
+            this.sse('/viario/api/pipeline-gps?'+p, d=>this._onDone(d,'gps'));
+          } else {
+            this.initEtapas(['Etapa 0 — Envio das fotos','Etapa 1 — Leitura GPS das fotos','Etapa 2 — Cálculo de KM via API','Etapa 3 — Geração do relatório .xlsm']);
+            this.log('▶ Enviando '+this.fotos.length+' foto(s)…','info');
+            p.set('token', await this._uploadFotos());
+            p.set('rodovia',this.cfg.rodovia);
+            p.set('servico',this.cfg.servico_gps); p.set('relatorio',this.cfg.comRel);
+            this.sse('/viario/api/pipeline-gps?'+p, d=>this._onDone(d,'gps'));
+          }
 
         } else if(tipo==='rossada'){
           this.initEtapas(['Etapa 0 — Envio das fotos','Etapa 1 — Leitura do KM nas fotos','Etapa 2 — Geração do relatório .xlsm']);
@@ -1430,6 +1457,90 @@ function app(){
         }
       } catch(e){ this.tapaMsgErr = String(e); }
       this.salvando = false;
+    },
+
+    // ══════════════════════════════════════
+    //  EXTRAÇÃO GPS LOCAL (Tesseract.js)
+    // ══════════════════════════════════════
+
+    _dmsToDec(g, m, s, dir){
+      let dec = parseInt(g) + parseInt(m)/60 + parseInt(s)/3600;
+      if('SWO'.includes(dir.toUpperCase())) dec = -dec;
+      return Math.round(dec * 1e6) / 1e6;
+    },
+
+    _parseDMS(text){
+      const DMS = /(\d{1,3})[^\d\n]{1,5}(\d{1,2})[^\d\n]{1,5}(\d{1,2})[^\d\n]{0,4}([Ss])[^\d\n]{1,15}(\d{1,3})[^\d\n]{1,5}(\d{1,2})[^\d\n]{1,5}(\d{1,2})[^\d\n]{0,4}([WwOo])/s;
+      const mt = DMS.exec(text);
+      if(mt){
+        const lat = this._dmsToDec(mt[1],mt[2],mt[3],mt[4]);
+        const lon = this._dmsToDec(mt[5],mt[6],mt[7],mt[8]);
+        if(lat>=-30&&lat<=-10&&lon>=-65&&lon<=-40) return {lat,lon};
+      }
+      let t = text.replace(/(\d)\s+(\d)/g,'$1$2').replace(/-\s+(\d)/g,'-$1');
+      const nums = (t.match(/-?\d+\.\d+/g)||[]).map(Number);
+      const lat = nums.find(n=>n>=-30&&n<=-10);
+      const lon = nums.find(n=>n>=-65&&n<=-40);
+      return (lat!==undefined&&lon!==undefined) ? {lat,lon} : null;
+    },
+
+    async _cropCanvas(bmp, thresh){
+      const w=bmp.width, h=bmp.height;
+      const cropH = Math.max(1, Math.floor(h*0.15));
+      const c = document.createElement('canvas');
+      c.width=w*3; c.height=cropH*3;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(bmp, 0, h-cropH, w, cropH, 0, 0, w*3, cropH*3);
+      if(thresh!==null){
+        const id = ctx.getImageData(0,0,c.width,c.height);
+        const d = id.data;
+        for(let i=0;i<d.length;i+=4){
+          const v = (d[i]+d[i+1]+d[i+2])/3>thresh ? 255 : 0;
+          d[i]=d[i+1]=d[i+2]=v;
+        }
+        ctx.putImageData(id,0,0);
+      }
+      return c;
+    },
+
+    async _extrairGPSLocal(fotos){
+      if(typeof Tesseract==='undefined')
+        throw new Error('Tesseract.js ainda não carregou. Recarregue a página e tente novamente.');
+      const worker = await Tesseract.createWorker('eng', 1, {logger:()=>{}});
+      const configs = [
+        {thresh:null,  psm:'6', wl:''},
+        {thresh:null,  psm:'7', wl:''},
+        {thresh:200,   psm:'6', wl:'0123456789-. '},
+        {thresh:180,   psm:'6', wl:'0123456789-. '},
+        {thresh:160,   psm:'6', wl:'0123456789-. '},
+        {thresh:220,   psm:'6', wl:'0123456789-. '},
+        {thresh:140,   psm:'6', wl:'0123456789-. '},
+        {thresh:100,   psm:'6', wl:'0123456789-. '},
+      ];
+      const resultado = [];
+      try {
+        for(let i=0; i<fotos.length; i++){
+          const file = fotos[i];
+          this.log(`💻 ${i+1}/${fotos.length} — ${file.name}`, 'info');
+          const bmp = await createImageBitmap(file);
+          let coord = null;
+          try {
+            for(const {thresh,psm,wl} of configs){
+              const canvas = await this._cropCanvas(bmp, thresh);
+              await worker.setParameters({tessedit_pageseg_mode:psm, tessedit_char_whitelist:wl});
+              const {data:{text}} = await worker.recognize(canvas);
+              coord = this._parseDMS(text);
+              if(coord) break;
+            }
+          } finally {
+            bmp.close();
+          }
+          resultado.push({nome:file.name, lat:coord?.lat??null, lon:coord?.lon??null});
+        }
+      } finally {
+        await worker.terminate();
+      }
+      return resultado;
     },
 
     _onDone(d, tipo){

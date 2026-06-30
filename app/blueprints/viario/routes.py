@@ -483,6 +483,21 @@ def api_upload_fotos():
     return jsonify({"token": token, "total": n})
 
 
+@viario_bp.route("/api/upload-coordenadas", methods=["POST"])
+def api_upload_coordenadas():
+    """Recebe coordenadas GPS extraídas no browser (modo local) e retorna token."""
+    data = request.get_json(force=True, silent=True) or []
+    if not data:
+        return jsonify({"error": "Nenhuma coordenada enviada."}), 400
+    token = str(uuid.uuid4())
+    pasta = _uploads_dir() / token
+    pasta.mkdir(parents=True, exist_ok=True)
+    (pasta / "coords.json").write_text(
+        json.dumps(data, ensure_ascii=False), encoding="utf-8"
+    )
+    return jsonify({"token": token, "total": len(data)})
+
+
 @viario_bp.route("/api/upload-dados", methods=["POST"])
 def api_upload_dados():
     arq = request.files.get("arquivo")
@@ -536,33 +551,59 @@ def api_pipeline_gps():
 
             info = _rodovias_runtime[rodovia]
             pasta_dest, ts = _pasta_saida(servico or "Cascalho", rodovia)
-            mapa = _copiar_e_renomear(pasta_fotos, pasta_dest)
-            total = len(mapa)
-            yield sse({"type": "info", "msg": f"{total} imagens encontradas."})
+            coords_file = pasta_upload / "coords.json"
+            dados, sem_gps = [], 0
+            modo_local = coords_file.exists()
 
-            yield sse({"type": "etapa", "etapa": 1, "msg": f"OCR — {total} imagens"})
-            dados, sem_gps, erros_ocr = [], 0, 0
-            for i, (orig, novo_nome) in enumerate(mapa):
-                lat, lon, err = extrair_coordenadas(orig)
-                if err:
-                    erros_ocr += 1
-                    if erros_ocr <= 3:
-                        yield sse({"type": "aviso", "msg": f"OCR erro em {novo_nome}: {err}"})
-                if lat is None:
-                    sem_gps += 1
-                dados.append({"Imagem": novo_nome, "Latitude": lat, "Longitude": lon,
-                               "Distância (km)": None,
-                               "Descrição": f"{servico} - {info['descricao']}"})
-                pct = int((i + 1) / total * 100)
-                msg = (f"{i+1}/{total} — {novo_nome} ✓ {lat:.6f}, {lon:.6f}"
-                       if lat else f"{i+1}/{total} — {novo_nome} (sem GPS)")
-                yield sse({"type": "progresso", "etapa": 1, "valor": pct, "msg": msg})
+            if modo_local:
+                # Coordenadas extraídas no browser — pula OCR
+                coordenadas = json.loads(coords_file.read_text(encoding="utf-8"))
+                total = len(coordenadas)
+                yield sse({"type": "info", "msg": f"{total} coordenadas recebidas (modo local)."})
+                yield sse({"type": "etapa", "etapa": 1, "msg": f"Carregando {total} coordenadas"})
+                for i, c in enumerate(coordenadas):
+                    lat = c.get("lat")
+                    lon = c.get("lon")
+                    if lat is None:
+                        sem_gps += 1
+                    dados.append({"Imagem": c.get("nome", f"foto_{i+1:03d}.jpg"),
+                                   "Latitude": lat, "Longitude": lon,
+                                   "Distância (km)": None,
+                                   "Descrição": f"{servico} - {info['descricao']}"})
+                    pct = int((i + 1) / total * 100)
+                    msg = (f"{i+1}/{total} — {c.get('nome','?')} ✓ {lat:.6f}, {lon:.6f}"
+                           if lat else f"{i+1}/{total} — {c.get('nome','?')} (sem GPS)")
+                    yield sse({"type": "progresso", "etapa": 1, "valor": pct, "msg": msg})
+                com_relatorio = False  # sem fotos no servidor para relatório
+            else:
+                # Modo servidor: copia fotos e extrai GPS via OCR
+                mapa = _copiar_e_renomear(pasta_fotos, pasta_dest)
+                total = len(mapa)
+                yield sse({"type": "info", "msg": f"{total} imagens encontradas."})
+                yield sse({"type": "etapa", "etapa": 1, "msg": f"OCR — {total} imagens"})
+                erros_ocr = 0
+                for i, (orig, novo_nome) in enumerate(mapa):
+                    lat, lon, err = extrair_coordenadas(orig)
+                    if err:
+                        erros_ocr += 1
+                        if erros_ocr <= 3:
+                            yield sse({"type": "aviso", "msg": f"OCR erro em {novo_nome}: {err}"})
+                    if lat is None:
+                        sem_gps += 1
+                    dados.append({"Imagem": novo_nome, "Latitude": lat, "Longitude": lon,
+                                   "Distância (km)": None,
+                                   "Descrição": f"{servico} - {info['descricao']}"})
+                    pct = int((i + 1) / total * 100)
+                    msg = (f"{i+1}/{total} — {novo_nome} ✓ {lat:.6f}, {lon:.6f}"
+                           if lat else f"{i+1}/{total} — {novo_nome} (sem GPS)")
+                    yield sse({"type": "progresso", "etapa": 1, "valor": pct, "msg": msg})
 
             df = pd.DataFrame(dados)
             arq_dados = os.path.join(pasta_dest, "dados.xlsx")
             df.to_excel(arq_dados, index=False)
+            etapa1_msg = "Coordenadas carregadas" if modo_local else "OCR concluído"
             yield sse({"type": "etapa_ok", "etapa": 1,
-                       "msg": f"OCR concluído — {total - sem_gps}/{total} com GPS"})
+                       "msg": f"{etapa1_msg} — {total - sem_gps}/{total} com GPS"})
 
             com_coords = df[df["Latitude"].notna()]
             n_ors = len(com_coords)
