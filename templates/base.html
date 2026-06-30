@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{% block title %}OBRIA{% endblock %}</title>
+<script>(function(){if(localStorage.getItem('obria-theme')==='light')document.documentElement.setAttribute('data-theme','light');})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/obria.css') }}">
@@ -86,6 +87,12 @@
   </nav>
 
   <div class="sidebar-footer">
+    <button id="themeToggle" type="button" onclick="toggleTheme()"
+            style="display:flex;align-items:center;gap:6px;width:100%;background:none;border:none;cursor:pointer;font-family:inherit;color:var(--muted);font-size:.82rem;padding:7px 10px;border-radius:var(--radius-sm);transition:background .15s,color .15s;text-align:left"
+            onmouseover="this.style.background='var(--surface2)';this.style.color='var(--text)'"
+            onmouseout="this.style.background='none';this.style.color='var(--muted)'">
+      <span id="themeIcon">☀</span><span id="themeLabel">Modo Claro</span>
+    </button>
     {% if current_user.is_authenticated %}
     <div class="sidebar-user">{{ current_user.nome.split()[0] }}</div>
     {% if current_user.has_role("ADMIN","SUPERADMIN") %}
@@ -119,6 +126,27 @@ document.querySelectorAll('.sidebar-group-btn').forEach(btn=>{
     btn.closest('.sidebar-group').classList.toggle('open');
   });
 });
+
+function toggleTheme(){
+  var isLight=document.documentElement.getAttribute('data-theme')==='light';
+  if(isLight){
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('obria-theme','dark');
+  } else {
+    document.documentElement.setAttribute('data-theme','light');
+    localStorage.setItem('obria-theme','light');
+  }
+  _updateThemeBtn();
+}
+function _updateThemeBtn(){
+  var isLight=document.documentElement.getAttribute('data-theme')==='light';
+  var icon=document.getElementById('themeIcon');
+  var label=document.getElementById('themeLabel');
+  if(!icon)return;
+  icon.textContent=isLight?'🌙':'☀';
+  label.textContent=isLight?'Modo Escuro':'Modo Claro';
+}
+_updateThemeBtn();
 </script>
 </body>
 </html>

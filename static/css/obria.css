@@ -583,3 +583,27 @@ input[type="checkbox"] { width: auto; accent-color: var(--accent); }
   from { opacity: 1; }
   to   { opacity: 0; }
 }
+
+/* ── Tema claro ──────────────────────────────────────────────*/
+[data-theme="light"] {
+  --bg:       #f1f5f9;
+  --surface:  #ffffff;
+  --surface2: #f8fafc;
+  --border:   #cbd5e1;
+  --text:     #0f172a;
+  --muted:    #64748b;
+  --accent:   #2563eb;
+  --accent-h: #1d4ed8;
+}
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="email"],
+[data-theme="light"] input[type="password"],
+[data-theme="light"] input[type="number"],
+[data-theme="light"] input[type="date"],
+[data-theme="light"] input[type="search"],
+[data-theme="light"] select,
+[data-theme="light"] textarea { background: var(--surface); }
+[data-theme="light"] input[type="file"] { background: var(--surface2); }
+[data-theme="light"] .sidebar-group-btn:hover { background: #00000009; }
+[data-theme="light"] .sidebar-item:hover { background: #0000000e; }
+[data-theme="light"] .table td { border-bottom-color: var(--border); }
