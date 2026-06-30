@@ -128,14 +128,28 @@ def atualizar():
             flash("Nenhuma nota encontrada no XML.", "error")
             return redirect(url_for("faturamento.index"))
 
+        org_id = current_user.org_id
         mes = notas[0]["emissao"].month
         ano = notas[0]["emissao"].year
-        org_id = current_user.org_id
 
-        novas = 0
+        novas = atualizadas = 0
         for n in notas:
-            if not FaturamentoNota.query.filter_by(org_id=org_id, nr=n["nr"]).first():
-                emissao = n["emissao"].date() if hasattr(n["emissao"], "date") else n["emissao"]
+            emissao = n["emissao"].date() if hasattr(n["emissao"], "date") else n["emissao"]
+            existing = FaturamentoNota.query.filter_by(org_id=org_id, nr=n["nr"]).first()
+            if existing:
+                existing.emissao  = emissao
+                existing.bruto    = n.get("valor_bruto", 0)
+                existing.inss     = n.get("inss", 0)
+                existing.ir       = n.get("ir", 0)
+                existing.iss      = n.get("iss", 0)
+                existing.liquido  = n.get("liquido", 0)
+                existing.orgao    = n.get("orgao") or existing.orgao
+                if n.get("contrato"):
+                    existing.contrato = n["contrato"]
+                if n.get("municipio"):
+                    existing.municipio = n["municipio"]
+                atualizadas += 1
+            else:
                 db.session.add(FaturamentoNota(
                     org_id=org_id,
                     nr=n["nr"],
@@ -156,9 +170,10 @@ def atualizar():
         from core.timestamps import salvar_timestamp
         salvar_timestamp("faturamento")
 
-        msg = f"{novas} nota(s) importadas de {_MESES_PT[mes]}/{ano}."
-        if novas < len(notas):
-            msg += f" {len(notas) - novas} já existiam e foram ignoradas."
+        msg = f"{novas} nota(s) importadas"
+        if atualizadas:
+            msg += f", {atualizadas} atualizada(s)"
+        msg += f" de {_MESES_PT[mes]}/{ano}."
         flash(msg, "ok")
     except Exception as e:
         flash(f"Erro ao processar XML: {e}", "error")
