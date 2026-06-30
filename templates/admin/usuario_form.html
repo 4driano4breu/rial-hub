@@ -28,12 +28,38 @@
 
     <div class="field">
       <label>Cargo *</label>
-      <select name="role">
+      <select name="role" id="roleSelect" onchange="atualizarDescRole()">
         {% for r in roles %}
         <option value="{{ r }}" {% if (usuario and usuario.role == r) or (not usuario and form.get('role','VIEWER') == r) %}selected{% endif %}>{{ r }}</option>
         {% endfor %}
       </select>
+      <div id="roleInfo" style="margin-top:10px;padding:12px 14px;border-radius:8px;border-left:3px solid var(--accent);background:#1e293b;font-size:.83rem;line-height:1.6;color:#cbd5e1;display:flex;gap:10px;align-items:flex-start;">
+        <span id="roleIcon" style="font-size:1.1rem;flex-shrink:0;margin-top:1px"></span>
+        <div>
+          <strong id="roleNome" style="display:block;color:#f1f5f9;margin-bottom:3px"></strong>
+          <span id="roleDesc"></span>
+        </div>
+      </div>
     </div>
+
+<script>
+const ROLES_INFO = {
+  VIEWER:      { icon:'👁',  nome:'Visualizador',  desc:'Acesso somente leitura. Pode ver dashboards e relatórios, mas não pode editar nem registrar dados.', cor:'#94a3b8' },
+  OPERACIONAL: { icon:'🔧', nome:'Operacional',    desc:'Acesso aos sistemas de campo: Viário, Equipamentos e Coleta de Dados. Não acessa o módulo financeiro.', cor:'#f59e0b' },
+  FINANCEIRO:  { icon:'💰', nome:'Financeiro',     desc:'Acesso ao Faturamento, Dashboard de Notas e Medições. Pode importar XMLs e registrar recebimentos.', cor:'#10b981' },
+  ADMIN:       { icon:'⚙',  nome:'Administrador', desc:'Acesso completo à organização: todos os módulos, gerenciamento de usuários e auditoria de dados.', cor:'#3b82f6' },
+  SUPERADMIN:  { icon:'🛡',  nome:'Superadmin',   desc:'Acesso total à plataforma, incluindo configurações globais e criação de novas organizações.', cor:'#8b5cf6' },
+};
+function atualizarDescRole() {
+  const val = document.getElementById('roleSelect').value;
+  const info = ROLES_INFO[val] || {};
+  document.getElementById('roleIcon').textContent = info.icon || '';
+  document.getElementById('roleNome').textContent = info.nome || val;
+  document.getElementById('roleDesc').textContent = info.desc || '';
+  document.getElementById('roleInfo').style.borderLeftColor = info.cor || 'var(--accent)';
+}
+atualizarDescRole();
+</script>
 
     {% if usuario %}
     <div class="field">
