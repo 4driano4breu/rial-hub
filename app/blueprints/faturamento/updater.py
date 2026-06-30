@@ -69,49 +69,61 @@ def extrair_conta(discriminacao):
 # Parse do XML
 # -------------------------------------------------------------------
 
+def _parse_valor_br(texto):
+    """Converte '61.476,68' (formato BR) para float 61476.68."""
+    if not texto or not texto.strip():
+        return 0.0
+    return float(texto.strip().replace('.', '').replace(',', '.'))
+
+
 def parse_xml(xml_path):
+    """Suporta formato listaNotaFiscalList exportado pela Prefeitura."""
     tree = ET.parse(xml_path)
     root = tree.getroot()
     notas = []
 
-    for nfse in root.findall(f'{{{NS}}}Nfse'):
-        inf = nfse.find(f'.//{{{NS}}}InfNfse')
-        if inf is None:
+    items = root.findall('notaFiscalList')
+    if not items:
+        items = root.findall('.//notaFiscalList')
+
+    for item in items:
+        situacao = (item.findtext('situacaoDescription') or '').strip().lower()
+        if situacao and situacao != 'ativa':
             continue
 
-        nr = int(inf.findtext(f'{{{NS}}}Numero', '0'))
-        emissao_str = inf.findtext(f'{{{NS}}}DataEmissao', '')
-        emissao = datetime.fromisoformat(emissao_str) if emissao_str else None
+        nr_str = (item.findtext('numeroNota') or '').strip()
+        nr = int(nr_str) if nr_str.isdigit() else 0
+        if not nr:
+            continue
 
-        servico = inf.find(f'.//{{{NS}}}Servico')
-        valores = servico.find(f'.//{{{NS}}}Valores') if servico else None
+        emissao_str = (item.findtext('dataHoraEmissao') or '').strip()
+        emissao = None
+        for fmt in ('%d/%m/%Y %H:%M:%S', '%d/%m/%Y'):
+            try:
+                emissao = datetime.strptime(emissao_str, fmt)
+                break
+            except ValueError:
+                pass
 
-        valor_bruto = float(valores.findtext(f'{{{NS}}}ValorServicos', '0') or 0) if valores else 0
-        inss         = float(valores.findtext(f'{{{NS}}}ValorInss',    '0') or 0) if valores else 0
-        ir           = float(valores.findtext(f'{{{NS}}}ValorIr',      '0') or 0) if valores else 0
-        iss          = float(valores.findtext(f'{{{NS}}}ValorIss',     '0') or 0) if valores else 0
-
-        discriminacao = servico.findtext(f'{{{NS}}}Discriminacao', '') if servico else ''
-        contrato  = extrair_contrato(discriminacao)
-        conta     = extrair_conta(discriminacao)
-        municipio = extrair_municipio(discriminacao)
-
-        tomador = inf.find(f'.//{{{NS}}}TomadorServico')
-        orgao   = tomador.findtext(f'{{{NS}}}RazaoSocial', '') if tomador is not None else ''
+        orgao       = (item.findtext('nomeEmpresarial') or '').strip()
+        valor_bruto = _parse_valor_br(item.findtext('valorServico'))
+        iss         = _parse_valor_br(item.findtext('valorIssqnCalculado'))
+        inss        = 0.0
+        ir          = 0.0
 
         notas.append({
             'emissao':     emissao,
             'nr':          nr,
-            'contrato':    contrato,
-            'municipio':   municipio,
-            'conta':       conta,
+            'contrato':    '',
+            'municipio':   '',
+            'conta':       '',
             'orgao':       orgao,
             'tipo':        'PRINCIPAL',
             'valor_bruto': valor_bruto,
             'inss':        inss,
             'ir':          ir,
             'iss':         iss,
-            'liquido':     valor_bruto - inss - ir - iss,
+            'liquido':     valor_bruto - iss,
         })
 
     notas.sort(key=lambda x: x['emissao'] or datetime.min, reverse=True)
