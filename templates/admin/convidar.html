@@ -30,11 +30,18 @@
     </div>
     <div style="margin-bottom:20px">
       <label style="font-size:.85rem;color:var(--muted);display:block;margin-bottom:6px">Cargo</label>
-      <select name="role" style="width:100%;background:#0f172a;border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 14px;font-size:1rem">
+      <select name="role" id="roleSelectConv" onchange="atualizarDescRoleConv()" style="width:100%;background:#0f172a;border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 14px;font-size:1rem">
         {% for r in roles %}
         <option value="{{ r }}">{{ r }}</option>
         {% endfor %}
       </select>
+      <div id="roleInfoConv" style="margin-top:10px;padding:12px 14px;border-radius:8px;border-left:3px solid var(--accent);background:#1e293b;font-size:.83rem;line-height:1.6;color:#cbd5e1;display:flex;gap:10px;align-items:flex-start;">
+        <span id="roleIconConv" style="font-size:1.1rem;flex-shrink:0;margin-top:1px"></span>
+        <div>
+          <strong id="roleNomeConv" style="display:block;color:#f1f5f9;margin-bottom:3px"></strong>
+          <span id="roleDescConv"></span>
+        </div>
+      </div>
     </div>
     <button type="submit" class="btn btn-primary" style="width:100%">Gerar link de convite</button>
   </form>
@@ -67,4 +74,25 @@
 <div style="margin-top:24px">
   <a href="{{ url_for('admin.usuarios') }}" class="btn btn-ghost">← Usuários</a>
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+const ROLES_INFO_CONV = {
+  VIEWER:      { icon:'👁',  nome:'Visualizador',  desc:'Acesso somente leitura. Pode ver dashboards e relatórios, mas não pode editar nem registrar dados.', cor:'#94a3b8' },
+  OPERACIONAL: { icon:'🔧', nome:'Operacional',    desc:'Acesso aos sistemas de campo: Viário, Equipamentos e Coleta de Dados. Não acessa o módulo financeiro.', cor:'#f59e0b' },
+  FINANCEIRO:  { icon:'💰', nome:'Financeiro',     desc:'Acesso ao Faturamento, Dashboard de Notas e Medições. Pode importar XMLs e registrar recebimentos.', cor:'#10b981' },
+  GESTOR:      { icon:'🏢', nome:'Gestor',         desc:'Acesso completo a todos os módulos e dados da organização. Indicado para o dono ou diretor da empresa. Não gerencia usuários.', cor:'#06b6d4' },
+  ADMIN:       { icon:'⚙',  nome:'Administrador', desc:'Acesso completo à organização: todos os módulos, gerenciamento de usuários e auditoria de dados.', cor:'#3b82f6' },
+  SUPERADMIN:  { icon:'🛡',  nome:'Superadmin',   desc:'Acesso total à plataforma, incluindo configurações globais e criação de novas organizações.', cor:'#8b5cf6' },
+};
+function atualizarDescRoleConv() {
+  const val = document.getElementById('roleSelectConv').value;
+  const info = ROLES_INFO_CONV[val] || {};
+  document.getElementById('roleIconConv').textContent = info.icon || '';
+  document.getElementById('roleNomeConv').textContent = info.nome || val;
+  document.getElementById('roleDescConv').textContent = info.desc || '';
+  document.getElementById('roleInfoConv').style.borderLeftColor = info.cor || 'var(--accent)';
+}
+atualizarDescRoleConv();
+</script>
 {% endblock %}
