@@ -15,7 +15,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
-NS = 'http:/www.abrasf.org.br/nfse.xsd'
+NS = 'http://www.abrasf.org.br/nfse.xsd'
 
 MESES_PT = {
     1: 'JANEIRO', 2: 'FEVEREIRO', 3: 'MARÇO',
@@ -111,6 +111,7 @@ def parse_xml(xml_path):
             'inss':        inss,
             'ir':          ir,
             'iss':         iss,
+            'liquido':     valor_bruto - inss - ir - iss,
         })
 
     notas.sort(key=lambda x: x['emissao'] or datetime.min, reverse=True)

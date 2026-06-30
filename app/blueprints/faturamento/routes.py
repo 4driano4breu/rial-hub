@@ -144,7 +144,7 @@ def atualizar():
                     orgao=n.get("orgao", ""),
                     municipio=n.get("municipio", ""),
                     tipo=n.get("tipo", ""),
-                    bruto=n.get("bruto", 0),
+                    bruto=n.get("valor_bruto", 0),
                     inss=n.get("inss", 0),
                     ir=n.get("ir", 0),
                     iss=n.get("iss", 0),
